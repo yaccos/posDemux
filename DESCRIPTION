@@ -1,11 +1,20 @@
 Package: posDemux
 Type: Package
-Title: Concise Summary of What the Package Does
-Version: 1.0
+Title: Positional combinatorial sequence demultiplexer
+Encoding: UTF-8
+Version: 0.1
 Date: 2025-02-04
-Authors@R: person("Your", "Name", role = c("aut", "cre"), email =
-        "your@email.com")
+Authors@R: 
+   person(given = "Jakob Peder",
+   family = "Pettersen",
+   role = c("aut","cre"),
+   email = "jakobpeder.pettersen@gmail.com",
+   comment = c(ORCID = "0000-0002-3485-1634")
+   )
 Description: More about what it does (maybe more than one line).
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.14), Biostrings
-LinkingTo: Rcpp, Biostrings
+Imports: Rcpp (>= 1.0.14), Biostrings, XVector, IRanges
+LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
+biocViews: SequenceMatching, Sequencing, Software
+RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)

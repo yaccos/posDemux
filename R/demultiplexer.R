@@ -31,6 +31,10 @@ library(magrittr)
 #' @param trimmed_output_file The file path to the fastq files
 #' containing the  sequences of the payload after adapters
 #' and barcodes have been trimmed. If \code{NULL}, no such file will be created
+#' @importFrom Biostrings readQualityScaledDNAStringSet
+#' @importFrom Biostrings readDNAStringSet
+#' @importFrom Biostrings subseq
+#' @importFrom Biostrings width
 #'
 #' @return \code{NULL}, all output will be in the form of files
 #' @export
@@ -160,8 +164,9 @@ extract_and_demultiplex <- function(sequences, barcodes,
 }
 
 hamming_match <- function(segment, barcode, allowed_mismatches) {
-  distance_res <- DNABarcodes::demultiplex(as.character(segment), as.character(barcode),
-                           metric = "hamming")
+  width <- width(barcode)[0L]
+  distance_res <- hamming_match(segment,names(segment), barcode,
+  names(barcode), width)
   
     
   

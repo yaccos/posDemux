@@ -7,9 +7,9 @@ extern "C" {
   // These packages use C linkage, so we need to specify
   // this to avoid name mangling
 #include <Biostrings_interface.h>
-#include <IRanges_interface.h>
-#include <XVector_interface.h>
-#include <S4Vectors_defines.h>
+// #include <IRanges_interface.h>
+// #include <XVector_interface.h>
+// #include <S4Vectors_interface.h>
 }
 using namespace Rcpp;
 

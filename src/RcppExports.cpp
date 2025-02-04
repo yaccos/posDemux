@@ -10,6 +10,21 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// hamming_match
+List hamming_match(SEXP segment, CharacterVector segment_names, SEXP barcode, CharacterVector barcode_names, int width);
+RcppExport SEXP _posDemux_hamming_match(SEXP segmentSEXP, SEXP segment_namesSEXP, SEXP barcodeSEXP, SEXP barcode_namesSEXP, SEXP widthSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type segment(segmentSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type segment_names(segment_namesSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type barcode(barcodeSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type barcode_names(barcode_namesSEXP);
+    Rcpp::traits::input_parameter< int >::type width(widthSEXP);
+    rcpp_result_gen = Rcpp::wrap(hamming_match(segment, segment_names, barcode, barcode_names, width));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_hello_world
 List rcpp_hello_world();
 RcppExport SEXP _posDemux_rcpp_hello_world() {
@@ -22,6 +37,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_posDemux_hamming_match", (DL_FUNC) &_posDemux_hamming_match, 5},
     {"_posDemux_rcpp_hello_world", (DL_FUNC) &_posDemux_rcpp_hello_world, 0},
     {NULL, NULL, 0}
 };
