@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 hamming_match <- function(segment, segment_names, barcode, barcode_names, width) {
-    .Call(`_posDemux_hamming_match`, segment, segment_names, barcode, barcode_names, width)
+    .Call('_posDemux_hamming_match', PACKAGE = 'posDemux', segment, segment_names, barcode, barcode_names, width)
 }
 
 rcpp_hello_world <- function() {
-    .Call(`_posDemux_rcpp_hello_world`)
+    .Call('_posDemux_rcpp_hello_world', PACKAGE = 'posDemux')
 }
 
