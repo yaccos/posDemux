@@ -1,8 +1,4 @@
 #include <Rcpp.h>
-// [[Rcpp::depends(Biostrings)]]
-// [[Rcpp::depends(IRanges)]]
-// [[Rcpp::depends(XVector)]]
-// [[Rcpp::depends(S4Vectors)]]
 extern "C" {
   // These packages use C linkage, so we need to specify
   // this to avoid name mangling
@@ -12,7 +8,6 @@ extern "C" {
   // #include <S4Vectors_interface.h>
 }
 using namespace Rcpp;
-
 
 // [[Rcpp::export]]
 List hamming_match(SEXP segment, CharacterVector segment_names, SEXP barcode,
