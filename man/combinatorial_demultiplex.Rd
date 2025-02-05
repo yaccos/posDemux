@@ -12,12 +12,11 @@ combinatorial_demultiplex(
 )
 }
 \arguments{
-\item{sequences}{A \code{\link{XStringSet}} object, the sequences to be demultiplexed
-All the sequences must be named}
+\item{sequences}{A \code{\link{XStringSet}} object, the sequences to be demultiplexed}
 
-\item{barcodes}{A named list of \code{\link{XStringSet}} objects, the barcodes
+\item{barcodes}{A list of \code{\link{XStringSet}} objects, the barcodes
 to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
-have the same length as specified by the \code{segment_lengths} argument}
+have the same length as specified by the \code{segment_lengths} argument and be named}
 
 \item{segment_lengths}{Integer vector with the same length
 as \code{segments}, lengths of the segments.

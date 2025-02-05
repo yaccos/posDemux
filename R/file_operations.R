@@ -41,5 +41,4 @@ file_combinatorial_demultiplex <- function(input_file,
                                       trimmed_output_file=NULL) {
   sequences <- readQualityScaledDNAStringSet(input_file, quality.scoring = "PhredQuality")
   barcodes <- map(barcode_files, readDNAStringSet, format = "fasta")
-  
 }

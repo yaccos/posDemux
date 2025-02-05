@@ -1,16 +1,9 @@
-library(DNABarcodes)
-library(Biostrings)
-library(purrr)
-library(magrittr)
-
-
 #' Combinatorial demultiplexer
 #'
 #' @param sequences A \code{\link{XStringSet}} object, the sequences to be demultiplexed
-#' All the sequences must be named
-#' @param barcodes A named list of \code{\link{XStringSet}} objects, the barcodes
+#' @param barcodes A list of \code{\link{XStringSet}} objects, the barcodes
 #' to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
-#' have the same length as specified by the \code{segment_lengths} argument
+#' have the same length as specified by the \code{segment_lengths} argument and be named
 #' @param segments Character vector showing the segments of the
 #' sequences from 5' end to 3' end. The code applied is as follows:
 #'   \itemize{
@@ -56,6 +49,10 @@ library(magrittr)
 #' 
 combinatorial_demultiplex <- function(sequences, barcodes,
                                       sequence_annotation, segment_lengths) {
+  if (!is(sequences, "XStringSet")) {
+    stop("The argument sequences must be an XStringSet object")
+  }
+  
   n_barcode_segments <- sum(segments == "B")
   
   if (n_barcode_segments != length(barcodes)) {
@@ -67,13 +64,16 @@ combinatorial_demultiplex <- function(sequences, barcodes,
     stop("The length of segments does not match the length of segment_lengths")
   }
   
-  if (is.null(names(barcodes))) {
-    stop("Each barcode segment must be named")
-  }
   
-  imap(barcodes, function(barcode, name) {
+  iwalk(barcodes, function(barcode, name) {
+    if (!is(barcode, "XStringSet")) {
+      stop(paste("The barcodes of segment", name, "must be an XStringSet object"))
+    }
     if (is.null(names(barcode))) {
       stop(paste("The barcodes of segment", name, "are not named"))
+    }
+    if (length(unique(width(barcode))) > 1L) {
+      stop(paste("The barcodes of segment", name, "have variable length"))
     }
   }
   )
@@ -113,12 +113,12 @@ combinatorial_demultiplex <- function(sequences, barcodes,
     assigned_barcodes <- cbind(five_prime_results$assigned_barcode,
                                three_prime_results$assigned_barcode)
     mismatches <- cbind(five_prime_results$mismatches,
-                       three_prime_results$mismatches)
+                        three_prime_results$mismatches)
     if (varidic_segment_type == "P") {
       variadic_sequence <- subseq(sequences, start = five_prime_width + 1L,
                                   end = width(sequences) - three_prime_width - 1L)
       payload <- xscat(five_prime_results$payload, variadic_sequence,
-                      three_prime_results$payload)
+                       three_prime_results$payload)
     } else {
       payload <- xscat(five_prime_results$payload, three_prime_results$payload)
     }
@@ -172,12 +172,11 @@ extract_and_demultiplex <- function(sequences, barcodes,
                                           names(barcode), width)
                           }
   )
-  assigned_barcode <- do.call(cbind, map(barcode_results, ~ .x$assigned_barcode))
-  mismatches <- do.call(cbind, map(barcode_results, ~ .x$mismatches))
+  assigned_barcode <- do.call(cbind, map(barcode_results, "assigned_barcode"))
+  mismatches <- do.call(cbind, map(barcode_results, "mismatches"))
   payload <- do.call(xscat, payload_sequences)
   return(list(assigned_barcode = assigned_barcode,
               mismatches = mismatches,
               payload = payload))
 }
-                                
-                                
+
