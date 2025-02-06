@@ -4,9 +4,13 @@
 \name{posDemux}
 \alias{posDemux-package}
 \alias{posDemux}
-\title{posDemux: Positional combinatorial sequence demultiplexer}
+\title{Utilities for segmented sequences with combinatorial barcoding}
 \description{
-More about what it does (maybe more than one line).
+Provides tools for handling reads with combinatorial barcodes and
+multiple adapter regions. This includes utilities for demultiplexing,
+sequence trimming and filtering. The package is intended to work with
+single-cell RNA-seq data with multiple barcoding
+(e.g. SPLiT-seq and PETRI-seq)
 }
 \author{
 Jakob Peder Pettersen \href{mailto:jakobpeder.pettersen@gmail.com}{jakobpeder.pettersen@gmail.com}

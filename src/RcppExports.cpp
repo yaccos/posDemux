@@ -11,13 +11,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // hamming_match
-List hamming_match(SEXP segment, CharacterVector segment_names, SEXP barcode, CharacterVector barcode_names, int width);
+List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode, CharacterVector barcode_names, int width);
 RcppExport SEXP _posDemux_hamming_match(SEXP segmentSEXP, SEXP segment_namesSEXP, SEXP barcodeSEXP, SEXP barcode_namesSEXP, SEXP widthSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type segment(segmentSEXP);
-    Rcpp::traits::input_parameter< CharacterVector >::type segment_names(segment_namesSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type segment_names(segment_namesSEXP);
     Rcpp::traits::input_parameter< SEXP >::type barcode(barcodeSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type barcode_names(barcode_namesSEXP);
     Rcpp::traits::input_parameter< int >::type width(widthSEXP);

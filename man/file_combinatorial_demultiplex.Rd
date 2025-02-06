@@ -48,8 +48,15 @@ and demultiplexering (e.g. cDNA).
 }}
 }
 \value{
-\code{NULL}, all output will be in the form of files
+The output from \code{\link{filter_demultiplex_res}}. In addition,
+the function will write to the file paths specified in \code{output_table_file}
+and (optionally) \code{trimmed_output_file}.
 }
 \description{
 Demultiplex combinatorial barcodes
+}
+\details{
+The barcode table will be tab separated with the first row showing the
+barcode name.
+names.
 }

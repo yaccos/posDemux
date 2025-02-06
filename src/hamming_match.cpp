@@ -10,7 +10,7 @@ extern "C" {
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-List hamming_match(SEXP segment, CharacterVector segment_names, SEXP barcode,
+List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
                    CharacterVector barcode_names, int width) {
   XStringSet_holder segment_holder = hold_XStringSet(segment);
   XStringSet_holder barcode_holder = hold_XStringSet(barcode);
@@ -55,6 +55,10 @@ List hamming_match(SEXP segment, CharacterVector segment_names, SEXP barcode,
     }
   }
   
+  /*
+   * Note: segments_names might be NULL instead of a character vector. However,
+   * even NULL values will be handled gracefully by the following assignments  
+   */
   assigned_barcode.attr("names") = segment_names;
   mismatches.attr("names") = segment_names;
   return List::create(Named("assigned_barcode") = assigned_barcode,

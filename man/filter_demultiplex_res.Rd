@@ -15,8 +15,31 @@ as the number of barcode segments. The maximum Hamming distance from including
 a read in the output}
 }
 \value{
-A list
+A list with the following elements:
+\itemize{
+\item \code{demultiplex_res}: The contents of \code{demultiplex_res} with
+the sequences filtered
+\item \code{n_removed}: Integer, the total number of sequences removed
+\item \code{n_removed_per_barcode}: Integer vector,
+the number of sequences removed per barcode
+
+\item \code{retained}: Logical vector with the same length as
+the number of reads in the input. \code{TRUE} if the corresponding read
+is retained.
+Useful for future filtering of paired-end reads.
+\item \code{allowed_mismatches}: Integer vector, the number
+of allowed mismatches for each barcode set
+}
 }
 \description{
-Filter demultiplexed reads based on the number of mismatches
+Filters the demultiplexed reads from \code{\link{combinatorial_demultiplex}}
+such that any read exceeding the number of allowed mismatches for any
+of the barcodes is removed. The function gives diagnostic information
+on the number of reads removed per barcode and the total number
+of reads removed.
+}
+\details{
+The value of \code{n_removed} does not in general equal the sum of of
+\code{n_removed_per_barcode} since a read can have too many mismatches
+with multiple barcodes.
 }

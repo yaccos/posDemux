@@ -16,7 +16,7 @@ combinatorial_demultiplex(
 
 \item{barcodes}{A list of \code{\link{XStringSet}} objects, the barcodes
 to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
-have the same length as specified by the \code{segment_lengths} argument and be named}
+have the same length as specified by the \code{segment_lengths} argument and be named.}
 
 \item{segment_lengths}{Integer vector with the same length
 as \code{segments}, lengths of the segments.
@@ -57,4 +57,9 @@ and returned from the function. If there are multiple payload segments, they
 concatented in the output sequences. The barcodes can be positioned at
 either end of the sequences,
 but no barcode can (for obvious reasons) be variadic in length.
+}
+\details{
+If there are two barcodes both having the minimum number of mismatches
+the first one will be selected. If is therefore important to choose the
+error tolerance to be equal or less than the redunancy of the barcodes.
 }

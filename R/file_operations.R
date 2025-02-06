@@ -29,16 +29,54 @@
 #' @importFrom Biostrings readDNAStringSet
 #' @importFrom Biostrings subseq
 #' @importFrom Biostrings width
+#' 
 #'
-#' @return \code{NULL}, all output will be in the form of files
+#' @return The output from \code{\link{filter_demultiplex_res}}. In addition,
+#' the function will write to the file paths specified in \code{output_table_file}
+#' and (optionally) \code{trimmed_output_file}.
+#' 
+#' @details
+#' The barcode table will be tab separated with the first row showing the
+#' barcode name.
+#' names.
 #' @export
 #' 
 #' 
 file_combinatorial_demultiplex <- function(input_file,
                                       output_table_file, barcode_files,
                                       sequence_annotation, segment_lengths,
-                                      allowed_mismatches=0L,
+                                      allowed_mismatches=0L, 
                                       trimmed_output_file=NULL) {
-  sequences <- readQualityScaledDNAStringSet(input_file, quality.scoring = "PhredQuality")
+  sequences <- readQualityScaledDNAStringSet(input_file,
+                                             quality.scoring = "PhredQuality")
   barcodes <- map(barcode_files, readDNAStringSet, format = "fasta")
+  demultiplex_res <- combinatorial_demultiplex(sequences, barcodes,
+                                               sequence_annotation, segment_lengths)
+  filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches)
+  if (!is.null(trimmed_output_file)) {
+    writeXStringSet(filtered_res$demultiplex_res$payload, trimmed_output_file)
+  }
+  
+  write.table(filtered_res$demultiplex_res$assigned_barcodes,
+              output_table_file, sep="\t", quote=FALSE, row.names=TRUE,
+              col.names=TRUE)
+  return(filtered_res)
 }
+#' @title Run pipeline for demultiplexing sequences
+#' @param reverse_file The file path to the reverse reads
+#'  corresponding to \code{input_file}. The contents of the reverse reads
+#'  will be filtered according to the same barcode assignments as the forward reads.
+#' @param reverse_output_table_file If \code{reverse_read} the file path to the table
+demultiplex_pipeline <- function(input_file, reverse_file,
+                                 output_table_file, barcode_files,
+                                 sequence_annotation, segment_lengths,
+                                 allowed_mismatches, 
+                                 trimmed_output_file, reverse_output_file){
+  forward_res <- file_combinatorial_demultiplex(input_file,
+                                                output_table_file, barcode_files,
+                                                sequence_annotation, segment_lengths,
+                                                allowed_mismatches, trimmed_output_file)
+  
+}
+
+

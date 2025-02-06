@@ -3,7 +3,7 @@
 #' @param sequences A \code{\link{XStringSet}} object, the sequences to be demultiplexed
 #' @param barcodes A list of \code{\link{XStringSet}} objects, the barcodes
 #' to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
-#' have the same length as specified by the \code{segment_lengths} argument and be named
+#' have the same length as specified by the \code{segment_lengths} argument and be named.
 #' @param segments Character vector showing the segments of the
 #' sequences from 5' end to 3' end. The code applied is as follows:
 #'   \itemize{
@@ -44,6 +44,11 @@
 #'  sequences and the columns to the barcode segments.
 #'  \item \code{payload}: A \code{\link{XStringSet}} object with the payload sequences
 #'  }
+#'  
+#' @details
+#' If there are two barcodes both having the minimum number of mismatches
+#' the first one will be selected. If is therefore important to choose the
+#' error tolerance to be equal or less than the redunancy of the barcodes.
 #' @export
 #' 
 #' 
@@ -51,8 +56,8 @@ combinatorial_demultiplex <- function(sequences, barcodes,
                                       sequence_annotation, segment_lengths) {
   assert_that(is(sequences, "XStringSet"),
               msg="The argument sequences must be an XStringSet object")
-  
   n_barcode_segments <- sum(segments == "B")
+  n_segments <- length(segments)
   
   # The last line rewritten with assert_that
   assert_that(n_barcode_segments == length(barcodes),
@@ -85,17 +90,16 @@ combinatorial_demultiplex <- function(sequences, barcodes,
     varidic_segment_type <- segments[element_NA_idx]
     assert_that(varidic_segment_type != "B",
                 msg="A barcode segment cannot have variadic length")
-    five_prime_segments <- segments[seq_len(element_NA_idx - 1L)]
-    three_prime_segments <- segments[element_NA_idx +
-                                       seq_len(length(segments) - element_NA_idx)]
-    five_prime_lengths <- segment_lengths[seq_len(element_NA_idx - 1L)]
-    three_prime_lengths <- segment_lengths[element_NA_idx +
-                                             seq_len(length(segment_lengths) - element_NA_idx)]
+    n_five_prime_segments <- element_NA_idx - 1L
+    n_three_prime_segments <- n_segments - 1L - n_five_prime_segments
+    five_prime_segments <- segments[seq_len(n_five_prime_segments)]
+    three_prime_segments <- segments[seq.int(element_NA_idx + 1L, length.out = n_three_prime_segments)]
+    five_prime_lengths <- segment_lengths[seq_len(n_five_prime_segments)]
+    three_prime_lengths <- segment_lengths[seq.int(element_NA_idx + 1L, length.out = n_three_prime_segments)]
     n_five_prime_barcodes <- sum(five_prime_segments == "B")
     n_three_prime_barcodes <- sum(three_prime_segments == "B")
     five_prime_barcodes <- barcodes[seq_len(n_five_prime_barcodes)]
-    three_prime_barcodes <- barcodes[n_five_prime_barcodes +
-                                       seq_len(n_three_prime_barcodes)]
+    three_prime_barcodes <- barcodes[seq.int(n_five_prime_barcodes + 1L, length.out = n_three_prime_barcodes)]
     five_prime_width <- sum(five_prime_lengths)
     three_prime_width <- sum(three_prime_lengths)
     five_prime_sequences <- subseq(sequences, start = 1L, width = five_prime_width)
@@ -163,7 +167,7 @@ extract_and_demultiplex <- function(sequences, barcodes,
                             })
   barcode_results <- pmap(list(barcode_segments_sequences, barcodes, barcode_widths), 
                           function(segment, barcode, width) {
-                            hamming_match(segment,names(segment), barcode,
+                            hamming_match(segment, names(segment), barcode,
                                           names(barcode), width)
                           }
   )
