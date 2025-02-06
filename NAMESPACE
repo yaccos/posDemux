@@ -3,6 +3,7 @@
 export(combinatorial_demultiplex)
 export(file_combinatorial_demultiplex)
 export(filter_demultiplex_res)
+import(assertthat)
 importFrom(Biostrings,readDNAStringSet)
 importFrom(Biostrings,readQualityScaledDNAStringSet)
 importFrom(Biostrings,subseq)

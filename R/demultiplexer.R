@@ -49,47 +49,42 @@
 #' 
 combinatorial_demultiplex <- function(sequences, barcodes,
                                       sequence_annotation, segment_lengths) {
-  if (!is(sequences, "XStringSet")) {
-    stop("The argument sequences must be an XStringSet object")
-  }
+  assert_that(is(sequences, "XStringSet"),
+              msg="The argument sequences must be an XStringSet object")
   
   n_barcode_segments <- sum(segments == "B")
   
-  if (n_barcode_segments != length(barcodes)) {
-    stop("The provided number of barcode segments in argument barcodes
+  # The last line rewritten with assert_that
+  assert_that(n_barcode_segments == length(barcodes),
+              msg="The provided number of barcode segments in argument barcodes
          does not match the number of barcode segments in argument segments")
-  }
   
-  if (length(segments) != length(segment_lengths)) {
-    stop("The length of segments does not match the length of segment_lengths")
-  }
+  assert_that(length(segments) == length(segment_lengths),
+              msg="The length of segments does not match the length of segment_lengths")
   
   
   iwalk(barcodes, function(barcode, name) {
-    if (!is(barcode, "XStringSet")) {
-      stop(paste("The barcodes of segment", name, "must be an XStringSet object"))
-    }
-    if (is.null(names(barcode))) {
-      stop(paste("The barcodes of segment", name, "are not named"))
-    }
-    if (length(unique(width(barcode))) > 1L) {
-      stop(paste("The barcodes of segment", name, "have variable length"))
-    }
+    assert_that(is(barcode, "XStringSet"),
+                msg=paste("The barcodes of segment", name, "must be an XStringSet object"))
+    assert_that(!is.null(names(barcode)),
+                msg=paste("The barcodes of segment", name, "are not named"))
+    assert_that(length(unique(width(barcode))) <= 1L,
+                msg=paste("The barcodes of segment", name, "have variable length"))
   }
+  
   )
   
   element_NA_idx <- which(is.na(segment_lengths))
-  if (length(element_NA_idx) > 1L) {
-    stop("Only one NA is allowed in segment_lengths")
-  }
+  
+  assert_that(length(element_NA_idx) <= 1L,
+              msg="Only one NA is allowed in segment_lengths")
   
   
   
   if (length(element_NA_idx) == 1L) {
     varidic_segment_type <- segments[element_NA_idx]
-    if(varidic_segment_type == "B") {
-      stop("A barcode segment cannot have variadic length")
-    }
+    assert_that(varidic_segment_type != "B",
+                msg="A barcode segment cannot have variadic length")
     five_prime_segments <- segments[seq_len(element_NA_idx - 1L)]
     three_prime_segments <- segments[element_NA_idx +
                                        seq_len(length(segments) - element_NA_idx)]
@@ -140,18 +135,18 @@ extract_and_demultiplex <- function(sequences, barcodes,
                                     segments, segment_lengths) {
   barcode_widths <- imap_int(barcodes, function(barcode, name) {
     widths <- width(barcode)
-    if (length(unique(widths)) > 1L) {
-      stop(paste("Barcode set", name, "has variable length"))
-    }
+    # The last line rewritten with assert_that
+    assert_that(length(unique(widths)) <= 1L,
+                msg=paste("Barcode set", name, "has variable length"))
     widths[1L]
   })
   n_barcodes <- length(barcodes)
   n_segments <- length(segments)
   segment_ends <- cumsum(segment_lengths)
   barcode_segment_idxs <- which(segments == "B")
-  if (!all.equal(barcode_widths, segment_lengths[barcode_segment_idxs])) {
-    stop("Barcodes lengths do not match their provided segments lengths")
-  }
+  # The last line rewritten with assert_that
+  assert_that(all.equal(barcode_widths, segment_lengths[barcode_segment_idxs]),
+              msg="Barcodes lengths do not match their provided segments lengths")
   payload_segment_idxs <- which(segments == "P")
   barcode_segments_sequences <- map2(barcode_widths, barcode_segment_idxs,
                                      function(width, idx) {

@@ -13,7 +13,7 @@ Authors@R:
    )
 Description: More about what it does (maybe more than one line).
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.14), Biostrings, XVector, IRanges
+Imports: Rcpp (>= 1.0.14), Biostrings, XVector, IRanges, assertthat
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
 biocViews: SequenceMatching, Sequencing, Software
 RoxygenNote: 7.3.2

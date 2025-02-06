@@ -4,6 +4,8 @@
 #' 
 #' @docType package
 #' 
+#' @import assertthat
+#' 
 #' @author Jakob Peder Pettersen <jakobpeder.pettersen@gmail.com>
 #' 
 "_PACKAGE"
