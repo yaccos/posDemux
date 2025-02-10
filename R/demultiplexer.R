@@ -70,11 +70,11 @@ combinatorial_demultiplex <- function(sequences, barcodes,
   
   iwalk(barcodes, function(barcode, name) {
     assert_that(is(barcode, "XStringSet"),
-                msg=paste("The barcodes of segment", name, "must be an XStringSet object"))
+                msg=glue("The barcodes of segment {name} must be an XStringSet object"))
     assert_that(!is.null(names(barcode)),
-                msg=paste("The barcodes of segment", name, "are not named"))
+                msg=glue("The barcodes of segment {name} are not named"))
     assert_that(length(unique(width(barcode))) <= 1L,
-                msg=paste("The barcodes of segment", name, "have variable length"))
+                msg=paste("The barcodes of segment {name} have variable length"))
   }
   
   )
@@ -141,7 +141,7 @@ extract_and_demultiplex <- function(sequences, barcodes,
     widths <- width(barcode)
     # The last line rewritten with assert_that
     assert_that(length(unique(widths)) <= 1L,
-                msg=paste("Barcode set", name, "has variable length"))
+                msg=glue("Barcode set {name} has variable length"))
     widths[1L]
   })
   n_barcodes <- length(barcodes)
@@ -174,8 +174,8 @@ extract_and_demultiplex <- function(sequences, barcodes,
   assigned_barcode <- do.call(cbind, map(barcode_results, "assigned_barcode"))
   mismatches <- do.call(cbind, map(barcode_results, "mismatches"))
   payload <- do.call(xscat, payload_sequences)
-  return(list(assigned_barcode = assigned_barcode,
+  list(assigned_barcode = assigned_barcode,
               mismatches = mismatches,
-              payload = payload))
+              payload = payload) %>% return()
 }
 

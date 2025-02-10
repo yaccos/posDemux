@@ -4,10 +4,13 @@
 \alias{filter_summary}
 \title{Diagnostic demultiplexing results}
 \usage{
-filter_summary(filter_results)
+filter_summary(filter_results, barcodes)
 }
 \arguments{
 \item{filter_results}{The output from \code{\link{filter_demultiplex_res}}}
+
+\item{barcodes}{The list of \code{\link{XStringSet}} objects,
+the barcodes which were used for demultiplexing.}
 }
 \description{
 Diagnostic demultiplexing results

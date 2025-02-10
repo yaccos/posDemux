@@ -42,10 +42,10 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   n_sequences_removed_per_barcode <- colSums(mismatches_above_threshold)
   n_removed_sequences <- sum(!retained_sequences)
   res <- demultiplex_res
-  res$assigned_barcodes <- res$assigned_barcodes[retained_sequences,]
+  res$assigned_barcode <- res$assigned_barcode[retained_sequences,]
   res$mismatches <- res$mismatches[retained_sequences,]
   res$payload <- res$payload[retained_sequences]
   list(demultiplex_res=res, n_removed=n_removed_sequences,
        n_removed_per_barcode=n_sequences_removed_per_barcode,
-       retained=retained_sequences,allowed_mismatches)
+       retained=retained_sequences, allowed_mismatches=allowed_mismatches)
 }
