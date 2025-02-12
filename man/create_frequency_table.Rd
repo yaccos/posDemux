@@ -2,12 +2,13 @@
 % Please edit documentation in R/summary.R
 \name{create_frequency_table}
 \alias{create_frequency_table}
-\title{Create a frequency table of the observed barcode combinations}
+\title{Frequency table}
 \usage{
 create_frequency_table(filter_results)
 }
 \arguments{
-\item{filter_results}{The output from \code{\link{filter_demultiplex_res}}}
+\item{filter_results}{A character or integer matrix, corresponding to the field
+\code{assigned_barcode} from \code{\link{filter_demultiplex_res}}}
 }
 \value{
 A data frame where each row correspond to a unique observed
@@ -21,5 +22,8 @@ following:
 \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination
 }
 \description{
-Create a frequency table of the observed barcode combinations
+Creates a sorted frequency table of each of the observed
+barcode combinations. This function is indended to be used after running
+\code{\link{filter_demultiplex_res}} and before creating frequency plots,
+knee plots or selecting the number of barcodes to include.
 }

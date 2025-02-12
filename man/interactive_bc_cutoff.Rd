@@ -2,18 +2,24 @@
 % Please edit documentation in R/cutoff_select.R
 \name{interactive_bc_cutoff}
 \alias{interactive_bc_cutoff}
-\title{Interactive Shiny application for determining cutoff from knee plot}
+\title{Interactive cutoff selection}
 \usage{
-interactive_bc_cutoff(
-  frequency_table,
-  viewer = "dialog",
-  viewer_height = 800,
-  viewer_width = 1200
-)
+interactive_bc_cutoff(frequency_table)
 }
 \arguments{
-\item{frequency_table}{}
+\item{frequency_table}{The frequency table
+from \code{\link{create_frequency_table}}}
+}
+\value{
+Integer scalar with the selected cutoff returned
+invisibly
 }
 \description{
-Interactive Shiny application for determining cutoff from knee plot
+Launches an interactive Shiny application for
+determining cutoff from knee plot and barcode frequency plot. The user
+will select the appropriate number of barcode combinations
+(i.e. distinct cells) to keep for further analysis. Usually, this is done
+by aiming for the "knee" of the knee plot in order to keep most reads,
+while at the same time removing barcode combinations which are either
+artifacts or broken cells.
 }
