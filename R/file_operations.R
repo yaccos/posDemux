@@ -67,6 +67,7 @@ file_combinatorial_demultiplex <- function(input_file,
 #'  corresponding to \code{input_file}. The contents of the reverse reads
 #'  will be filtered according to the same barcode assignments as the forward reads.
 #' @param reverse_output_table_file If \code{reverse_read} the file path to the table
+#' @export
 demultiplex_pipeline <- function(input_file, reverse_file,
                                  output_table_file, barcode_files,
                                  sequence_annotation, segment_lengths,
