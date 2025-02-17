@@ -46,9 +46,24 @@ n_artifact_barcode_combinations <- as.integer(n_unique_barcodes / 2)
 artifact_idxs <- sample(realized_barcode_combinations %>% nrow() %>% seq_len(),
                         n_artifact_barcode_combinations)
 is_artifact <- rep(FALSE, n_unique_barcodes) %>% inset(artifact_idxs, TRUE)
-realized_barcode_combinations$frequency <- 
-  ifelse(is_artifact,
-         rpois(n_unique_barcodes,mean_reads_per_artifact),
-         rpois(n_unique_barcodes,mean_reads_per_cell)
-         )
+# realized_barcode_combinations$frequency <- 
+#   ifelse(is_artifact,
+#          rpois(n_unique_barcodes,mean_reads_per_artifact),
+#          rpois(n_unique_barcodes,mean_reads_per_cell)
+#          )
+rbinom_size <- 10L
+expected_frequency_table <-
+  realized_barcode_combinations %>%  mutate(
+    frequency=ifelse(is_artifact,
+         rnbinom(n_unique_barcodes,mu=mean_reads_per_artifact,size=rbinom_size),
+         rnbinom(n_unique_barcodes,mu=mean_reads_per_cell,size=rbinom_size)
+         ) %>% ifelse(. == 0L, 1L, .)
+    ) %>% 
+      arrange(desc(frequency)) %>% 
+      mutate(cumulative_frequency = cumsum(frequency), 
+             fraction = frequency / sum(frequency)) %>% 
+      mutate(cumulative_fraction=cumsum(fraction))
+# When used interactively: Validate plots look as expected
+# posDemux::frequency_plot(expected_frequency_table)
+# posDemux::knee_plot(expected_frequency_table)
 
