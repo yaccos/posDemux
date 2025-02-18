@@ -53,7 +53,7 @@
 #' 
 #' 
 combinatorial_demultiplex <- function(sequences, barcodes,
-                                      sequence_annotation, segment_lengths) {
+                                      segments, segment_lengths) {
   assert_that(is(sequences, "XStringSet"),
               msg="The argument sequences must be an XStringSet object")
   n_barcode_segments <- sum(segments == "B")
@@ -148,8 +148,9 @@ extract_and_demultiplex <- function(sequences, barcodes,
   n_segments <- length(segments)
   segment_ends <- cumsum(segment_lengths)
   barcode_segment_idxs <- which(segments == "B")
-  # The last line rewritten with assert_that
-  assert_that(all.equal(barcode_widths, segment_lengths[barcode_segment_idxs]),
+  assert_that(all.equal(barcode_widths, segment_lengths[barcode_segment_idxs],
+                        check.attributes = FALSE) %>% 
+                isTRUE(),
               msg="Barcodes lengths do not match their provided segments lengths")
   payload_segment_idxs <- which(segments == "P")
   barcode_segments_sequences <- map2(barcode_widths, barcode_segment_idxs,

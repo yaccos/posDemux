@@ -4,10 +4,13 @@ library(dplyr)
 library(tibble)
 library(Biostrings)
 library(glue)
+library(ggplot2)
+library(stringi)
+library(posDemux)
 set.seed(29505L)
 # Three barcode sets
 segment_map <- c("A","B","A","P","B","P","A","B","P")
-# n_reads <- as.integer(1e6)
+n_segments <- length(segment_map)
 n_unique_barcodes <- 10000L
 mean_reads_per_cell <- 100L
 mean_reads_per_artifact <- 5L 
@@ -15,24 +18,24 @@ n_barcode_sets <- (segment_map == "B") %>% sum()
 segment_length <- c(20L, 8L, 13L, 9L, 9L, NA_integer_, 18L, 4L, 14L)
 barcode_frame <- tibble(segment_idx =
                           segment_map %>%
-                          equals("B") %>%
+                          magrittr::equals("B") %>%
                           which()
-                        ) %>%
+) %>%
   mutate(length = segment_length %>% extract(segment_idx), 
          n_allowed_mismatches = c(4L, 5L, 1L),
          name = glue("bc{1L:3L}")) %>% 
   mutate(barcode_reference = pmap(list(name, length, n_allowed_mismatches),
                                   function(name, length, n_allowed_mismatches)
-  {
-    DNABarcodes::create.dnabarcodes(n=length,
-                                    dist = n_allowed_mismatches - 1L ,
-                                    metric = "hamming",
-                                    heuristic = "conway"
+                                  {
+                                    DNABarcodes::create.dnabarcodes(n=length,
+                                                                    dist = n_allowed_mismatches - 1L ,
+                                                                    metric = "hamming",
+                                                                    heuristic = "conway"
                                     ) %>% set_names(
                                       {glue("{name}_{seq_len(length(.))}")}
-                                      ) %>% DNAStringSet()
-  }
-    ) %>% set_names(name)
+                                    ) %>% DNAStringSet()
+                                  }
+  ) %>% set_names(name)
   )
 
 possible_barcode_combinations <- barcode_frame$barcode_reference %>%
@@ -55,15 +58,120 @@ rbinom_size <- 10L
 expected_frequency_table <-
   realized_barcode_combinations %>%  mutate(
     frequency=ifelse(is_artifact,
-         rnbinom(n_unique_barcodes,mu=mean_reads_per_artifact,size=rbinom_size),
-         rnbinom(n_unique_barcodes,mu=mean_reads_per_cell,size=rbinom_size)
-         ) %>% ifelse(. == 0L, 1L, .)
-    ) %>% 
-      arrange(desc(frequency)) %>% 
-      mutate(cumulative_frequency = cumsum(frequency), 
-             fraction = frequency / sum(frequency)) %>% 
-      mutate(cumulative_fraction=cumsum(fraction))
-# When used interactively: Validate plots look as expected
-# posDemux::frequency_plot(expected_frequency_table)
-# posDemux::knee_plot(expected_frequency_table)
+                     rnbinom(n_unique_barcodes,mu=mean_reads_per_artifact, size=rbinom_size),
+                     rnbinom(n_unique_barcodes,mu=mean_reads_per_cell, size=rbinom_size)
+    ) %>% ifelse(. == 0L, 1L, .)
+  ) %>% 
+  arrange(desc(frequency)) %>% 
+  mutate(cumulative_frequency = cumsum(frequency), 
+         fraction = frequency / sum(frequency)) %>% 
+  mutate(cumulative_fraction=cumsum(fraction))
 
+n_reads <- sum(expected_frequency_table$frequency)
+
+test_that("Frequency and Knee plots are made without raising errors", {
+  frequency_plot_file <- tempfile("frequency_plot", fileext = ".pdf")
+  knee_plot_file <- tempfile("knee_plot.pdf", fileext = ".pdf")
+  expect_no_error(
+    frequency_plot(expected_frequency_table) %>% ggsave(filename = frequency_plot_file, 
+                                                        plot = .)
+  )
+  expect_no_error(
+    knee_plot(expected_frequency_table) %>% ggsave(filename = knee_plot_file, 
+                                                   plot = .)
+  )
+}
+)
+
+expected_assigned_barcodes <- map2(barcode_frame$name, barcode_frame$barcode_reference,
+                                   function(name, reference) {
+                                     barcode <- expected_frequency_table[[name]]
+                                     barcode_multiplicity <- expected_frequency_table$frequency
+                                     barcode_with_multiplicity <- rep(barcode, barcode_multiplicity)
+                                     names(reference)[barcode_with_multiplicity]
+                                   }
+) %>%
+  {do.call(cbind, .)} %>% 
+  set_colnames(barcode_frame$name) %>% 
+  # Ensures to shuffle barcodes
+  extract(nrow(.) %>% seq_len() %>% sample(),)
+
+bc_stringset <- map2(barcode_frame$name, barcode_frame$barcode_reference,
+                    function(name, reference) {
+                      barcode <- expected_frequency_table[[name]]
+                      barcode_multiplicity <- expected_frequency_table$frequency
+                      barcode_with_multiplicity <- rep(barcode, barcode_multiplicity)
+                      expected_assigned_barcodes %>% extract(, name) %>% 
+                        {extract(reference, .)}
+                    }
+                    ) %>% 
+  set_names(barcode_frame$name)
+
+segment_seq <- vector(mode = "list", length = n_segments)
+
+segment_seq[barcode_frame$segment_idx] <- bc_stringset
+
+sample_DNA <- function(length) {
+  sample(DNA_BASES, length, replace = TRUE)
+}
+
+adapter_frame <- tibble(segment_idx = (segment_map == "A") %>% which()) %>% 
+  mutate(length = segment_length[segment_idx]) %>% 
+  mutate(sequence = map_chr(length, . %>% sample_DNA %>% paste0(collapse = ""))
+  )
+
+
+segment_seq[adapter_frame$segment_idx] <- adapter_frame$sequence
+
+payload_frame <- tibble(segment_idx = (segment_map == "P") %>% which()) %>% 
+  mutate(length = segment_length[segment_idx]) %>% 
+  mutate(sequence = map(length, function(length) {
+    if (is.na(length))
+    {
+      # Variadic segment
+      # These parameters are reused outside
+      # their original context because we want a similar distribution of the length
+      # of the variadic segment
+      length <- rnbinom(n_reads, mu=mean_reads_per_cell, size=rbinom_size) %>%
+        {ifelse(. == 0L, 1L, .)}
+      bulk_sampled_DNA <- sum(length) %>% sample_DNA()
+      # A performance trick because using an integer vector in the subsequent
+      # call to split() would result in R trying to check for unique values
+      # which incur a considerable overhead in our case
+      length_factor <- length %>% seq_along() %>% factor()
+      res <- split(bulk_sampled_DNA, rep(length_factor, times=length)) %>% 
+        map_chr(. %>% paste0(collapse = ""))
+      return(res)
+    }
+    bulk_sampled_DNA <- sample_DNA(n_reads * length)
+    split(bulk_sampled_DNA, rep(seq_len(n_reads), length)) %>% 
+      map_chr(. %>% paste0(collapse = ""))
+  }
+  )
+  )
+
+  
+segment_seq[payload_frame$segment_idx] <- payload_frame$sequence
+
+expected_payload <- do.call(xscat, payload_frame$sequence) %>% DNAStringSet()
+
+expected_assigned_barcodes <- realized_barcode_combinations
+
+sequences <- do.call(xscat, segment_seq)
+
+demultiplex_res <- combinatorial_demultiplex(sequences = sequences,
+                                                       barcodes = barcode_frame$barcode_reference,
+                                                       segments = segment_map,
+                                                       segment_lengths = segment_length)
+
+demultiplex_res$payload
+demultiplex_res$payload == expected_payload
+a <- demultiplex_res$payload[[1]]
+b <- expected_payload[[1]]
+expected_payload
+payload_frame$sequence[[1]][[1]] %>% DNAString()
+a[1L:9L]
+payload_frame$sequence[[2]][[1]] %>% DNAString()
+a[10L:(9L+91L)]
+a[(9L+91L):length(a)]
+payload_frame$sequence[[3]][[1]] %>% DNAString()
