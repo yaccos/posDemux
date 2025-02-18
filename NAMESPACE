@@ -3,6 +3,7 @@
 export(bc_to_frequency_cutoff)
 export(combinatorial_demultiplex)
 export(create_frequency_table)
+export(demultiplex_pipeline)
 export(file_combinatorial_demultiplex)
 export(filter_demultiplex_res)
 export(filter_summary)

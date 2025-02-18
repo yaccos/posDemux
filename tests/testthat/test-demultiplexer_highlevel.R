@@ -49,11 +49,6 @@ n_artifact_barcode_combinations <- as.integer(n_unique_barcodes / 2)
 artifact_idxs <- sample(realized_barcode_combinations %>% nrow() %>% seq_len(),
                         n_artifact_barcode_combinations)
 is_artifact <- rep(FALSE, n_unique_barcodes) %>% inset(artifact_idxs, TRUE)
-# realized_barcode_combinations$frequency <- 
-#   ifelse(is_artifact,
-#          rpois(n_unique_barcodes,mean_reads_per_artifact),
-#          rpois(n_unique_barcodes,mean_reads_per_cell)
-#          )
 rbinom_size <- 10L
 expected_frequency_table <-
   realized_barcode_combinations %>%  mutate(
@@ -155,8 +150,6 @@ segment_seq[payload_frame$segment_idx] <- payload_frame$sequence
 
 expected_payload <- do.call(xscat, payload_frame$sequence) %>% DNAStringSet()
 
-expected_assigned_barcodes <- realized_barcode_combinations
-
 sequences <- do.call(xscat, segment_seq)
 
 demultiplex_res <- combinatorial_demultiplex(sequences = sequences,
@@ -164,14 +157,22 @@ demultiplex_res <- combinatorial_demultiplex(sequences = sequences,
                                                        segments = segment_map,
                                                        segment_lengths = segment_length)
 
-demultiplex_res$payload
-demultiplex_res$payload == expected_payload
-a <- demultiplex_res$payload[[1]]
-b <- expected_payload[[1]]
-expected_payload
-payload_frame$sequence[[1]][[1]] %>% DNAString()
-a[1L:9L]
-payload_frame$sequence[[2]][[1]] %>% DNAString()
-a[10L:(9L+91L)]
-a[(9L+91L):length(a)]
-payload_frame$sequence[[3]][[1]] %>% DNAString()
+test_that("Barcode assignments are correct",
+          {
+          testthat::expect_true(
+            all.equal(demultiplex_res$assigned_barcodes,
+                                          expected_assigned_barcodes)
+          )
+          }
+)
+
+expected_mismatches <- array(0L, dim = dim(expected_assigned_barcodes), 
+                             dimnames = dimnames(expected_assigned_barcodes))
+
+test_that("All barcodes were assigned without any mismatches",
+          {
+          testthat::expect_true(all.equal(demultiplex_res$mismatches,
+                                          expected_mismatches)
+          )
+          }
+)

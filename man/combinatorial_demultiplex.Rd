@@ -4,12 +4,7 @@
 \alias{combinatorial_demultiplex}
 \title{Combinatorial demultiplexer}
 \usage{
-combinatorial_demultiplex(
-  sequences,
-  barcodes,
-  sequence_annotation,
-  segment_lengths
-)
+combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
 }
 \arguments{
 \item{sequences}{A \code{\link{XStringSet}} object, the sequences to be demultiplexed}
@@ -17,12 +12,6 @@ combinatorial_demultiplex(
 \item{barcodes}{A list of \code{\link{XStringSet}} objects, the barcodes
 to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.}
-
-\item{segment_lengths}{Integer vector with the same length
-as \code{segments}, lengths of the segments.
-Up to one of the non-barcode segments can have its length
-set to \code{NA} which means
-it is considered a variadic length segment}
 
 \item{segments}{Character vector showing the segments of the
 sequences from 5' end to 3' end. The code applied is as follows:
@@ -32,6 +21,12 @@ sequences from 5' end to 3' end. The code applied is as follows:
 \item \code{'P'}: Payload, sequence to be kept after trimming
 and demultiplexering (e.g. cDNA or UMI).
 }}
+
+\item{segment_lengths}{Integer vector with the same length
+as \code{segments}, lengths of the segments.
+Up to one of the non-barcode segments can have its length
+set to \code{NA} which means
+it is considered a variadic length segment}
 }
 \value{
 A list with the following elements:

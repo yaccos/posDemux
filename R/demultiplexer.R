@@ -50,8 +50,6 @@
 #' the first one will be selected. If is therefore important to choose the
 #' error tolerance to be equal or less than the redunancy of the barcodes.
 #' @export
-#' 
-#' 
 combinatorial_demultiplex <- function(sequences, barcodes,
                                       segments, segment_lengths) {
   assert_that(is(sequences, "XStringSet"),
@@ -115,7 +113,7 @@ combinatorial_demultiplex <- function(sequences, barcodes,
                         three_prime_results$mismatches)
     if (varidic_segment_type == "P") {
       variadic_sequence <- subseq(sequences, start = five_prime_width + 1L,
-                                  end = width(sequences) - three_prime_width - 1L)
+                                  end = width(sequences) - three_prime_width)
       payload <- xscat(five_prime_results$payload, variadic_sequence,
                        three_prime_results$payload)
     } else {
