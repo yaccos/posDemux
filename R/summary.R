@@ -67,7 +67,7 @@ filter_summary <- function(filter_results, barcodes) {
 #' Frequency table 
 #' 
 #' @description
-#'  Creates a sorted frequency table of each of the observed
+#' Creates a sorted frequency table of each of the observed
 #' barcode combinations. This function is indended to be used after running
 #' \code{\link{filter_demultiplex_res}} and before creating frequency plots,
 #' knee plots or selecting the number of barcodes to include.
@@ -85,6 +85,7 @@ filter_summary <- function(filter_results, barcodes) {
 #' \item \code{cumulative_frequency}: The cumulative frequency of the barcode combination
 #' \item \code{fractiion}: The fraction of reads with the barcode combination
 #' \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination
+#' }
 #' @import ggplot2
 #' @importFrom rlang .data
 #' @export

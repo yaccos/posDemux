@@ -21,6 +21,7 @@ following:
 \item \code{fractiion}: The fraction of reads with the barcode combination
 \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination
 }
+}
 \description{
 Creates a sorted frequency table of each of the observed
 barcode combinations. This function is indended to be used after running

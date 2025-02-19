@@ -38,7 +38,7 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   mismatches <- demultiplex_res$mismatches
   mismatches_above_threshold <- sweep(mismatches, 2L,
                                       allowed_mismatches, FUN = `>`)
-  retained_sequences <- rowSums(mismatches_below_threshold) == 0L
+  retained_sequences <- rowSums(mismatches_above_threshold) == 0L
   n_sequences_removed_per_barcode <- colSums(mismatches_above_threshold)
   n_removed_sequences <- sum(!retained_sequences)
   res <- demultiplex_res

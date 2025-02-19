@@ -39,7 +39,7 @@ barcode_frame <- tibble(segment_idx =
   )
 
 possible_barcode_combinations <- barcode_frame$barcode_reference %>%
-  map(names) %>% do.call(expand.grid, .)
+  map(names) %>% do.call(function(...) expand.grid(...,stringsAsFactors = FALSE), .)
 realized_barcode_combinations <- possible_barcode_combinations %>%
   slice_sample(n=n_unique_barcodes)
 
@@ -83,7 +83,8 @@ expected_assigned_barcodes <- map2(barcode_frame$name, barcode_frame$barcode_ref
                                      barcode <- expected_frequency_table[[name]]
                                      barcode_multiplicity <- expected_frequency_table$frequency
                                      barcode_with_multiplicity <- rep(barcode, barcode_multiplicity)
-                                     names(reference)[barcode_with_multiplicity]
+                                     reference[barcode_with_multiplicity] %>%
+                                       names()
                                    }
 ) %>%
   {do.call(cbind, .)} %>% 
@@ -176,3 +177,32 @@ test_that("All barcodes were assigned without any mismatches",
           )
           }
 )
+
+demultiplex_filter <- filter_demultiplex_res(demultiplex_res = demultiplex_res,
+                       allowed_mismatches = barcode_frame$n_allowed_mismatches)
+
+frequency_table <- create_frequency_table(demultiplex_filter$demultiplex_res$assigned_barcodes)
+
+
+
+
+test_that("Generated frequency table is correct",
+          {
+            walk(c("frequency","cumulative_frequency",
+                   "fraction","cumulative_fraction"), function(column) {
+                     expect_equal(frequency_table[[column]],
+                                  expected_frequency_table[[column]])
+                   })
+            # For testing whether the barcodes in the
+            # frequency table are correct, we cannot just compare the columns
+            # as barcode combinations with tied frequency values can appear in
+            # any order. Hence, we test the barcode columns together with their
+            # respective frequencies using set operations
+            columns_to_test <- c(barcode_frame$name, "frequency")
+            dplyr::setequal(frequency_table[columns_to_test],
+                            expected_frequency_table[columns_to_test])
+            
+          }
+          )
+
+
