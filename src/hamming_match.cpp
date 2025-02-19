@@ -1,5 +1,7 @@
 #define RCPP_NO_BOUNDS_CHECK
 #include <Rcpp.h>
+#include <stdint.h>
+#include <limits.h>
 extern "C" {
   // These packages use C linkage, so we need to specify
   // this to avoid name mangling
@@ -10,7 +12,6 @@ extern "C" {
 }
 using namespace Rcpp;
 
-// [[Rcpp::plugins(openmp)]]
 // [[Rcpp::export]]
 List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
                    CharacterVector barcode_names, int width) {
@@ -33,16 +34,17 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
     }
   }
   
-  IntegerVector this_mismatches(n_barcodes);
+  // IntegerVector this_mismatches(n_barcodes);
+  int8_t *this_mismatches = (int8_t *) R_alloc(sizeof(int8_t), n_barcodes);
   IntegerVector mismatches(n_segments);
   CharacterVector assigned_barcode(n_segments);
   for (int i = 0; i < n_segments; i++) {
     // Initialize the mismatches vector to zero. Otherwise, we would have the
     // iterations accumulate mismatches from previous segments
-    this_mismatches.fill(0);
+    memset(this_mismatches, (int8_t) 0, sizeof(*this_mismatches) * n_barcodes);
     Chars_holder this_segment = get_elt_from_XStringSet_holder(&segment_holder, i);
     for (int k = 0; k < width; k++) {
-      #pragma omp simd
+#pragma omp simd
       for (int j = 0; j < n_barcodes; j++) {
         /* Increment the number of mismatches if the barcode letter does not match
          This was originally written as an if-statement, but with -O2 optimization 
@@ -52,18 +54,25 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
          */
         this_mismatches[j] += this_segment.ptr[k] != barcode_holder_array[k*n_barcodes + j];
       }
-      R_xlen_t assigned_barcode_idx = which_min(this_mismatches);
-      assigned_barcode[i] = barcode_names[assigned_barcode_idx];
-      mismatches[i] = this_mismatches[assigned_barcode_idx];
     }
+    R_xlen_t assigned_barcode_idx = 0;
+    int8_t min_mismatches = INT8_MAX;
+    for (int j = 0; j < n_barcodes; j++) {
+     if (this_mismatches[j] < min_mismatches) {
+       assigned_barcode_idx = j;
+       min_mismatches = this_mismatches[j];
+     }
+    }
+    assigned_barcode[i] = barcode_names[assigned_barcode_idx];
+    mismatches[i] = this_mismatches[assigned_barcode_idx];
   }
-  
-  /*
-   * Note: segments_names might be NULL instead of a character vector. However,
-   * even NULL values will be handled gracefully by the following assignments  
-   */
-  assigned_barcode.attr("names") = segment_names;
-  mismatches.attr("names") = segment_names;
-  return List::create(Named("assigned_barcode") = assigned_barcode,
-                      Named("mismatches") = mismatches);
+
+/*
+ * Note: segments_names might be NULL instead of a character vector. However,
+ * even NULL values will be handled gracefully by the following assignments  
+ */
+assigned_barcode.attr("names") = segment_names;
+mismatches.attr("names") = segment_names;
+return List::create(Named("assigned_barcode") = assigned_barcode,
+                    Named("mismatches") = mismatches);
 }
