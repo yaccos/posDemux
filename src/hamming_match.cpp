@@ -1,3 +1,4 @@
+#define RCPP_NO_BOUNDS_CHECK
 #include <Rcpp.h>
 extern "C" {
   // These packages use C linkage, so we need to specify
@@ -9,6 +10,7 @@ extern "C" {
 }
 using namespace Rcpp;
 
+// [[Rcpp::plugins(openmp)]]
 // [[Rcpp::export]]
 List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
                    CharacterVector barcode_names, int width) {
@@ -40,6 +42,7 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
     this_mismatches.fill(0);
     Chars_holder this_segment = get_elt_from_XStringSet_holder(&segment_holder, i);
     for (int k = 0; k < width; k++) {
+      #pragma omp simd
       for (int j = 0; j < n_barcodes; j++) {
         /* Increment the number of mismatches if the barcode letter does not match
          This was originally written as an if-statement, but with -O2 optimization 
