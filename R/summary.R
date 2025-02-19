@@ -3,50 +3,53 @@
 #' @param filter_results The output from \code{\link{filter_demultiplex_res}}
 #' @param barcodes The list of \code{\link{XStringSet}} objects,
 #' the barcodes which were used for demultiplexing.
-#' @importFrom magrittr %>% extract
+#' @importFrom magrittr %>% extract equals
+#' @importFrom purrr map_int
 #' @import dplyr
 #' @import glue
 #' @returns NULL
 #' @export
 filter_summary <- function(filter_results, barcodes) {
-  n_reads <- length(filter_results$retained)
+  n_reads <- length(filter_results$retained) + filter_results$n_removed
   n_removed <- filter_results$n_removed
   n_barcodes_per_set <- map_int(barcodes, length)
-  glue("Total number of reads: {filter_results$n_reads}") %>% 
+  glue("Total number of reads: {n_reads}") %>% 
     message()
   removed_percentage <- filter_results$n_removed/n_reads*100
-  glue("Number of reads removed:\\
+  glue("Number of reads removed: \\
                {n_removed} ({removed_percentage %>% round(2L)}%)") %>% 
     message()
   n_barcode_sets <- length(filter_results$allowed_mismatches)
   glue("Number of barcode sets: {n_barcode_sets}") %>% message()
-  barcode_sets <- colnames(filter_results$assigned_barcode)
-  barcode_sets <- ifelse(is.null(barcode_sets), seq_len(n_barcode_sets), barcode_sets)
+  barcode_sets <- colnames(filter_results$demultiplex_res$assigned_barcode)
+  if (is.null(barcode_sets)) {
+    barcode_sets <- seq_len(n_barcode_sets)
+  }
   for (barcode in barcode_sets) {
     cat(rep("-", 80L), "\n")
     glue("Barcode set: {barcode}") %>% message()
-    this_removed <- filter_results$n_removed_per_barcode[i]
+    this_removed <- filter_results$n_removed_per_barcode[barcode]
     this_percentage <- this_removed / n_reads * 100
-    glue("Number of possible barcodes:\\
+    glue("Number of possible barcodes: \\
                  {n_barcodes_per_set[barcode]}") %>% 
       message()
-    glue("Number of reads removed:\\
+    glue("Number of reads removed: \\
                  {this_removed} ({this_percentage %>% round(2L)}%)") %>% 
       message()
     n_allowed_mismatches <- filter_results$allowed_mismatches[barcode]
     for (mismatches in 0L:n_allowed_mismatches) {
-      n_reads_with_mismatches <- filter_results$mismatches %>%
+      n_reads_with_mismatches <- filter_results$demultiplex_res$mismatches %>%
         extract(, barcode, drop=TRUE) %>%
         equals(mismatches) %>%
         sum()
       percentage <- n_reads_with_mismatches / n_reads * 100
-      glue("Number of reads with {mismatches} mismatches:\\
+      glue("Number of reads with {mismatches} mismatches: \\
                    {n_reads_with_mismatches} ({percentage %>% round(2L)}%)") %>% 
         message()
     }
   }
   cat(rep("-", 80L), "\n")
-  n_unique_barcodes <- filter_results$assigned_barcodes %>%
+  n_unique_barcodes <- filter_results$demultiplex_res$assigned_barcodes %>%
     unique(MARGIN=1L) %>%
     nrow()
   glue("Number of unique barcodes detected: {n_unique_barcodes}") %>% 
@@ -57,10 +60,10 @@ filter_summary <- function(filter_results, barcodes) {
   collision_lambda <- n_unique_barcodes / n_barcode_combinations
   expected_collisions <- n_unique_barcodes * collision_lambda
   collision_percentage <- collision_lambda * 100 
-  glue("Expected number of barcode collisions:\\
-       {expected_collisions}({collision_percentage %>% round(2L)}%)") %>% 
+  glue("Expected number of barcode collisions: \\
+       {expected_collisions} ({collision_percentage %>% round(2L)}%)") %>% 
     message()
-  return(NULL)
+  invisible(NULL)
 }
 
 #'

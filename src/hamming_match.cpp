@@ -1,4 +1,3 @@
-#define RCPP_NO_BOUNDS_CHECK
 #include <Rcpp.h>
 #include <stdint.h>
 #include <limits.h>
@@ -44,7 +43,6 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
     memset(this_mismatches, (int8_t) 0, sizeof(*this_mismatches) * n_barcodes);
     Chars_holder this_segment = get_elt_from_XStringSet_holder(&segment_holder, i);
     for (int k = 0; k < width; k++) {
-#pragma omp simd
       for (int j = 0; j < n_barcodes; j++) {
         /* Increment the number of mismatches if the barcode letter does not match
          This was originally written as an if-statement, but with -O2 optimization 

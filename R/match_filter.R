@@ -30,8 +30,9 @@
 #' @details
 #' The value of \code{n_removed} does not in general equal the sum of of
 #' \code{n_removed_per_barcode} since a read can have too many mismatches
-#' with multiple barcodes. 
-#' 
+#' with multiple barcodes.
+#'  
+#' @importFrom magrittr set_names
 #' @export
 #'
 filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
@@ -47,5 +48,6 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   res$payload <- res$payload[retained_sequences]
   list(demultiplex_res=res, n_removed=n_removed_sequences,
        n_removed_per_barcode=n_sequences_removed_per_barcode,
-       retained=retained_sequences, allowed_mismatches=allowed_mismatches)
+       retained=retained_sequences, allowed_mismatches=allowed_mismatches %>%
+         set_names(mismatches %>% colnames()))
 }
