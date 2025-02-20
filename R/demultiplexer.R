@@ -4,6 +4,8 @@
 #' @param barcodes A list of \code{\link{XStringSet}} objects, the barcodes
 #' to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
 #' have the same length as specified by the \code{segment_lengths} argument and be named.
+#' For computational reasons, the maximum possible length of an individual barcode
+#' is 127.
 #' @param segments Character vector showing the segments of the
 #' sequences from 5' end to 3' end. The code applied is as follows:
 #'   \itemize{
@@ -132,15 +134,19 @@ combinatorial_demultiplex <- function(sequences, barcodes,
   return(results)
 }
 
+MAX_BARCODE_LEN <- 127L
+
 # This function assumes that the exact lengths of all segments are known
 # Arguments sequences and barcodes are DNAStringSet objects
 extract_and_demultiplex <- function(sequences, barcodes,
                                     segments, segment_lengths) {
   barcode_widths <- imap_int(barcodes, function(barcode, name) {
     widths <- width(barcode)
-    # The last line rewritten with assert_that
     assert_that(length(unique(widths)) <= 1L,
                 msg=glue("Barcode set {name} has variable length"))
+    assert_that(widths <= MAX_BARCODE_LEN,
+                msg=glue("Barcode set {name} has width \\
+                         longer than the limit of {MAX_BARCODE_LEN} nucleotides"))
     widths[1L]
   })
   n_barcodes <- length(barcodes)

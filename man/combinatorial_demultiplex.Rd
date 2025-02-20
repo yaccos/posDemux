@@ -11,7 +11,9 @@ combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
 
 \item{barcodes}{A list of \code{\link{XStringSet}} objects, the barcodes
 to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
-have the same length as specified by the \code{segment_lengths} argument and be named.}
+have the same length as specified by the \code{segment_lengths} argument and be named.
+For computational reasons, the maximum possible length of an individual barcode
+is 127.}
 
 \item{segments}{Character vector showing the segments of the
 sequences from 5' end to 3' end. The code applied is as follows:
