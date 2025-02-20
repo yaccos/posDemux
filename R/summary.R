@@ -33,9 +33,7 @@ filter_summary <- function(filter_results, barcodes) {
     glue("Number of possible barcodes: \\
                  {n_barcodes_per_set[barcode]}") %>% 
       message()
-    glue("Number of reads removed: \\
-                 {this_removed} ({this_percentage %>% round(2L)}%)") %>% 
-      message()
+    
     n_allowed_mismatches <- filter_results$allowed_mismatches[barcode]
     for (mismatches in 0L:n_allowed_mismatches) {
       n_reads_with_mismatches <- filter_results$demultiplex_res$mismatches %>%
@@ -47,6 +45,9 @@ filter_summary <- function(filter_results, barcodes) {
                    {n_reads_with_mismatches} ({percentage %>% round(2L)}%)") %>% 
         message()
     }
+    glue("Number of reads above mismatch thresholds: \\
+                 {this_removed} ({this_percentage %>% round(2L)}%)") %>% 
+      message()
   }
   cat(rep("-", 80L), "\n")
   n_unique_barcodes <- filter_results$demultiplex_res$assigned_barcodes %>%

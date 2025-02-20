@@ -140,8 +140,8 @@ payload_frame <- tibble(segment_idx = (segment_map == "P") %>% which()) %>%
       return(res)
     }
     bulk_sampled_DNA <- sample_DNA(n_reads * length)
-    split(bulk_sampled_DNA, rep(seq_len(n_reads), length)) %>% 
-      map_chr(. %>% paste0(collapse = ""))
+    split(bulk_sampled_DNA, rep(seq_len(n_reads), length)) %>%
+      map_chr(.  %>% paste0(collapse = ""))
   }
   )
   )
