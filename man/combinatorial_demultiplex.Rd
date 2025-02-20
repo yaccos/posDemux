@@ -40,6 +40,8 @@ sequences and the columns to the barcode segments
 between the assigned barcodes and the sequences. The rows correspond to the
 sequences and the columns to the barcode segments.
 \item \code{payload}: A \code{\link{XStringSet}} object with the payload sequences
+\item \code{barcodes}: The \code{barcodes} argument passed into the function.
+It is included in order to ease downstream processing.
 }
 }
 \description{

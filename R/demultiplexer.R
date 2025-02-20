@@ -46,6 +46,8 @@
 #'  between the assigned barcodes and the sequences. The rows correspond to the
 #'  sequences and the columns to the barcode segments.
 #'  \item \code{payload}: A \code{\link{XStringSet}} object with the payload sequences
+#'  \item \code{barcodes}: The \code{barcodes} argument passed into the function.
+#'  It is included in order to ease downstream processing.
 #'  }
 #'  
 #' @details
@@ -131,6 +133,7 @@ combinatorial_demultiplex <- function(sequences, barcodes,
     # No variable length payload segment
     results <- extract_and_demultiplex(sequences, barcodes, segments, segment_lengths)
   }
+  results$barcodes <- barcodes
   return(results)
 }
 

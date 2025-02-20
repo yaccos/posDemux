@@ -2,7 +2,7 @@
 % Please edit documentation in R/match_filter.R
 \name{filter_demultiplex_res}
 \alias{filter_demultiplex_res}
-\title{Filter demultiplexed reads based on the number of mismatches}
+\title{Filter demultiplexed reads}
 \usage{
 filter_demultiplex_res(demultiplex_res, allowed_mismatches)
 }
@@ -11,24 +11,42 @@ filter_demultiplex_res(demultiplex_res, allowed_mismatches)
 \code{\link{combinatorial_demultiplex}}}
 
 \item{allowed_mismatches}{Integer vector of length one or the same length
-as the number of barcode segments. The maximum Hamming distance from including
-a read in the output}
+as the number of barcode segments, the maximum Hamming distance from including
+a read in the output.}
 }
 \value{
 A list with the following elements:
 \itemize{
 \item \code{demultiplex_res}: The contents of \code{demultiplex_res} with
 the sequences filtered
-\item \code{n_removed}: Integer, the total number of sequences removed
-\item \code{n_removed_per_barcode}: Integer vector,
-the number of sequences removed per barcode
-
 \item \code{retained}: Logical vector with the same length as
 the number of reads in the input. \code{TRUE} if the corresponding read
 is retained.
 Useful for future filtering of paired-end reads.
-\item \code{allowed_mismatches}: Integer vector, the number
-of allowed mismatches for each barcode set
+\item \code{summary_res}: A list of S3 class \code{filter_summary}
+providing diagnostics for the filtering process. It has the
+the following fields:
+\itemize{
+\item \code{n_reads}: The total number of reads in the dataset before filtering.
+\item \code{n_removed}: The number of reads removed by filtering.
+\item \code{n_barcode_sets}: The number of barcode sets.
+\item \code{n_barcode_combinations}: The possible number
+of barcode combinations.
+
+\item \code{n_unique_barcodes}: The number of unique barcode combinations
+(i.e. cells) detected after filtering.
+\item \code{collision_lambda}: The expected relative frequency of barcode collisions.
+\item \code{expected_collisions}: The statistically expected number of barcode collisions.
+\item \code{barcode_summary}: A list containing a summary for each barcode set.
+Each element contains the following:
+\itemize{
+\item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set
+\item \code{n_removed}: Number of reads having too many mismatches for this barcode set
+\item \code{mismatch_frame}: A \code{data.frame} with the two columns,
+\code \code{n_mismatches} and \code{frequency} showing the number of reads for each
+of the allowed number of mismatches for the given barcode set.
+}
+}
 }
 }
 \description{
@@ -39,7 +57,7 @@ on the number of reads removed per barcode and the total number
 of reads removed.
 }
 \details{
-The value of \code{n_removed} does not in general equal the sum of of
+The value of \code{n_removed} does not in general equal the sum of
 \code{n_removed_per_barcode} since a read can have too many mismatches
 with multiple barcodes.
 }
