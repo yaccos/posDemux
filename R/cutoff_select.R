@@ -123,5 +123,5 @@ bc_to_frequency_cutoff <- function(frequency_table, cutoff) {
 frequency_to_bc_cutoff <- function(frequency_table, cutoff) {
   frequency_table$frequency %>% outer(cutoff, `>=`) %>%
     colSums()
-} 
+}
   

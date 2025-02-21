@@ -15,7 +15,7 @@
 #' @returns A list with the following elements:
 #' \itemize{
 #' \item \code{demultiplex_res}: The contents of \code{demultiplex_res} with
-#' the sequences filtered
+#' the sequences filtered.
 #' \item \code{retained}: Logical vector with the same length as
 #'  the number of reads in the input. \code{TRUE} if the corresponding read
 #'  is retained.
@@ -37,10 +37,11 @@
 #' \item \code{barcode_summary}: A list containing a summary for each barcode set.
 #' Each element contains the following:
 #' \itemize{
-#' \item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set
-#' \item \code{n_removed}: Number of reads having too many mismatches for this barcode set
+#' \item \code{n_barcodes}: Number of query barcodes.
+#' \item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set.
+#' \item \code{n_removed}: Number of reads having too many mismatches for this barcode set.
 #' \item \code{mismatch_frame}: A \code{data.frame} with the two columns, 
-#' \code \code{n_mismatches} and \code{frequency} showing the number of reads for each
+#' \item \code{n_mismatches} and \code{frequency} showing the number of reads for each
 #' of the allowed number of mismatches for the given barcode set.
 #' }
 #' }
@@ -93,11 +94,12 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
                                        colSums()
                               )
                             this_removed <-  sum(this_mismatch_vector > n_allowed_mismatches)
-                            list(n_allowed_mismatches = n_allowed_mismatches, n_removed = this_removed,
+                            list(n_barcodes = n_barcodes,
+                                 n_allowed_mismatches = n_allowed_mismatches,
+                                 n_removed = this_removed,
                                  mismatch_frame = mismatch_frame)
                           }
   )
-  
   
   summary_res <- list(
     n_reads=n_reads,n_removed = n_removed,
@@ -130,60 +132,51 @@ filter_sequences <- function(demultiplex_res, allowed_mismatches) {
 #' Diagnostic demultiplexing results
 #'
 #' @param x The field \code{filter_summary}  from \code{\link{filter_demultiplex_res}}
+#' @param ... Ignored
 #' @importFrom magrittr %>% extract equals
 #' @importFrom purrr map_int
 #' @import dplyr
 #' @import glue
-#' @returns Its input, invisibly
+#' @returns Its input, invisibly.
 #' @export
-print.filter_summary <- function(x) {
+print.filter_summary <- function(x, ...) {
   glue("Total number of reads: {x$n_reads}") %>% 
-    message()
+    cat("\n")
   removed_percentage <- x$n_removed/x$n_reads * 100
-  glue("Number of reads removed: \\
-               {n_removed} ({removed_percentage %>% round(2L)}%)") %>% 
-    message()
-  glue("Number of barcode sets: {x$n_barcode_sets}") %>% message()
-  barcode_sets <- colnames(filter_results$demultiplex_res$assigned_barcode)
-  iwalk(x$barcode_summary)
-  for (barcode in barcode_sets) {
+  glue("Number of reads removed by filtering: \\
+               {x$n_removed} ({removed_percentage %>% round(2L)}%)") %>% 
+    cat("\n")
+  glue("Number of barcode sets: {x$n_barcode_sets}") %>% cat("\n")
+  iwalk(x$barcode_summary, function(barcode_name, res) {
     cat(rep("-", 80L), "\n")
-    glue("Barcode set: {barcode}") %>% message()
-    this_removed <- filter_results$n_removed_per_barcode[barcode]
-    this_percentage <- this_removed / n_reads * 100
+    glue("Barcode set: {barcode_name}") %>% cat("\n")
     glue("Number of possible barcodes: \\
-                 {n_barcodes_per_set[barcode]}") %>% 
-      message()
-    
-    n_allowed_mismatches <- filter_results$allowed_mismatches[barcode]
-    for (mismatches in 0L:n_allowed_mismatches) {
-      n_reads_with_mismatches <- filter_results$demultiplex_res$mismatches %>%
-        extract(, barcode, drop=TRUE) %>%
-        equals(mismatches) %>%
-        sum()
-      percentage <- n_reads_with_mismatches / n_reads * 100
-      glue("Number of reads with {mismatches} mismatches: \\
-                   {n_reads_with_mismatches} ({percentage %>% round(2L)}%)") %>% 
-        message()
-    }
+                 {res$n_barcodes}") %>% 
+      cat("\n")
+    glue("Number of allowed mismatches: {res$n_allowed_mismatches}") %>% cat("\n")
+    walk2(res$mismatch_frame$n_mismatches, res$mismatch_frame$frequency, 
+         function(mismatches, frequency) {
+           percentage <- frequency / x$n_reads * 100
+           glue("Number of reads with {mismatches} mismatches: \\
+                   {frequency} ({percentage %>% round(2L)}%)") %>% 
+             cat("\n")
+         }
+           )
+    cat(rep("-", 80L), "\n")
+    percentage <- res$n_removed / x$n_reads * 100
     glue("Number of reads above mismatch thresholds: \\
-                 {this_removed} ({this_percentage %>% round(2L)}%)") %>% 
-      message()
+                 {res$n_removed} ({percentage %>% round(2L)}%)") %>% 
+      cat("\n")
   }
+  )
   cat(rep("-", 80L), "\n")
-  n_unique_barcodes <- filter_results$demultiplex_res$assigned_barcodes %>%
-    unique(MARGIN=1L) %>%
-    nrow()
-  glue("Number of unique barcodes detected: {n_unique_barcodes}") %>% 
-    message()
-  n_barcode_combinations <- prod(n_barcodes_per_set)
-  glue("Number of possible barcode combinations: {n_barcode_combinations}") %>% 
-    message()
-  collision_lambda <- n_unique_barcodes / n_barcode_combinations
-  expected_collisions <- n_unique_barcodes * collision_lambda
-  collision_percentage <- collision_lambda * 100 
+  glue("Number of unique barcodes detected: {x$n_unique_barcodes}") %>% 
+    cat("\n")
+  glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>% 
+    cat("\n")
+  collision_percentage <- x$collision_lambda * 100 
   glue("Expected number of barcode collisions: \\
-       {expected_collisions} ({collision_percentage %>% round(2L)}%)") %>% 
-    message()
-  invisible(NULL)
+       {x$expected_collisions} ({collision_percentage %>% round(2L)}%)") %>% 
+    cat("\n")
+  invisible(x)
 }

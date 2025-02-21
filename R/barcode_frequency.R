@@ -6,7 +6,7 @@
 #' \code{\link{filter_demultiplex_res}} and before creating frequency plots,
 #' knee plots or selecting the number of barcodes to include.
 #' 
-#' @param filter_results A character or integer matrix, corresponding to the field
+#' @param assigned_barcode A character or integer matrix, corresponding to the field
 #' \code{assigned_barcode} from \code{\link{combinatorial_demultiplex}}
 #' or the field \code{demultiplex_res$assigned_barcode} 
 #' from \code{\link{combinatorial_demultiplex}}
@@ -26,8 +26,8 @@
 #' @importFrom rlang .data
 #' @export
 #'
-create_frequency_table <- function(filter_results) {
-  filter_results %>%
+create_frequency_table <- function(assigned_barcode) {
+  assigned_barcode %>%
     as.data.frame() %>%
     count(pick(everything()), name = "frequency", sort = TRUE) %>%
     mutate(cumulative_frequency = cumsum(.data$frequency),
