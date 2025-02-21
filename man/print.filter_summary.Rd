@@ -4,13 +4,15 @@
 \alias{print.filter_summary}
 \title{Diagnostic demultiplexing results}
 \usage{
-\method{print}{filter_summary}(x)
+\method{print}{filter_summary}(x, ...)
 }
 \arguments{
 \item{x}{The field \code{filter_summary}  from \code{\link{filter_demultiplex_res}}}
+
+\item{...}{Ignored}
 }
 \value{
-Its input, invisibly
+Its input, invisibly.
 }
 \description{
 Diagnostic demultiplexing results

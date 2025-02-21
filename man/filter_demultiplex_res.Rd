@@ -18,7 +18,7 @@ a read in the output.}
 A list with the following elements:
 \itemize{
 \item \code{demultiplex_res}: The contents of \code{demultiplex_res} with
-the sequences filtered
+the sequences filtered.
 \item \code{retained}: Logical vector with the same length as
 the number of reads in the input. \code{TRUE} if the corresponding read
 is retained.
@@ -40,10 +40,11 @@ of barcode combinations.
 \item \code{barcode_summary}: A list containing a summary for each barcode set.
 Each element contains the following:
 \itemize{
-\item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set
-\item \code{n_removed}: Number of reads having too many mismatches for this barcode set
+\item \code{n_barcodes}: Number of query barcodes.
+\item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set.
+\item \code{n_removed}: Number of reads having too many mismatches for this barcode set.
 \item \code{mismatch_frame}: A \code{data.frame} with the two columns,
-\code \code{n_mismatches} and \code{frequency} showing the number of reads for each
+\item \code{n_mismatches} and \code{frequency} showing the number of reads for each
 of the allowed number of mismatches for the given barcode set.
 }
 }

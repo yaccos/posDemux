@@ -87,57 +87,62 @@ combinatorial_demultiplex <- function(sequences, barcodes,
   assert_that(length(element_NA_idx) <= 1L,
               msg="Only one NA is allowed in segment_lengths")
   
-  
-  
   if (length(element_NA_idx) == 1L) {
-    varidic_segment_type <- segments[element_NA_idx]
-    assert_that(varidic_segment_type != "B",
-                msg="A barcode segment cannot have variadic length")
-    n_five_prime_segments <- element_NA_idx - 1L
-    n_three_prime_segments <- n_segments - 1L - n_five_prime_segments
-    five_prime_segments <- segments[seq_len(n_five_prime_segments)]
-    three_prime_segments <- segments[seq.int(element_NA_idx + 1L, length.out = n_three_prime_segments)]
-    five_prime_lengths <- segment_lengths[seq_len(n_five_prime_segments)]
-    three_prime_lengths <- segment_lengths[seq.int(element_NA_idx + 1L, length.out = n_three_prime_segments)]
-    n_five_prime_barcodes <- sum(five_prime_segments == "B")
-    n_three_prime_barcodes <- sum(three_prime_segments == "B")
-    five_prime_barcodes <- barcodes[seq_len(n_five_prime_barcodes)]
-    three_prime_barcodes <- barcodes[seq.int(n_five_prime_barcodes + 1L, length.out = n_three_prime_barcodes)]
-    five_prime_width <- sum(five_prime_lengths)
-    three_prime_width <- sum(three_prime_lengths)
-    five_prime_sequences <- subseq(sequences, start = 1L, width = five_prime_width)
-    three_prime_sequences <- subseq(sequences, end = width(sequences),
-                                    width = three_prime_width)
-    five_prime_results <- extract_and_demultiplex(five_prime_sequences, five_prime_barcodes,
-                                                  five_prime_segments, five_prime_lengths)
-    three_prime_results <- extract_and_demultiplex(three_prime_sequences, three_prime_barcodes,
-                                                   three_prime_segments, three_prime_lengths)
-    assigned_barcodes <- cbind(five_prime_results$assigned_barcode,
-                               three_prime_results$assigned_barcode)
-    mismatches <- cbind(five_prime_results$mismatches,
-                        three_prime_results$mismatches)
-    if (varidic_segment_type == "P") {
-      variadic_sequence <- subseq(sequences, start = five_prime_width + 1L,
-                                  end = width(sequences) - three_prime_width)
-      payload <- xscat(five_prime_results$payload, variadic_sequence,
-                       three_prime_results$payload)
-    } else {
-      payload <- xscat(five_prime_results$payload, three_prime_results$payload)
-    }
-    return(list(assigned_barcodes = assigned_barcodes,
-                mismatches = mismatches,
-                payload = payload))
-    
-    
+    results <- extract_variadic_sequence(segments, element_NA_idx, n_segments,
+                                         segment_lengths, barcodes, sequences)
   } else {
     # No variable length payload segment
     results <- extract_and_demultiplex(sequences, barcodes, segments, segment_lengths)
   }
   results$barcodes <- barcodes
-  return(results)
+  results
 }
 
 MAX_BARCODE_LEN <- 127L
+
+# Function was extracted for code aestetics reasons
+# Handles the tricky case when we have a variadic sequence which requires us to
+# partition the two ends of the reads separately and demultiplex them
+extract_variadic_sequence <- function(segments, element_NA_idx, n_segments, segment_lengths, barcodes, sequences) {
+  varidic_segment_type <- segments[element_NA_idx]
+  assert_that(varidic_segment_type != "B",
+              msg="A barcode segment cannot have variadic length")
+  n_five_prime_segments <- element_NA_idx - 1L
+  n_three_prime_segments <- n_segments - 1L - n_five_prime_segments
+  five_prime_segments <- segments[seq_len(n_five_prime_segments)]
+  three_prime_segments <- segments[seq.int(element_NA_idx + 1L, length.out = n_three_prime_segments)]
+  five_prime_lengths <- segment_lengths[seq_len(n_five_prime_segments)]
+  three_prime_lengths <- segment_lengths[seq.int(element_NA_idx + 1L, length.out = n_three_prime_segments)]
+  n_five_prime_barcodes <- sum(five_prime_segments == "B")
+  n_three_prime_barcodes <- sum(three_prime_segments == "B")
+  five_prime_barcodes <- barcodes[seq_len(n_five_prime_barcodes)]
+  three_prime_barcodes <- barcodes[seq.int(n_five_prime_barcodes + 1L, length.out = n_three_prime_barcodes)]
+  five_prime_width <- sum(five_prime_lengths)
+  three_prime_width <- sum(three_prime_lengths)
+  five_prime_sequences <- subseq(sequences, start = 1L, width = five_prime_width)
+  three_prime_sequences <- subseq(sequences, end = width(sequences),
+                                  width = three_prime_width)
+  five_prime_results <- extract_and_demultiplex(five_prime_sequences, five_prime_barcodes,
+                                                five_prime_segments, five_prime_lengths)
+  three_prime_results <- extract_and_demultiplex(three_prime_sequences, three_prime_barcodes,
+                                                 three_prime_segments, three_prime_lengths)
+  assigned_barcodes <- cbind(five_prime_results$assigned_barcode,
+                             three_prime_results$assigned_barcode)
+  mismatches <- cbind(five_prime_results$mismatches,
+                      three_prime_results$mismatches)
+  if (varidic_segment_type == "P") {
+    variadic_sequence <- subseq(sequences, start = five_prime_width + 1L,
+                                end = width(sequences) - three_prime_width)
+    payload <- xscat(five_prime_results$payload, variadic_sequence,
+                     three_prime_results$payload)
+  } else {
+    payload <- xscat(five_prime_results$payload, three_prime_results$payload)
+  }
+  results <- list(
+    assigned_barcodes = assigned_barcodes,
+    mismatches = mismatches,
+    payload = payload)
+}
 
 # This function assumes that the exact lengths of all segments are known
 # Arguments sequences and barcodes are DNAStringSet objects
@@ -145,12 +150,13 @@ extract_and_demultiplex <- function(sequences, barcodes,
                                     segments, segment_lengths) {
   barcode_widths <- imap_int(barcodes, function(barcode, name) {
     widths <- width(barcode)
-    assert_that(length(unique(widths)) <= 1L,
+    unique_widths <- unique(widths)
+    assert_that(length(unique_widths) <= 1L,
                 msg=glue("Barcode set {name} has variable length"))
-    assert_that(widths <= MAX_BARCODE_LEN,
+    assert_that(unique_widths <= MAX_BARCODE_LEN,
                 msg=glue("Barcode set {name} has width \\
                          longer than the limit of {MAX_BARCODE_LEN} nucleotides"))
-    widths[1L]
+    unique_widths
   })
   n_barcodes <- length(barcodes)
   n_segments <- length(segments)
@@ -183,8 +189,10 @@ extract_and_demultiplex <- function(sequences, barcodes,
   assigned_barcode <- do.call(cbind, map(barcode_results, "assigned_barcode"))
   mismatches <- do.call(cbind, map(barcode_results, "mismatches"))
   payload <- do.call(xscat, payload_sequences)
-  list(assigned_barcode = assigned_barcode,
-              mismatches = mismatches,
-              payload = payload) %>% return()
+  list(
+    assigned_barcode = assigned_barcode,
+    mismatches = mismatches,
+    payload = payload
+  )
 }
 

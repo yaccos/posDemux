@@ -81,7 +81,7 @@ interactive_bc_cutoff <- function(frequency_table) {
   
   }
   cutoff_value <- runApp(list(ui = ui, server = server))
-  return(cutoff_value)
+  cutoff_value
 }
 
 

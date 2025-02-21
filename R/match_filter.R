@@ -52,18 +52,20 @@
 #' with multiple barcodes.
 #'  
 #' @importFrom magrittr set_names %<>%
+#' @importFrom purrr imap
 #' @export
 #'
 filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
-  n_barcode_sets <- length(demultiplex_res$barcodes)
+  barcodes <- demultiplex_res$barcodes
+  n_barcode_sets <- length(barcodes)
   assert_that(length(allowed_mismatches) == 1L || 
                 n_barcode_sets == length(allowed_mismatches),
               msg = "allowed_mismatches does not match the number of barcode sets"
   )
   if (length(allowed_mismatches) == 1L && n_barcode_sets > 1L) {
     allowed_mismatches <- rep(allowed_mismatches, n_barcode_sets)
-    names(allowed_mismatches) <- names(demultiplex_res$barcodes)
   }
+  names(allowed_mismatches) <- names(demultiplex_res$barcodes)
   mismatches <- demultiplex_res$mismatches
   raw_filter_res <- filter_sequences(demultiplex_res, allowed_mismatches)
   retained_sequences <- raw_filter_res$retained_sequences
@@ -81,10 +83,9 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   collision_lambda <- n_unique_barcodes / n_barcode_combinations
   expected_collisions <- n_unique_barcodes * collision_lambda
   barcode_summary <- imap(demultiplex_res$barcodes,
-                          function(barcode_name, barcode_set) {
+                          function(barcode_set, barcode_name) {
                             n_allowed_mismatches <- allowed_mismatches[barcode_name]
                             n_barcodes <- length(barcode_set)
-                            this_removed <- filter_results$n_removed_per_barcode[barcode_name]
                             this_mismatch_vector <- mismatches[, barcode_name, drop=TRUE]
                             
                             mismatch_frame <- data.frame(n_mismatches = 
@@ -123,10 +124,10 @@ filter_sequences <- function(demultiplex_res, allowed_mismatches) {
   mismatches_above_threshold <- sweep(mismatches, 2L,
                                       allowed_mismatches, FUN = `>`)
   retained_sequences <- rowSums(mismatches_above_threshold) == 0L
-  res$assigned_barcode %<>% extract(retained_sequences,)
-  res$mismatches %<>% extract(retained_sequences,)
-  res$payload %<>% extract(retained_sequences)
-  return(res=res, retained_sequences=retained_sequences)
+  demultiplex_res$assigned_barcode %<>% extract(retained_sequences,)
+  demultiplex_res$mismatches %<>% extract(retained_sequences,)
+  demultiplex_res$payload %<>% extract(retained_sequences)
+  list(res=demultiplex_res, retained_sequences=retained_sequences)
 }
 
 #' Diagnostic demultiplexing results

@@ -60,7 +60,7 @@ file_combinatorial_demultiplex <- function(input_file,
   write.table(filtered_res$demultiplex_res$assigned_barcodes,
               output_table_file, sep="\t", quote=FALSE, row.names=TRUE,
               col.names=TRUE)
-  return(filtered_res)
+  filtered_res
 }
 #' @title Run pipeline for demultiplexing sequences
 #' @param reverse_file The file path to the reverse reads
