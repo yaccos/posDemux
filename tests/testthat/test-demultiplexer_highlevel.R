@@ -67,13 +67,18 @@ n_reads <- sum(expected_frequency_table$frequency)
 test_that("Frequency and Knee plots are made without raising errors", {
   frequency_plot_file <- tempfile("frequency_plot", fileext = ".pdf")
   knee_plot_file <- tempfile("knee_plot.pdf", fileext = ".pdf")
-  expect_no_error(
-    frequency_plot(expected_frequency_table) %>% ggsave(filename = frequency_plot_file, 
-                                                        plot = .)
-  )
-  expect_no_error(
-    knee_plot(expected_frequency_table) %>% ggsave(filename = knee_plot_file, 
-                                                   plot = .)
+  suppressMessages(
+    # Otherwise generated annoying saving messages
+    {
+      expect_no_error(
+        frequency_plot(expected_frequency_table) %>% ggsave(filename = frequency_plot_file, 
+                                                            plot = .)
+      )
+      expect_no_error(
+        knee_plot(expected_frequency_table) %>% ggsave(filename = knee_plot_file, 
+                                                       plot = .)
+      )
+    }
   )
 }
 )
@@ -93,14 +98,14 @@ expected_assigned_barcodes <- map2(barcode_frame$name, barcode_frame$barcode_ref
   extract(nrow(.) %>% seq_len() %>% sample(),)
 
 bc_stringset <- map2(barcode_frame$name, barcode_frame$barcode_reference,
-                    function(name, reference) {
-                      barcode <- expected_frequency_table[[name]]
-                      barcode_multiplicity <- expected_frequency_table$frequency
-                      barcode_with_multiplicity <- rep(barcode, barcode_multiplicity)
-                      expected_assigned_barcodes %>% extract(, name) %>% 
-                        {extract(reference, .)}
-                    }
-                    ) %>% 
+                     function(name, reference) {
+                       barcode <- expected_frequency_table[[name]]
+                       barcode_multiplicity <- expected_frequency_table$frequency
+                       barcode_with_multiplicity <- rep(barcode, barcode_multiplicity)
+                       expected_assigned_barcodes %>% extract(, name) %>% 
+                         {extract(reference, .)}
+                     }
+) %>% 
   set_names(barcode_frame$name)
 
 segment_seq <- vector(mode = "list", length = n_segments)
@@ -146,7 +151,7 @@ payload_frame <- tibble(segment_idx = (segment_map == "P") %>% which()) %>%
   )
   )
 
-  
+
 segment_seq[payload_frame$segment_idx] <- payload_frame$sequence
 
 expected_payload <- do.call(xscat, payload_frame$sequence) %>% DNAStringSet()
@@ -154,16 +159,16 @@ expected_payload <- do.call(xscat, payload_frame$sequence) %>% DNAStringSet()
 sequences <- do.call(xscat, segment_seq)
 
 demultiplex_res <- combinatorial_demultiplex(sequences = sequences,
-                                                       barcodes = barcode_frame$barcode_reference,
-                                                       segments = segment_map,
-                                                       segment_lengths = segment_length)
+                                             barcodes = barcode_frame$barcode_reference,
+                                             segments = segment_map,
+                                             segment_lengths = segment_length)
 
 test_that("Barcode assignments are correct",
           {
-          testthat::expect_true(
-            all.equal(demultiplex_res$assigned_barcodes,
-                                          expected_assigned_barcodes)
-          )
+            testthat::expect_true(
+              all.equal(demultiplex_res$assigned_barcodes,
+                        expected_assigned_barcodes)
+            )
           }
 )
 
@@ -172,14 +177,14 @@ expected_mismatches <- array(0L, dim = dim(expected_assigned_barcodes),
 
 test_that("All barcodes were assigned without any mismatches",
           {
-          testthat::expect_true(all.equal(demultiplex_res$mismatches,
-                                          expected_mismatches)
-          )
+            testthat::expect_true(all.equal(demultiplex_res$mismatches,
+                                            expected_mismatches)
+            )
           }
 )
 
 demultiplex_filter <- filter_demultiplex_res(demultiplex_res = demultiplex_res,
-                       allowed_mismatches = barcode_frame$n_allowed_mismatches)
+                                             allowed_mismatches = barcode_frame$n_allowed_mismatches)
 
 frequency_table <- create_frequency_table(demultiplex_filter$demultiplex_res$assigned_barcodes)
 
@@ -203,6 +208,6 @@ test_that("Generated frequency table is correct",
                             expected_frequency_table[columns_to_test])
             
           }
-          )
+)
 
 

@@ -147,8 +147,16 @@ print.filter_summary <- function(x, ...) {
   glue("Number of reads removed by filtering: \\
                {x$n_removed} ({removed_percentage %>% round(2L)}%)") %>% 
     cat("\n")
+  glue("Number of unique barcodes detected: {x$n_unique_barcodes}") %>% 
+    cat("\n")
+  glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>% 
+    cat("\n")
+  collision_percentage <- x$collision_lambda * 100 
+  glue("Expected number of barcode collisions: \\
+       {x$expected_collisions} ({collision_percentage %>% round(2L)}%)") %>% 
+    cat("\n")
   glue("Number of barcode sets: {x$n_barcode_sets}") %>% cat("\n")
-  iwalk(x$barcode_summary, function(barcode_name, res) {
+  iwalk(x$barcode_summary, function(res,barcode_name) {
     cat(rep("-", 80L), "\n")
     glue("Barcode set: {barcode_name}") %>% cat("\n")
     glue("Number of possible barcodes: \\
@@ -163,21 +171,12 @@ print.filter_summary <- function(x, ...) {
              cat("\n")
          }
            )
-    cat(rep("-", 80L), "\n")
     percentage <- res$n_removed / x$n_reads * 100
-    glue("Number of reads above mismatch thresholds: \\
+    glue("Number of reads above mismatch threshold: \\
                  {res$n_removed} ({percentage %>% round(2L)}%)") %>% 
       cat("\n")
   }
   )
   cat(rep("-", 80L), "\n")
-  glue("Number of unique barcodes detected: {x$n_unique_barcodes}") %>% 
-    cat("\n")
-  glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>% 
-    cat("\n")
-  collision_percentage <- x$collision_lambda * 100 
-  glue("Expected number of barcode collisions: \\
-       {x$expected_collisions} ({collision_percentage %>% round(2L)}%)") %>% 
-    cat("\n")
   invisible(x)
 }
