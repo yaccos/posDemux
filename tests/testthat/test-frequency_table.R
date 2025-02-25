@@ -34,7 +34,7 @@ test_that("Frequency table is correct for unnamed integer matrices", {
   # in create_frequency_table makes up column names if there are none
   reconstructed_unique_mat <- frequency_table %>%
     select(-frequency, -cumulative_frequency, -fraction, -cumulative_fraction) %>%
-     as.matrix() %>% 
+    as.matrix() %>% 
     unname()
   expect_equal(reconstructed_unique_mat, expected_unique_mat)
 })
@@ -61,4 +61,5 @@ test_that("Frequency table is correct for named integer matrices", {
     select(-frequency, -cumulative_frequency, -fraction, -cumulative_fraction) %>%
     as.matrix()
   expect_equal(reconstructed_unique_mat, expected_unique_mat)
-})
+}
+)

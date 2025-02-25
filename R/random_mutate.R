@@ -77,7 +77,8 @@ mutate_barcodes <- function(barcodes, mismatches, times) {
   # such that only reads which are mutated are decoded and pasted
   mutated_barcodes <- which(!idx_available)
   barcodes[mutated_barcodes] <- index_matrix[, mutated_barcodes] %>%
-    {extract(sampling_bases, .)} %>% 
+    {array(sampling_bases[.], dim = dim(.))} %>% 
     apply(MARGIN = 2L, FUN = paste0, collapse="")
+  names(barcode_mismatches) <- names(barcodes)
   list(barcodes=barcodes, mismatches=barcode_mismatches)
 }
