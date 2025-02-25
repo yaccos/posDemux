@@ -82,3 +82,4 @@ mutate_barcodes <- function(barcodes, mismatches, times) {
   names(barcode_mismatches) <- names(barcodes)
   list(barcodes=barcodes, mismatches=barcode_mismatches)
 }
+

@@ -38,6 +38,7 @@ hamming_distance <- function(x, y) {
 
 hamming_mismatches <- hamming_distance(barcodes_stringset, mutated_barcodes$barcodes)
 
+
 test_that("Barcode mutation provides the reported number of mutations",
           {
             expect_equal(hamming_mismatches, mutated_barcodes$mismatches)

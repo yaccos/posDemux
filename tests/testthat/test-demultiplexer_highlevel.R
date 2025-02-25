@@ -11,24 +11,27 @@ set.seed(29505L)
 # Three barcode sets
 segment_map <- c("A","B","A","P","B","P","A","B","P")
 n_segments <- length(segment_map)
-n_unique_barcodes <- 10000L
+n_unique_barcodes <- 1000L
 mean_reads_per_cell <- 100L
 mean_reads_per_artifact <- 5L 
 n_barcode_sets <- (segment_map == "B") %>% sum()
-segment_length <- c(20L, 8L, 13L, 9L, 9L, NA_integer_, 18L, 4L, 14L)
+segment_length <- c(20L, 8L, 13L, 9L, 11L, NA_integer_, 18L, 4L, 14L)
 barcode_frame <- tibble(segment_idx =
                           segment_map %>%
                           magrittr::equals("B") %>%
                           which()
 ) %>%
-  mutate(length = segment_length %>% extract(segment_idx), 
-         n_allowed_mismatches = c(4L, 5L, 1L),
+  mutate(length = segment_length %>% magrittr::extract(segment_idx), 
+         n_allowed_mismatches = c(2L, 3L, 1L),
          name = glue("bc{1L:3L}")) %>% 
   mutate(barcode_reference = pmap(list(name, length, n_allowed_mismatches),
                                   function(name, length, n_allowed_mismatches)
                                   {
                                     DNABarcodes::create.dnabarcodes(n=length,
-                                                                    dist = n_allowed_mismatches - 1L ,
+                                                                    # In order to uniquely error-check a barcode
+                                                                    # the distance between the barcodes have to be
+                                                                    # more than double the redundancy
+                                                                    dist = n_allowed_mismatches * 2L + 1L,
                                                                     metric = "hamming",
                                                                     heuristic = "conway"
                                     ) %>% set_names(
@@ -45,12 +48,15 @@ realized_barcode_combinations <- possible_barcode_combinations %>%
 
 # We want half to the barcode combinations to simulate artifacts,
 # whereas the others look more sensible to originate from cells
-n_artifact_barcode_combinations <- as.integer(n_unique_barcodes / 2)
+n_artifact_barcode_combinations <- n_unique_barcodes %/% 2L
 artifact_idxs <- sample(realized_barcode_combinations %>% nrow() %>% seq_len(),
                         n_artifact_barcode_combinations)
 is_artifact <- rep(FALSE, n_unique_barcodes) %>% inset(artifact_idxs, TRUE)
 rbinom_size <- 10L
-expected_frequency_table <-
+
+# How the frequency table would have
+# looked if there were no errors in the barcodes
+preliminary_frequency_table <-
   realized_barcode_combinations %>%  mutate(
     frequency=ifelse(is_artifact,
                      rnbinom(n_unique_barcodes,mu=mean_reads_per_artifact, size=rbinom_size),
@@ -62,7 +68,37 @@ expected_frequency_table <-
          fraction = frequency / sum(frequency)) %>% 
   mutate(cumulative_fraction=cumsum(fraction))
 
-n_reads <- sum(expected_frequency_table$frequency)
+n_reads <- sum(preliminary_frequency_table$frequency)
+
+mutation_p <- list(
+  # Read as: p=0.1 for 1 mismatch, p=0.04 for 2 mismatches,
+  # p=0.008 for 3 mismatches (above threshold)
+  bc1=c(0.1,0.04,0.008),
+  bc2=c(0.2,0.05,0.02,0.005),
+  bc3=c(0.05,0.01)
+)
+
+
+
+mutation_count <- mutation_p %>% map(function(p_vec) {
+  # We must include the probability of zero mutations to sample correctly
+  # from the multinomial distribution
+  augmented_p_vec <- c(1L-sum(p_vec), p_vec)
+  size <- preliminary_frequency_table$frequency
+  # Computes the of reads having a mutation in the barcode
+  # for each realized barcode combination
+  map(size, 
+          function(size) {rmultinom(n = 1L, size = size, prob = augmented_p_vec)}
+          ) %>% 
+            {do.call(cbind, .)}
+}
+)
+
+n_removed_per_combination_per_set <- mutation_count %>% map(function(count_matrix) {
+  count_matrix[nrow(count_matrix),]
+}
+)
+
 
 test_that("Frequency and Knee plots are made without raising errors", {
   frequency_plot_file <- tempfile("frequency_plot", fileext = ".pdf")
@@ -71,11 +107,11 @@ test_that("Frequency and Knee plots are made without raising errors", {
     # Otherwise generated annoying saving messages
     {
       expect_no_error(
-        frequency_plot(expected_frequency_table) %>% ggsave(filename = frequency_plot_file, 
+        frequency_plot(preliminary_frequency_table) %>% ggsave(filename = frequency_plot_file, 
                                                             plot = .)
       )
       expect_no_error(
-        knee_plot(expected_frequency_table) %>% ggsave(filename = knee_plot_file, 
+        knee_plot(preliminary_frequency_table) %>% ggsave(filename = knee_plot_file, 
                                                        plot = .)
       )
     }
@@ -83,10 +119,10 @@ test_that("Frequency and Knee plots are made without raising errors", {
 }
 )
 
-expected_assigned_barcodes <- map2(barcode_frame$name, barcode_frame$barcode_reference,
+preliminary_assigned_barcodes <- map2(barcode_frame$name, barcode_frame$barcode_reference,
                                    function(name, reference) {
-                                     barcode <- expected_frequency_table[[name]]
-                                     barcode_multiplicity <- expected_frequency_table$frequency
+                                     barcode <- preliminary_frequency_table[[name]]
+                                     barcode_multiplicity <- preliminary_frequency_table$frequency
                                      barcode_with_multiplicity <- rep(barcode, barcode_multiplicity)
                                      reference[barcode_with_multiplicity] %>%
                                        names()
@@ -95,15 +131,15 @@ expected_assigned_barcodes <- map2(barcode_frame$name, barcode_frame$barcode_ref
   {do.call(cbind, .)} %>% 
   set_colnames(barcode_frame$name) %>% 
   # Ensures to shuffle barcodes
-  extract(nrow(.) %>% seq_len() %>% sample(),)
+  magrittr::extract(nrow(.) %>% seq_len() %>% sample(),)
 
 bc_stringset <- map2(barcode_frame$name, barcode_frame$barcode_reference,
                      function(name, reference) {
                        barcode <- expected_frequency_table[[name]]
                        barcode_multiplicity <- expected_frequency_table$frequency
                        barcode_with_multiplicity <- rep(barcode, barcode_multiplicity)
-                       expected_assigned_barcodes %>% extract(, name) %>% 
-                         {extract(reference, .)}
+                       expected_assigned_barcodes %>% magrittr::extract(, name) %>% 
+                         {magrittr::extract(reference, .)}
                      }
 ) %>% 
   set_names(barcode_frame$name)
