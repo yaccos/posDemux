@@ -23,8 +23,8 @@ the sequences filtered.
 the number of reads in the input. \code{TRUE} if the corresponding read
 is retained.
 Useful for future filtering of paired-end reads.
-\item \code{summary_res}: A list of S3 class \code{filter_summary}
-providing diagnostics for the filtering process. It has the
+\item \code{summary_res}: A list of S3 class \code{demultiplex_filter_summary}
+providing diagnostics for the filtering process. It contains the
 the following fields:
 \itemize{
 \item \code{n_reads}: The total number of reads in the dataset before filtering.
@@ -40,6 +40,7 @@ of barcode combinations.
 \item \code{barcode_summary}: A list containing a summary for each barcode set.
 Each element contains the following:
 \itemize{
+\item \code{width}: The width (number of nucleotide) of the barcode set.
 \item \code{n_barcodes}: Number of query barcodes.
 \item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set.
 \item \code{n_removed}: Number of reads having too many mismatches for this barcode set.

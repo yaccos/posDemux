@@ -1,6 +1,7 @@
 #' Interactive cutoff selection
 #' 
-#' @description Launches an interactive Shiny application for
+#' @description Returns an
+#' interactive Shiny application for
 #' determining cutoff from knee plot and barcode frequency plot. The user
 #' will select the appropriate number of barcode combinations
 #' (i.e. distinct cells) to keep for further analysis. Usually, this is done
@@ -11,9 +12,8 @@
 #'
 #' @param frequency_table The frequency table
 #' from \code{\link{create_frequency_table}}
-#' @return Integer scalar with the selected cutoff returned
-#' invisibly
-#' @export
+#' @return A \code{shiny.appobj} which launches when printed and returns the
+#' last selected cutoff (invisibly) when it stops.
 interactive_bc_cutoff <- function(frequency_table) {
   n_barcode_combinations <- frequency_table %>% nrow()
   n_reads <- frequency_table %>% pull("frequency") %>% sum()
@@ -80,8 +80,7 @@ interactive_bc_cutoff <- function(frequency_table) {
     )
   
   }
-  cutoff_value <- runApp(list(ui = ui, server = server))
-  cutoff_value
+  shinyApp(ui, server)
 }
 
 

@@ -11,11 +11,12 @@ interactive_bc_cutoff(frequency_table)
 from \code{\link{create_frequency_table}}}
 }
 \value{
-Integer scalar with the selected cutoff returned
-invisibly
+A \code{shiny.appobj} which launches when printed and returns the
+last selected cutoff (invisibly) when it stops.
 }
 \description{
-Launches an interactive Shiny application for
+Returns an
+interactive Shiny application for
 determining cutoff from knee plot and barcode frequency plot. The user
 will select the appropriate number of barcode combinations
 (i.e. distinct cells) to keep for further analysis. Usually, this is done
