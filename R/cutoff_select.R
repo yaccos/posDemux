@@ -39,7 +39,8 @@ interactive_bc_cutoff <- function(frequency_table) {
   
   server <- function(input, output, session) {
     output$knee_plot <- renderPlot(
-      knee_plot(frequency_table, input$cutoff) %>% print()
+      knee_plot(frequency_table, input$cutoff) +
+        theme(text = element_text(size = 18))
     )
     
     filtered_table <- reactive(
@@ -65,8 +66,8 @@ interactive_bc_cutoff <- function(frequency_table) {
     
     output$frequency_plot <- renderPlot(
       frequency_plot(frequency_table,
-                     cutoff = frequency_cutoff()) %>%
-        print()
+                     cutoff = frequency_cutoff()) + 
+        theme(text = element_text(size = 18))
     )
     output$frequency_cutoff <- renderPrint(
       frequency_cutoff()
