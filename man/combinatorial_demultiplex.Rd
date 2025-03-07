@@ -9,7 +9,8 @@ combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
 \arguments{
 \item{sequences}{A \code{\link{XStringSet}} object, the sequences to be demultiplexed}
 
-\item{barcodes}{A list of \code{\link{XStringSet}} objects, the barcodes
+\item{barcodes}{A list of \code{\link{XStringSet}} objects in the same order they
+appear in \code{sequences}, the barcodes
 to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode
@@ -22,10 +23,14 @@ sequences from 5' end to 3' end. The code applied is as follows:
 \item \code{'B'}: Barcode, used for demultiplexing
 \item \code{'P'}: Payload, sequence to be kept after trimming
 and demultiplexering (e.g. cDNA or UMI).
-}}
+}
+If this vector is named, this will determine the names of the payload sets.
+Names by the barcode sets will be determined by the names of the argument
+\code{barcodes} (if any).}
 
 \item{segment_lengths}{Integer vector with the same length
-as \code{segments}, lengths of the segments.
+as \code{segments}, lengths of the segments provided in the same order as in
+\code{segments}.
 Up to one of the non-barcode segments can have its length
 set to \code{NA} which means
 it is considered a variadic length segment}
@@ -53,7 +58,8 @@ middle segment can be variadic in length. There are three types of segments:
 Adapter, Barcode and Payload. The adapter is trimmed and ignored, the barcode
 is used for demultiplexing, and the payload is kept after trimming and demultiplexing
 and returned from the function. If there are multiple payload segments, they
-concatented in the output sequences. The barcodes can be positioned at
+each segment constitute their own segment in a list. For type stability reasons,
+such a list is returned. The barcodes can be positioned at
 either end of the sequences,
 but no barcode can (for obvious reasons) be variadic in length.
 }

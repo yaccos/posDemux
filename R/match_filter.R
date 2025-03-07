@@ -130,7 +130,7 @@ filter_sequences <- function(demultiplex_res, allowed_mismatches) {
   retained_sequences <- rowSums(mismatches_above_threshold) == 0L
   demultiplex_res$assigned_barcodes %<>% extract(retained_sequences,)
   demultiplex_res$mismatches %<>% extract(retained_sequences,)
-  demultiplex_res$payload %<>% extract(retained_sequences)
+  demultiplex_res$payload %<>% map(. %>% extract(retained_sequences))
   list(res=demultiplex_res, retained_sequences=retained_sequences)
 }
 
