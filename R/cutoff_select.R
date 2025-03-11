@@ -14,6 +14,7 @@
 #' from \code{\link{create_frequency_table}}
 #' @return A \code{shiny.appobj} which launches when printed and returns the
 #' last selected cutoff (invisibly) when it stops.
+#' @export
 interactive_bc_cutoff <- function(frequency_table) {
   n_barcode_combinations <- frequency_table %>% nrow()
   n_reads <- frequency_table %>% pull("frequency") %>% sum()
