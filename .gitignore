@@ -9,3 +9,5 @@ scratch.R
 scratch.cpp
 src/*.o
 src/*.so
+src/*.dll
+

@@ -1,7 +1,8 @@
 #' Combinatorial demultiplexer
 #'
 #' @param sequences A \code{\link{XStringSet}} object, the sequences to be demultiplexed
-#' @param barcodes A list of \code{\link{XStringSet}} objects, the barcodes
+#' @param barcodes A list of \code{\link{XStringSet}} objects in the same order they
+#' appear in \code{sequences}, the barcodes
 #' to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
 #' have the same length as specified by the \code{segment_lengths} argument and be named.
 #' For computational reasons, the maximum possible length of an individual barcode
@@ -14,8 +15,12 @@
 #'     \item \code{'P'}: Payload, sequence to be kept after trimming
 #'     and demultiplexering (e.g. cDNA or UMI).
 #'   }
+#' If this vector is named, this will determine the names of the payload sets.
+#' Names by the barcode sets will be determined by the names of the argument
+#' \code{barcodes} (if any).
 #' @param segment_lengths Integer vector with the same length
-#'  as \code{segments}, lengths of the segments.
+#'  as \code{segments}, lengths of the segments provided in the same order as in
+#'  \code{segments}.
 #'  Up to one of the non-barcode segments can have its length
 #'  set to \code{NA} which means
 #'  it is considered a variadic length segment
@@ -28,7 +33,8 @@
 #' Adapter, Barcode and Payload. The adapter is trimmed and ignored, the barcode
 #' is used for demultiplexing, and the payload is kept after trimming and demultiplexing
 #' and returned from the function. If there are multiple payload segments, they
-#' concatented in the output sequences. The barcodes can be positioned at 
+#' each segment constitute their own segment in a list. For type stability reasons,
+#' such a list is returned. The barcodes can be positioned at 
 #' either end of the sequences,
 #' but no barcode can (for obvious reasons) be variadic in length.
 #' 
@@ -45,7 +51,8 @@
 #'  \item \code{mismatches}: An \code{integer} matrix with the number of mismatches
 #'  between the assigned barcodes and the sequences. The rows correspond to the
 #'  sequences and the columns to the barcode segments.
-#'  \item \code{payload}: A \code{\link{XStringSet}} object with the payload sequences
+#'  \item \code{payload}: A list \code{\link{XStringSet}} objects, each containing
+#'  the results for a payload segment.
 #'  \item \code{barcodes}: The \code{barcodes} argument passed into the function.
 #'  It is included in order to ease downstream processing.
 #'  }
@@ -62,7 +69,7 @@ combinatorial_demultiplex <- function(sequences, barcodes,
   n_barcode_segments <- sum(segments == "B")
   n_segments <- length(segments)
   
-  # The last line rewritten with assert_that
+  
   assert_that(n_barcode_segments == length(barcodes),
               msg="The provided number of barcode segments in argument barcodes
          does not match the number of barcode segments in argument segments")
@@ -132,11 +139,13 @@ extract_variadic_sequence <- function(segments, element_NA_idx, n_segments, segm
                       three_prime_results$mismatches)
   if (varidic_segment_type == "P") {
     variadic_sequence <- subseq(sequences, start = five_prime_width + 1L,
-                                end = width(sequences) - three_prime_width)
-    payload <- xscat(five_prime_results$payload, variadic_sequence,
+                                end = width(sequences) - three_prime_width) %>% 
+      list() %>%
+      magrittr::set_names(names(varidic_segment_type))
+    payload <- c(five_prime_results$payload, variadic_sequence,
                      three_prime_results$payload)
   } else {
-    payload <- xscat(five_prime_results$payload, three_prime_results$payload)
+    payload <- c(five_prime_results$payload, three_prime_results$payload)
   }
   results <- list(
     assigned_barcodes = assigned_barcodes,
@@ -166,33 +175,36 @@ extract_and_demultiplex <- function(sequences, barcodes,
                         check.attributes = FALSE) %>% 
                 isTRUE(),
               msg="Barcodes lengths do not match their provided segments lengths")
-  payload_segment_idxs <- which(segments == "P")
   barcode_segments_sequences <- map2(barcode_widths, barcode_segment_idxs,
                                      function(width, idx) {
                                        subseq(sequences,
                                               end = segment_ends[idx],
                                               width = width)
                                      })
+  
+  payload_segment_idxs <- which(segments == "P")
   payload_widths <- segment_lengths[payload_segment_idxs]
-  payload_sequences <- map2(payload_widths, payload_segment_idxs,
-                            function(width, idx) {
+  
+  payload_sequences <- map2(payload_segment_idxs,payload_widths,
+                            function(idx, width) {
                               subseq(sequences,
                                      end = segment_ends[idx],
                                      width = width)
                             })
-  barcode_results <- pmap(list(barcode_segments_sequences, barcodes, barcode_widths), 
-                          function(segment, barcode, width) {
+  
+  
+  barcode_results <- pmap(list(barcodes, barcode_segments_sequences, barcode_widths), 
+                          function(barcode, segment, width) {
                             hamming_match(segment, names(segment), barcode,
                                           names(barcode), width)
                           }
   )
   assigned_barcode <- do.call(cbind, map(barcode_results, "assigned_barcode"))
   mismatches <- do.call(cbind, map(barcode_results, "mismatches"))
-  payload <- do.call(xscat, payload_sequences)
   list(
     assigned_barcode = assigned_barcode,
     mismatches = mismatches,
-    payload = payload
+    payload = payload_sequences
   )
 }
 

@@ -9,7 +9,8 @@ library(stringi)
 library(posDemux)
 set.seed(29505L)
 # Three barcode sets
-segment_map <- c("A","B","A","P","B","P","A","B","P")
+segment_map <- c(a_1="A",bc_1="B",a_2="A",p_1="P",
+                 bc_2="B",p_2="P",a_4="A",bc_3="B",p_3="P")
 n_segments <- length(segment_map)
 n_unique_barcodes <- 1000L
 mean_reads_per_cell <- 100L
@@ -79,12 +80,17 @@ preliminary_frequency_table <-
 
 n_reads <- sum(preliminary_frequency_table$frequency)
 
+# Shows the order in which the reads appear when shuffled as
+# we want them to appear in random order
+read_order <- sample.int(n_reads)
+
 
 # The barcode combination membership of each read
 # corresponding to the rows the the frequency table,
 # assuming no reads are discarded
 combination_membership <- rep(seq_len(n_unique_barcodes),
-                              times = preliminary_frequency_table$frequency)
+                              times = preliminary_frequency_table$frequency) %>% 
+  magrittr::extract(read_order)
 
 
 preliminary_assigned_barcodes <- preliminary_frequency_table[combination_membership,
@@ -230,11 +236,24 @@ payload_frame <- tibble(segment_idx = (segment_map == "P") %>% which()) %>%
 
 segment_seq[payload_frame$segment_idx] <- payload_frame$sequence
 
-expected_payload <- do.call(xscat, payload_frame$sequence) %>% DNAStringSet()
-
-expected_filtered_payload <- expected_payload[!removed_reads]
 
 sequences <- do.call(xscat, segment_seq)
+
+sequence_names <- glue("seq_{seq_along(sequences)}")
+
+expected_payload <- payload_frame$sequence %>% map(. %>%
+                                                     DNAStringSet() %>%
+                                                     `names<-`(sequence_names))
+names(expected_payload) <- which(segment_map == "P") %>% names()
+
+names(removed_reads) <- sequence_names
+
+names(sequences) <- sequence_names
+
+rownames(preliminary_assigned_barcodes) <- sequence_names
+
+expected_filtered_payload <- expected_payload %>%
+  map(. %>% .[!removed_reads])
 
 demultiplex_res <- combinatorial_demultiplex(sequences = sequences,
                                              barcodes = barcode_frame$barcode_reference,
@@ -244,13 +263,33 @@ demultiplex_res <- combinatorial_demultiplex(sequences = sequences,
 
 expected_mismatches <- map(mutated_bc_stringset, "mismatches") %>%
   {do.call(cbind,.)} %>% 
-  set_rownames(NULL)
+  set_rownames(NULL) %>% 
+  # We need to unclass() the rownames because they are of type glue due to the
+  # tests being overly sensitive
+  set_rownames(sequence_names %>% unclass())
+
+compare_sequence_list <- function(actual, expect) {
+  
+  one_has_names <- function(x, y){
+    !is.null(names(x)) || !is.null(names(y))
+  }
+  
+  if (one_has_names(actual, expect)) {
+    expect_true(all(names(actual) == names(expect)))
+  }
+  
+  map2(actual, expect, function(actual, expect) {
+    if (one_has_names(actual, expect)){
+      expect_true(all(names(actual) ==  names(expect)))
+    }
+    expect_true(all(actual ==  expect))
+  }
+  )
+}
 
 test_that("Unfiltered payload extraction is correct",
           {
-            testthat::expect_true(
-              all.equal(expected_payload,demultiplex_res$payload)
-            )
+            compare_sequence_list(expected_payload, demultiplex_res$payload)
           }
 )
 
@@ -276,15 +315,14 @@ expected_assigned_barcodes <- preliminary_assigned_barcodes[!removed_reads,]
 test_that("The correct reads are filtered",
           {
             expect_true(all.equal(demultiplex_filter$retained,
-                                  !removed_reads %>% unname()))
+                                  !removed_reads))
           }
 )
 
 test_that("Filtered payload extraction is correct",
           {
-            testthat::expect_true(
-              all.equal(expected_filtered_payload, demultiplex_filter$demultiplex_res$payload)
-            )
+            compare_sequence_list(expected_filtered_payload,
+                                  demultiplex_filter$demultiplex_res$payload)
           }
 )
 
@@ -301,8 +339,11 @@ test_that("Barcode assignments are correct",
 expected_summary_res <- local(
   {
     n_barcode_combinations <- possible_barcode_combinations %>% nrow()
-    collision_lambda <- n_unique_barcodes / n_barcode_combinations
+    # Note that some barcodes combination may disappear due to filtering
+    # Hence, this must be taken into consideration by providing a local version
+    # of n_unique_barcodes
     n_unique_barcodes <- nrow(expected_filtered_frequency_table)
+    collision_lambda <- n_unique_barcodes / n_barcode_combinations
     list(
       n_reads = n_reads, 
       n_removed = removed_reads %>% sum(),
@@ -339,9 +380,9 @@ expected_summary_res <- local(
 
 test_that("Filtering summary is correctly generated",
           {
-          expect_equal(demultiplex_filter$summary_res, expected_summary_res)
+            expect_equal(demultiplex_filter$summary_res, expected_summary_res)
           }
-          )
+)
 
 frequency_table <- create_frequency_table(demultiplex_filter$demultiplex_res$assigned_barcodes)
 
