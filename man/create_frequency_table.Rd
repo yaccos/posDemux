@@ -20,7 +20,7 @@ following:
 \itemize{
 \item \code{frequency}: The number of reads with the barcode combination
 \item \code{cumulative_frequency}: The cumulative frequency of the barcode combination
-\item \code{fractiion}: The fraction of reads with the barcode combination
+\item \code{fraction}: The fraction of reads with the barcode combination
 \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination
 }
 }
