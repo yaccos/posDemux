@@ -99,6 +99,8 @@ combinatorial_demultiplex <- function(sequences, barcodes,
                                          segment_lengths, barcodes, sequences)
   } else {
     # No variable length payload segment
+    assert_that(all(width(sequences) >= sum(segment_lengths)),
+                msg="Some of the sequences are too short given the provided lengths of the segments")
     results <- extract_and_demultiplex(sequences, barcodes, segments, segment_lengths)
   }
   results$barcodes <- barcodes
@@ -126,6 +128,8 @@ extract_variadic_sequence <- function(segments, element_NA_idx, n_segments, segm
   three_prime_barcodes <- barcodes[seq.int(n_five_prime_barcodes + 1L, length.out = n_three_prime_barcodes)]
   five_prime_width <- sum(five_prime_lengths)
   three_prime_width <- sum(three_prime_lengths)
+  assert_that(all(width(sequences) >= five_prime_width + three_prime_width),
+              msg="Some of the sequences are too short given the provided lengths of the segments")
   five_prime_sequences <- subseq(sequences, start = 1L, width = five_prime_width)
   three_prime_sequences <- subseq(sequences, end = width(sequences),
                                   width = three_prime_width)
