@@ -24,8 +24,8 @@ Integer, the converted cutoff values.
 There are at least two ways to specify the cutoff to use when
 selecting barcode combinations (cells) for further analysis. One way is
 to specify the number of barcode combinations to keep, effectively
-keepting a given barcode combinations with the highest frequency. The other
-way is to specify the frequency cutoff directly without regard to the number
+keeping a given number of barcode combinations with the highest frequencies.
+The other way is to specify the frequency cutoff directly without regard to the number
 of barcode combination to keep. In the former case,
 \code{bc_to_frequency_cutoff()} is used to find the frequency cutoff, whereas
 in the latter case \code{frequency_to_bc_cutoff()} is used to find the barcode

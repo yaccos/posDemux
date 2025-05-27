@@ -44,7 +44,7 @@ sequences and the columns to the barcode segments
 \item \code{mismatches}: An \code{integer} matrix with the number of mismatches
 between the assigned barcodes and the sequences. The rows correspond to the
 sequences and the columns to the barcode segments.
-\item \code{payload}: A list \code{\link{XStringSet}} objects, each containing
+\item \code{payload}: A list of \code{\link{XStringSet}} objects, each containing
 the results for a payload segment.
 \item \code{barcodes}: The \code{barcodes} argument passed into the function.
 It is included in order to ease downstream processing.
