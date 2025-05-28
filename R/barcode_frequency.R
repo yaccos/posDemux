@@ -39,15 +39,14 @@ create_frequency_table <- function(assigned_barcode) {
 #' 
 #' @description
 #' Diagnostic plots for determining the effect of the barcode cutoff.
-#' \code{frequency_plot()} shows a histogram of the number of reads for each barcode
+#' \code{frequency_plot()} shows a histogram or distribution plot of the
+#' number of reads for each barcode
 #' combination, whereas \code{knee_plot()} shows the cumulative fraction of reads
 #' ranked by the frequency of the barcode combinations in descending order.
 #' 
 #' @param frequency_table The frequency table
 #'  from \code{\link{create_frequency_table}}
 #'  
-#' @param width Optional positive scalar numeric,
-#' the width of of the bars in the frequency plot
 #' @param cutoff Optional scalar numeric, the
 #' x-coordinate for drawing a vertical dashed line
 #' in the plots in order to indicate the cutoff. Please note that this argument
@@ -57,6 +56,10 @@ create_frequency_table <- function(assigned_barcode) {
 #' the two types of cutoffs, use the functions
 #' \code{\link{bc_to_frequency_cutoff}}
 #' and \code{\link{frequency_to_bc_cutoff}}.
+#' @param type The type of frequency plot to make, either \code{"histogram"}
+#' or \code{"density"}
+#' @param log_scale Logical: Should a log scale be applied to the x-axis of the
+#' frequency plot?
 #' 
 #' @seealso [bc_to_frequency_cutoff()] [frequency_to_bc_cutoff()]
 #'  
@@ -65,12 +68,23 @@ create_frequency_table <- function(assigned_barcode) {
 #'
 #' @export
 frequency_plot <- function(frequency_table,
-                           width = NULL, cutoff = NULL) {
+                           cutoff = NULL, type = "histogram",
+                           log_scale = TRUE) {
   n_reads <- sum(frequency_table$frequency)
+  plot_type <- switch (type,
+    histogram = \() geom_histogram(),
+    density = \() stat_density()
+  )
+  if (is.null(plot_type)){
+    stop("The type argument must either be 'histogram' or 'density'")
+  }
   p <- ggplot(frequency_table, aes(x=.data$frequency)) +
-    stat_count() +
+    plot_type() +
     labs(x="Number of reads", y="Frequency") +
     xlim(0, max(frequency_table$frequency) + 1)
+  if (log_scale) {
+    p <- p + scale_x_log10()
+  }
     # scale_y_log10()
   if(!is.null(cutoff)) {
     p <- p + geom_vline(xintercept=cutoff, linetype="dashed")

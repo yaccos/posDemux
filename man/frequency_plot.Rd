@@ -5,16 +5,18 @@
 \alias{knee_plot}
 \title{Diagnostic plots from demultiplexing}
 \usage{
-frequency_plot(frequency_table, width = NULL, cutoff = NULL)
+frequency_plot(
+  frequency_table,
+  cutoff = NULL,
+  type = "histogram",
+  log_scale = TRUE
+)
 
 knee_plot(frequency_table, cutoff = NULL)
 }
 \arguments{
 \item{frequency_table}{The frequency table
 from \code{\link{create_frequency_table}}}
-
-\item{width}{Optional positive scalar numeric,
-the width of of the bars in the frequency plot}
 
 \item{cutoff}{Optional scalar numeric, the
 x-coordinate for drawing a vertical dashed line
@@ -25,6 +27,12 @@ the cutoff values has to be transformed. In order to safely convert between
 the two types of cutoffs, use the functions
 \code{\link{bc_to_frequency_cutoff}}
 and \code{\link{frequency_to_bc_cutoff}}.}
+
+\item{type}{The type of frequency plot to make, either \code{"histogram"}
+or \code{"density"}}
+
+\item{log_scale}{Logical: Should a log scale be applied to the x-axis of the
+frequency plot?}
 }
 \value{
 A \code{\link{ggplot}} which can be displayed immediately or
@@ -32,7 +40,8 @@ further modified
 }
 \description{
 Diagnostic plots for determining the effect of the barcode cutoff.
-\code{frequency_plot()} shows a histogram of the number of reads for each barcode
+\code{frequency_plot()} shows a histogram or distribution plot of the
+number of reads for each barcode
 combination, whereas \code{knee_plot()} shows the cumulative fraction of reads
 ranked by the frequency of the barcode combinations in descending order.
 }
