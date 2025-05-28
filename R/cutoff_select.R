@@ -26,8 +26,13 @@ interactive_bc_cutoff <- function(frequency_table) {
                   step = 1L,
                   value = as.integer(n_barcode_combinations / 2L)
                   ),
+      
       glue("Total number of reads: {n_reads}") %>% h4(),
       textOutput("reads_kept") %>% h4(),
+      radioButtons("freq_plot_type","Type of frequency plot",
+                   choices = c("Density"="density", "Histogram"="histogram"),
+                   selected = "density"),
+      checkboxInput("log_scale", "Log scale on frequency plot x-axis"),
       actionButton("exit", "Confirm cutoff selection")
     ),
     mainPanel = mainPanel(
@@ -53,6 +58,7 @@ interactive_bc_cutoff <- function(frequency_table) {
                                              input$cutoff)
     )
     
+    
     reads_kept <- reactive(
       filtered_table() %>%
         pull("frequency") %>%
@@ -67,7 +73,9 @@ interactive_bc_cutoff <- function(frequency_table) {
     
     output$frequency_plot <- renderPlot(
       frequency_plot(frequency_table,
-                     cutoff = frequency_cutoff()) + 
+                     cutoff = frequency_cutoff(),
+                     type = input$freq_plot_type,
+                     log_scale = input$log_scale) + 
         theme(text = element_text(size = 18))
     )
     output$frequency_cutoff <- renderPrint(

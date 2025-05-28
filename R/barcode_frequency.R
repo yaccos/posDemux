@@ -80,12 +80,10 @@ frequency_plot <- function(frequency_table,
   }
   p <- ggplot(frequency_table, aes(x=.data$frequency)) +
     plot_type() +
-    labs(x="Number of reads", y="Frequency") +
-    xlim(0, max(frequency_table$frequency) + 1)
+    labs(x="Number of reads", y="Frequency")
   if (log_scale) {
     p <- p + scale_x_log10()
   }
-    # scale_y_log10()
   if(!is.null(cutoff)) {
     p <- p + geom_vline(xintercept=cutoff, linetype="dashed")
   }
