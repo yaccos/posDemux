@@ -1,9 +1,10 @@
 ---
 title: "Introduction to combinatorial demultiplexing"
+bibliography: ../inst/REFERENCES.bib
 author: 
   - name: Jakob Peder Pettersen
     affiliation:
-    - UiT, the Artic University of Norway, Department of computer science
+    - UiT, the Artic University of Norway, Department of Computer Science
     email: jakobpeder.pettersen@gmail.com
 output: 
   BiocStyle::html_document:
@@ -28,29 +29,52 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r vignetteSetup, echo=FALSE, message=FALSE, warning = FALSE}
 ## Bib setup
 library("RefManageR")
 
 ## Write bibliography information
-bib <- c(
+bib_packages <- c(
     R = citation(),
     BiocStyle = citation("BiocStyle")[1],
     knitr = citation("knitr")[1],
     RefManageR = citation("RefManageR")[1],
     rmarkdown = citation("rmarkdown")[1],
     sessioninfo = citation("sessioninfo")[1],
-    testthat = citation("testthat")[1],
-    posDemux = citation("posDemux")[1]
+    testthat = citation("testthat")[1]
 )
+
+bib <- ReadBib("../inst/REFERENCES.bib")
+
+# for (pkg in names(bib_packages)) {
+#   bib[[pkg]] <- bib_packages[[pkg]]
+# }
+
+
+BibOptions(check.entries = FALSE, style = "markdown", cite.style = "numeric",
+           bib.style = "numeric")
+
 ```
 
 # Basics
 
+## When and why to use this package
+
+This package is aimed at single-cell RNA-seq approaches such as SPLiT-seq `r Citep(bib[c("Rosenberg2018","Kuijpers2024")])`, BacDrop `r Citep(bib[c("Ma2023")])` and PETRI-seq `r Citep(bib[c("Blattman2020","Blattman2024")])`. Here, each cell to be sequences is defined by it own unique combination of multiple DNA barcodes. We do assume that the individual barcodes come from a predefined whitelist, but that the combination of barcodes is random and that every possible combination of barcodes is valid. In order to identify which cell each read is coming from, we must extract the barcodes, compare them with the reference barcodes, and find the best match.
+
+## Limitations
+
+Since this is a positional demultiplexer, the position of all segments and barcodes must be known in advance and be the same for all reads. Hence, the package is not suited in cases where segments occur at variable positions among the reads. Furthermore, in the cases where the segments are at fixed positions among the reads, but the segment lengths are unknown, it may require some trial and error to obtain the correct segmentation.
+
+The demultiplexer is written with Illumina sequencing in mind. It assumes that substitution sequencing errors may occur, but has no safeguard against indel sequencing errors. Hence, indel errors will result in erroneous segmentation and failure to assign the correct barcode. For sequencing platforms where indel errors are common, such as Nanopore sequencing, this package may therefore not be suitable.
+
+This package does not by itself support combining barcodes on both reverse and forward reads, but this limitation can be circumvented by either artificially merging reads or manipulating the result structures from the demultiplexer.
+
+For large-scale analysis, there may be desirable to demultiplex smaller chunks of the input instead of loading the all the reads into memory at once. As there are different ways one wish to do streaming, we have chosen not to include streaming functionality into the package, but rather encourage the user to built a streaming interface on top of it if desired.
+
 ## Install `posDemux`
 
-`R` is an open-source statistical environment which can be easily modified to enhance its functionality via packages. `r Biocpkg("posDemux")` is a `R` package available via the [Bioconductor](http://bioconductor.org) repository for packages. `R` can be installed on any operating system from [CRAN](https://cran.r-project.org/) after which you can install `r Biocpkg("posDemux")` by using the following commands in your `R` session:
+This package is hosted on [Bioconductor](http://bioconductor.org) repository for `R` packages. In order to install it from a fresh `R` install, run:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -82,31 +106,67 @@ We hope that `r Biocpkg("posDemux")` will be useful for your research. Please us
 citation("posDemux")
 ```
 
-# Quick start to using `posDemux`
+# An example with PETRI-seq
+
+## Quick overview of the method
+
+The PETRI-seq method is a method for single-cell RNA-sequencing of bacteria `r Citep(bib[c("Blattman2020","Blattman2024")])`. It uses pair-end Illumina sequencing where the forward read contain the cell barcodes and the transcript UMI, whereas the reverse reads contain the cDNA to be aligned to the genome. Hence, `posDemux` will only be applied to the forward reads.
 
 ```{r "start", message=FALSE}
 library("posDemux")
+library(tibble)
 ```
+
+## Sequence annotation
+
+For PETRI-seq, the forward reads consists of the following segments in the following order (from 5' to 3'):
+
+-   UMI: 7 nucletides
+-   Barcode 3(`bc3`) : 7 nucletoides
+-   Linker: 15 nucletides
+-   Barcode 2(`bc2`): 7 nucletides
+-   Linker: 14 nucletides
+-   Barcode 1(`bc1`): 7 nucleotides
+-   The rest of the read is ignored
+
+We specify it with as:
+
+```{r}
+sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
+segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
+```
+
+Now, we load the barcodes:
+
+```{r}
+barcode_files <- system.file("extdata",
+                             c(bc1="BC1_5p_anchor_v2.fa",
+                               bc2="BC2_anchored.fa",
+                               bc3="BC3_anchored.fa"),
+                             package = "posDemux")
+```
+
+
+
+Hence, we consider the first segment, the UMI, as a payload to be kept. The three barcodes are used for demultiplexing. Finally, the linkers and the read past Barcode 1 are ignored.
 
 Edit this as you see fit =)
 
 Here is an example of you can cite your package inside the vignette:
 
-* `r Biocpkg("posDemux")` `r Citep(bib[["posDemux"]])`
-
-
+-   `r Biocpkg("posDemux")` `r Citep(bib[["posDemux"]])`
 
 # Reproducibility
 
 The `r Biocpkg("posDemux")` package `r Citep(bib[["posDemux"]])` was made possible thanks to:
 
-* R `r Citep(bib[["R"]])`
-* `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
-* `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])`
-* `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`
-* `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])`
-* `r CRANpkg("sessioninfo")` `r Citep(bib[["sessioninfo"]])`
-* `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+-   R `r Citep(bib[["R"]])`
+-   `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
+-   `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])`
+-   `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`
+-   `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])`
+-   `r CRANpkg("sessioninfo")` `r Citep(bib[["sessioninfo"]])`
+-   `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
 
 This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
 
@@ -119,12 +179,9 @@ options(width = 120)
 session_info()
 ```
 
-
-
 # Bibliography
 
-This vignette was generated using `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
-with `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])` running behind the scenes.
+This vignette was generated using `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])` with `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])` running behind the scenes.
 
 Citations made with `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`.
 
