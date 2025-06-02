@@ -23,5 +23,12 @@ biocViews: SequenceMatching, Sequencing, Software
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
-    testthat (>= 3.0.0), DNABarcodes
+    testthat,
+    DNABarcodes,
+    knitr,
+    rmarkdown,
+    BiocStyle,
+    RefManageR,
+    sessioninfo
 Config/testthat/edition: 3
+VignetteBuilder: knitr
