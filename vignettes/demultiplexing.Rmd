@@ -114,7 +114,8 @@ The PETRI-seq method is a method for single-cell RNA-sequencing of bacteria `r C
 
 ```{r "start", message=FALSE}
 library("posDemux")
-library(tibble)
+library(Biostrings)
+library(purrr)
 ```
 
 ## Sequence annotation
@@ -129,6 +130,8 @@ For PETRI-seq, the forward reads consists of the following segments in the follo
 -   Barcode 1(`bc1`): 7 nucleotides
 -   The rest of the read is ignored
 
+Hence, we consider the first segment, the UMI, as a payload to be kept. The three barcodes are used for demultiplexing. Finally, the linkers and the read past Barcode 1 are ignored.
+
 We specify it with as:
 
 ```{r}
@@ -136,19 +139,74 @@ sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
 segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
 ```
 
-Now, we load the barcodes:
+## Data loading
+
+For the demultiplexing, we need the listing of the barcodes,
+and of course the reads to demultiplex. For this package, the PETRI-seq barcodes
+and synthetically generated reads are provided. We load the barcodes:
 
 ```{r}
-barcode_files <- system.file("extdata",
-                             c(bc1="BC1_5p_anchor_v2.fa",
-                               bc2="BC2_anchored.fa",
-                               bc3="BC3_anchored.fa"),
+barcode_files <- system.file("extdata/PETRI-seq_barcodes",
+                             c(bc1="bc1.fa",
+                               bc2="bc2.fa",
+                               bc3="bc3.fa"),
                              package = "posDemux")
+names(barcode_files) <- paste0("bc", 1L:3L)
+barcode_index <- map(barcode_files, readDNAStringSet)
+```
+
+... and the file containing the forward reads:
+
+```{r}
+input_fasta <- system.file("extdata",
+                             "PETRI-seq_forward_reads.fa.gz",
+                             package = "posDemux")
+reads <- readDNAStringSet(input_fasta)
+```
+
+Note that this example file is a FASTA file. However, in practice
+it is usually a FASTQ file. `posDemux` accepts both `DNAStringSet` and `QualityScaledDNAStringSet` as input where the latter contain the quality scores of the reads. However, the quality score is ignored by the demultiplexer and the only reason to pass a `QualityScaledDNAStringSet` is that the quality scores are retained in the payload.
+
+## Running the demultiplexer
+
+Before we run the demultiplexer, we must ensure that the barcodes index is arranged
+in the correction order:
+
+```{r}
+barcodes <- barcode_index[c("bc3","bc2","bc1")]
+```
+
+We are now ready to run the demultiplexer:
+
+```{r}
+demultiplex_res <- combinatorial_demultiplex(reads, barcodes = barcodes, segments = sequence_annotation, segment_lengths = segment_lengths)
 ```
 
 
+## Error correction
 
-Hence, we consider the first segment, the UMI, as a payload to be kept. The three barcodes are used for demultiplexing. Finally, the linkers and the read past Barcode 1 are ignored.
+For these particular barcodes sets, the smallest Hamming distance between two different barcodes is 3. Given $n$, the number of barcode sequencing errors which can be reliably corrected in a barcode set, the minimum distance required between two distinct barcodes needs to be at least $2n+1$. This means that in our case, we can correct for exactly one sequencing error:
+
+```{r}
+filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
+```
+
+We will now inspect the summary of the demultiplexing and filtering:
+
+```{r}
+filtered_res$summary_res
+```
+
+```{r}
+freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
+head(freq_table)
+```
+
+```{r}
+interactive_bc_cutoff(freq_table)
+```
+
+
 
 Edit this as you see fit =)
 
