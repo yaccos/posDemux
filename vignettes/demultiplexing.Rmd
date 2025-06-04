@@ -182,10 +182,33 @@ We are now ready to run the demultiplexer:
 demultiplex_res <- combinatorial_demultiplex(reads, barcodes = barcodes, segments = sequence_annotation, segment_lengths = segment_lengths)
 ```
 
+The main results from this demultiplexer are the table of assigned barcodes:
+```{r}
+head(demultiplex_res$assigned_barcodes)
+```
+
+the table of mismatches to the barcode:
+
+```{r}
+head(demultiplex_res$mismatches)
+```
+as well as the extracted UMI sequences:
+
+```{r}
+demultiplex_res$payload$UMI
+```
+
 
 ## Error correction
 
-For these particular barcodes sets, the smallest Hamming distance between two different barcodes is 3. Given $n$, the number of barcode sequencing errors which can be reliably corrected in a barcode set, the minimum distance required between two distinct barcodes needs to be at least $2n+1$. This means that in our case, we can correct for exactly one sequencing error:
+`posDemux` handles two types of filtering of reads:
+
+- Retaining only the reads being matched with a barcode combination after error correction.
+- Removing barcode combinations which have few reads as these are usually artifacts and are not assumed to cover the transcript of an entire cell. 
+
+This subsection consider the first type of filtering. During demultiplexing, the barcode with the smallest Hamming distance to the read is chosen and the number of mismatches is recorded. When there are no mismatches for any of the barcode sets, we obviously want to keep this read. When one or more barcode has mismatches, `posDemux` allows for error correction. In that case, we will keep the read if the number of mismatches to each of its barcodes is below a certain threshold.
+
+In our example, the smallest Hamming distance between two different barcodes is 3 for all barcode sets. Given $n$, the number of barcode sequencing errors which can be reliably corrected in a barcode set, the minimum distance required between two distinct barcodes needs to be at least $2n+1$. This means that in our case, we can correct for exactly one sequencing error:
 
 ```{r}
 filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
@@ -197,14 +220,98 @@ We will now inspect the summary of the demultiplexing and filtering:
 filtered_res$summary_res
 ```
 
+Now, the results in `filtered_res$demultiplex_res` only shows the reads either without mismatches or where error correction could be applied:
+
+```{r}
+head(filtered_res$demultiplex_res$assigned_barcodes)
+head(filtered_res$demultiplex_res$mismatches)
+```
+
+We can also see which reads are retained:
+
+```{r}
+head(filtered_res$retained)
+```
+
+
+## Filtering by barcode frequency
+
+Now as we have conducting the filtering based on barcode mismatches, we proceed
+with the second kind of filtering. It utilizes the Knee method `r Citep(bib[c("Macosko2015","Blattman2020")])` where the barcode combinations
+are arranged in decending order to frequency and the most abundanct are selected.
+The cutoff is set such that we achieve a saturation where most reads are covered, yet
+the remaining barcode combinations not covered all have a small number of reads.
+
+We first create a frequency table of the barcodes is question:
+
 ```{r}
 freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
 head(freq_table)
 ```
 
-```{r}
+This package contains an interaction Shiny application for selecting the number of barcodes.
+It can be run by:
+
+```{r, eval=FALSE}
 interactive_bc_cutoff(freq_table)
 ```
+
+If you are working outside RStudio, you may have to run
+
+```{r, eval=FALSE}
+app <- interactive_bc_cutoff(freq_table)
+shiny::runApp(app, launch.browser = FALSE)
+```
+
+and opening the resulting link inside the browser. 
+If you are working on a headless system, you may consider:
+
+- Using RStudio Server
+- Opening a reverse ssh tunnel for the Shiny server
+- Copy the frequency table onto your local machine and run the application there
+
+If you run the application, you will see that
+keeping approximately 500 barcodes is the optimal choice^[In case you wonder why the best choice is keeping half the barcodes: Remember that the data is synthetic, allowing half of the barcode combinations be artifacts is low number of reads was a design decision.]. We can also calculate the frequency of the least abundant barcode combination being included. 
+
+```{r}
+bc_cutoff <- 500L
+freq_cutoff <- bc_to_frequency_cutoff(freq_table, bc_cutoff)
+freq_cutoff
+```
+We can convert the cutoff the other way as well, but it is in general not an exact inverse as multiple barcodes can have the same frequency:
+
+```{r}
+reconstrued_bc_cutoff <- frequency_to_bc_cutoff(freq_table, freq_cutoff)
+reconstrued_bc_cutoff
+```
+
+
+
+This can be illustrated by the Knee plot:
+
+```{r}
+knee_plot(frequency_table = freq_table, cutoff = bc_cutoff)
+```
+We can also illustrate this filtering by looking at the distribution of barcode frequencies:
+
+```{r}
+# Since the cutoff lines of the plot are provided by the literal x-coordinate,
+# we must use the frequency cutoff
+frequency_plot(freq_table, cutoff = freq_cutoff, type = "density",
+               log_scale = TRUE)
+```
+
+## Exporting results
+
+Now as we know which barcodes to keep, we can extract the desired results and
+write it to a table.
+
+We start with frequency table:
+
+```{r}
+selected_freq_table <- freq_table[seq_len(bc_cutoff),]
+```
+
 
 
 
