@@ -81,7 +81,7 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   n_barcode_combinations <- prod(n_barcodes_per_set)
   n_barcodes_per_set <- map_int(barcodes, length)
   collision_lambda <- n_unique_barcodes / n_barcode_combinations
-  expected_collisions <- n_unique_barcodes * collision_lambda
+  expected_collisions <- n_unique_barcodes * collision_lambda / 2
   barcode_summary <- imap(demultiplex_res$barcodes,
                           function(barcode_set, barcode_name) {
                             barcode_width <- width(barcode_set)[1L]
