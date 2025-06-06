@@ -10,9 +10,13 @@ create_summary_res <- function(retained_sequences,
     unique(MARGIN = 1L) %>%
     nrow()
   n_barcode_combinations <- prod(n_barcodes_per_set)
+  n_estimated_cells <- poisson_correct_n(n_barcode_combinations,
+                                         n_unique_barcodes)
   n_barcodes_per_set <- map_int(barcodes, length)
-  collision_lambda <- n_unique_barcodes / n_barcode_combinations
-  expected_collisions <- n_unique_barcodes * collision_lambda / 2
+  observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
+  corrected_collision_lambda <- n_estimated_cells / n_barcode_combinations
+  expected_collisions <- poisson_estimate_collisions(n_barcode_combinations,
+                                                     corrected_collision_lambda)
   barcode_summary <- imap(barcodes, function(barcode_set, barcode_name) {
     barcode_width <- width(barcode_set)[1L]
     n_allowed_mismatches <- allowed_mismatches[barcode_name]
@@ -40,13 +44,24 @@ create_summary_res <- function(retained_sequences,
     n_barcode_sets = barcodes %>% length(),
     n_barcode_combinations = n_barcode_combinations,
     n_unique_barcodes = n_unique_barcodes,
-    collision_lambda = collision_lambda,
+    n_estimated_cells = n_estimated_cells,
+    observed_collision_lambda = observed_collision_lambda,
+    corrected_collision_lambda = corrected_collision_lambda,
     expected_collisions = expected_collisions,
     barcode_summary = barcode_summary
   )
   
   class(summary_res) <- "demultiplex_filter_summary"
   summary_res
+}
+
+poisson_estimate_collisions <- function(N, lambda) {
+  N * (1 - exp(-lambda) - lambda * exp(-lambda))
+}
+
+# Estimates the true number of cells taking barcode collisions into account
+poisson_correct_n <- function(N, n_obs) {
+  -N*log(1 - n_obs/ N)
 }
 
 #' Diagnostic demultiplexing results
@@ -73,14 +88,21 @@ print.demultiplex_filter_summary <- function(x, ...) {
                {x$n_removed} ({removed_percentage %>% round(2L)}%)"
   ) %>%
     cat("\n")
-  glue("Number of unique barcodes detected: {x$n_unique_barcodes}") %>%
+  glue("Observed number of unique barcodes: {x$n_unique_barcodes}") %>%
     cat("\n")
   glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>%
     cat("\n")
-  collision_percentage <- x$collision_lambda * 100
+  glue("Estimated number of cells: {x$n_estimated_cells %>% round(1L)}") %>%
+    cat("\n")
+  glue("Observed cell to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>% 
+    cat("\n")
+  glue("Corrected cell to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>% 
+    cat("\n")
+  collision_percentage <- x$expected_collisions / x$n_unique_barcodes * 100
   glue(
-    "Expected number of barcode collisions: \\
-       {x$expected_collisions} ({collision_percentage %>% round(2L)}%)"
+    "Estimated number of observed barcode combinations
+    corresponding to more than one cell: \\
+    {x$expected_collisions %>% round(1L)} ({collision_percentage %>% round(2L)}%)"
   ) %>%
     cat("\n")
   glue("Number of barcode sets: {x$n_barcode_sets}") %>% cat("\n")
