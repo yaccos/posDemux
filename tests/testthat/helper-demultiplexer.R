@@ -219,7 +219,7 @@ create_expected_summary_res <- function(possible_barcode_combinations, expected_
     n_barcode_combinations = n_barcode_combinations,
     n_unique_barcodes = n_unique_barcodes,
     collision_lambda = collision_lambda,
-    expected_collisions = collision_lambda * n_unique_barcodes,
+    expected_collisions = collision_lambda * n_unique_barcodes / 2,
     barcode_summary = imap(barcode_frame$name,
                            function(bc_name, i)
                            {
