@@ -211,15 +211,23 @@ create_expected_summary_res <- function(possible_barcode_combinations, expected_
   # Hence, this must be taken into consideration by providing a local version
   # of n_unique_barcodes
   n_unique_barcodes <- nrow(expected_filtered_frequency_table)
-  collision_lambda <- n_unique_barcodes / n_barcode_combinations
+  observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
+  n_estimated_cells <- posDemux:::poisson_correct_n(n_barcode_combinations,
+                                                    n_unique_barcodes)
+  corrected_collision_lambda <- n_estimated_cells / n_barcode_combinations
+  expected_collisions <- 
+    posDemux:::poisson_estimate_collisions(n_barcode_combinations,
+                                           corrected_collision_lambda) 
   list(
     n_reads = n_reads, 
     n_removed = removed_reads %>% sum(),
     n_barcode_sets = nrow(barcode_frame),
     n_barcode_combinations = n_barcode_combinations,
     n_unique_barcodes = n_unique_barcodes,
-    collision_lambda = collision_lambda,
-    expected_collisions = collision_lambda * n_unique_barcodes / 2,
+    n_estimated_cells = n_estimated_cells,
+    observed_collision_lambda = observed_collision_lambda,
+    corrected_collision_lambda = corrected_collision_lambda,
+    expected_collisions = expected_collisions,
     barcode_summary = imap(barcode_frame$name,
                            function(bc_name, i)
                            {

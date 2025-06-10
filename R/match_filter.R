@@ -20,32 +20,8 @@
 #'  the number of reads in the input. \code{TRUE} if the corresponding read
 #'  is retained.
 #'  Useful for future filtering of paired-end reads.
-#' \item \code{summary_res}: A list of S3 class \code{demultiplex_filter_summary}
-#' providing diagnostics for the filtering process. It contains the
-#' the following fields:
-#' \itemize{
-#' \item \code{n_reads}: The total number of reads in the dataset before filtering.
-#' \item \code{n_removed}: The number of reads removed by filtering.
-#' \item \code{n_barcode_sets}: The number of barcode sets.
-#' \item \code{n_barcode_combinations}: The possible number
-#' of barcode combinations.
-#'
-#' \item \code{n_unique_barcodes}: The number of unique barcode combinations
-#' (i.e. cells) detected after filtering.
-#' \item \code{collision_lambda}: The expected relative frequency of barcode collisions.
-#' \item \code{expected_collisions}: The statistically expected number of barcode collisions.
-#' \item \code{barcode_summary}: A list containing a summary for each barcode set.
-#' Each element contains the following:
-#' \itemize{
-#' \item \code{width}: The width (number of nucleotides) of the barcode set.
-#' \item \code{n_barcodes}: Number of query barcodes.
-#' \item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set.
-#' \item \code{n_removed}: Number of reads having too many mismatches for this barcode set.
-#' \item \code{mismatch_frame}: A \code{data.frame} with the two columns,
-#' \code{n_mismatches} and \code{frequency} showing the number of reads for each
-#' of the allowed number of mismatches for the given barcode set.
-#' }
-#' }
+#' \item \code{summary_res}: Result of \code{\link{create_summary_res}} called
+#' on the results of filtering.
 #' }
 #' @details
 #' The value of \code{n_removed} does not in general equal the sum of
