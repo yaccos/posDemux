@@ -62,6 +62,12 @@ BibOptions(check.entries = FALSE, style = "markdown", cite.style = "numeric",
 
 This package is aimed at single-cell RNA-seq approaches such as SPLiT-seq `r Citep(bib[c("Rosenberg2018","Kuijpers2024")])`, BacDrop `r Citep(bib[c("Ma2023")])` and PETRI-seq `r Citep(bib[c("Blattman2020","Blattman2024")])`. Here, each cell to be sequences is defined by it own unique combination of multiple DNA barcodes. We do assume that the individual barcodes come from a predefined whitelist, but that the combination of barcodes is random and that every possible combination of barcodes is valid. In order to identify which cell each read is coming from, we must extract the barcodes, compare them with the reference barcodes, and find the best match.
 
+## Required knowledge
+
+`r Biocpkg("posDemux")` uses the `r Biocpkg("Biostrings")` package for handling sequencing data and hence a basic understanding of `Biostrings` is necessary to use this package. Also important to note is that while `posDemux` does provides utilities for demultiplexing scRNA data, it is designed to be part of a greater workflow. In particular, the package does not include essential components of a scRNA-seq workflow like quality control, alignment, feature counting and UMI deduplication, neither does it provide any utilities for tertiary analysis once the gene count matrix is constructed. Hence, the user should be familiar with the other components of such workflows `r Citep(bib["Kuijpers2024"])` and know how the functionality of this package plays a part therein.
+
+If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](https://lcolladotor.github.io/2014/10/16/where-do-i-start-using-bioconductor/).
+
 ## Limitations
 
 Since this is a positional demultiplexer, the position of all segments and barcodes must be known in advance and be the same for all reads. Hence, the package is not suited in cases where segments occur at variable positions among the reads. Furthermore, in the cases where the segments are at fixed positions among the reads, but the segment lengths are unknown, it may require some trial and error to obtain the correct segmentation.
@@ -87,11 +93,7 @@ BiocManager::install("posDemux")
 BiocManager::valid()
 ```
 
-## Required knowledge
 
-`r Biocpkg("posDemux")` is based on many other packages and in particular in those that have implemented the infrastructure needed for dealing with RNA-seq data (EDIT!). That is, packages like `r Biocpkg("SummarizedExperiment")` (EDIT!).
-
-If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](http://lcolladotor.github.io/2014/10/16/startbioc/#.VkOKbq6rRuU).
 
 ## Asking for help
 
