@@ -118,6 +118,7 @@ The PETRI-seq method is a method for single-cell RNA-sequencing of bacteria `r C
 library("posDemux")
 library(Biostrings)
 library(purrr)
+library(magrittr)
 ```
 
 ## Sequence annotation
@@ -317,7 +318,31 @@ order of frequency, we simply take the top entries in the table:
 selected_freq_table <- freq_table[seq_len(bc_cutoff),]
 ```
 
+For finding which reads correspond to these barcodes, we do the following:
+
 ```{r}
+assigned_barcodes <- filtered_res$demultiplex_res$assigned_barcodes
+read_in_selection <- row_match(assigned_barcodes, selected_freq_table)
+selected_assigned_barcodes <- assigned_barcodes[read_in_selection,]
+```
+
+We continue with the UMIs (remember that the payload and assigned barcodes are aligned in order):
+
+```{r}
+assigned_UMI <- filtered_res$demultiplex_res$payload$UMI %>% as.character()
+selected_assigned_UMI <- assigned_UMI[read_in_selection,]
+```
+
+With all of this done, we can finally make a data frame containing the UMI, read identifier and barcode assignments:
+
+```{r}
+res_table <- as.data.frame(selected_assigned_barcodes) %>%
+  dplyr::mutate()
+```
+
+
+```{r}
+
 table <- selected_freq_table[,c("bc3","bc2","bc1")]
 x <- filtered_res$demultiplex_res$assigned_barcodes %>% as.data.frame()
 mapping <- posDemux:::get_mapping(table)

@@ -11,9 +11,7 @@ row_match(x, table)
 Typically, this will be a matrix of assigned barcodes for each read.}
 
 \item{table}{A matrix or data frame with the rows to matched against. Typically,
-this will be the top portion of a frequency table.
-character matrix of assigned barcodes with barcodes as
-columns and reads as rows.}
+this will be the top portion of a frequency table.}
 }
 \value{
 Logical vector, for each row in \code{table}, is the same row found
@@ -21,14 +19,13 @@ row in \code{x}.
 }
 \description{
 This function extends the functionality of \code{\link[base]{\%in\%}} for
-finding which rows in the first argument is found in the second.
+finding which rows in the first argument is exists in the second.
 }
 \details{
 As this function is intended to be used for data frames containing more than
 just the barcodes, the intersection of the column names is used for matching.
 As opposed to \code{\link[base:match]{base::match()}}, this function is implemented more efficiently
-by converting
-each row into a numeric encoding before matching.
+by converting each row into a numeric encoding before matching.
 }
 \seealso{
 \code{\link[=create_frequency_table]{create_frequency_table()}} for how frequency tables are constructed,

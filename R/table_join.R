@@ -2,15 +2,13 @@
 #'
 #' @description
 #' This function extends the functionality of \code{\link[base]{%in%}} for
-#' finding which rows in the first argument is found in the second.
+#' finding which rows in the first argument is exists in the second.
 #' 
 #' 
 #' @param x A matrix or data frame which rows to be matched. 
 #' Typically, this will be a matrix of assigned barcodes for each read.
 #' @param table A matrix or data frame with the rows to matched against. Typically,
 #' this will be the top portion of a frequency table.
-#' character matrix of assigned barcodes with barcodes as
-#' columns and reads as rows.
 #' @seealso [create_frequency_table()] for how frequency tables are constructed,
 #' [combinatorial_demultiplex()] for more information on the matrix of assigned
 #'  barcodes
