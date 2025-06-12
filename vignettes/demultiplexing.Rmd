@@ -305,14 +305,29 @@ frequency_plot(freq_table, cutoff = freq_cutoff, type = "density",
 
 ## Exporting results
 
-Now as we know which barcodes to keep, we can extract the desired results and
+Now as we know how many barcodes to keep, we can extract the desired results and
 write it to a table.
 
-We start with frequency table:
+We start with the frequency table. Since it is already sorted in decending
+order of frequency, we simply take the top entries in the table:
 
 ```{r}
 selected_freq_table <- freq_table[seq_len(bc_cutoff),]
 ```
+
+```{r}
+table <- selected_freq_table[,c("bc3","bc2","bc1")] |> as("DataFrame")
+x <- filtered_res$demultiplex_res$assigned_barcodes |> as("DataFrame")
+x %in% table
+```
+```{r}
+selected_freq_table[,c("bc3","bc2","bc1")]
+S4Vectors::match(filtered_res$demultiplex_res$assigned_barcodes |> as("DataFrame"),
+          selected_freq_table[,c("bc3","bc2","bc1")] |> as("DataFrame")
+          
+          )
+```
+
 
 
 
