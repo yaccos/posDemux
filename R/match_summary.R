@@ -155,7 +155,6 @@ poisson_correct_n <- function(N, n_obs) {
 #' @param ... Ignored
 #' @importFrom magrittr %>% extract equals
 #' @importFrom purrr map_int
-#' @import dplyr
 #' @import glue
 #' @returns Its input, invisibly.
 #' @export

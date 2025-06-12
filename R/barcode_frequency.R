@@ -91,6 +91,7 @@ frequency_plot <- function(frequency_table,
 }
 
 #' @rdname frequency_plot
+#' @import dplyr
 #' @export
 knee_plot <- function(frequency_table, cutoff=NULL) {
     augmented_frequency_table <- frequency_table %>%

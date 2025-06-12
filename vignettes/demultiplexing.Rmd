@@ -159,12 +159,14 @@ barcode_index <- map(barcode_files, readDNAStringSet)
 
 ... and the file containing the forward reads:
 
+
 ```{r}
 input_fasta <- system.file("extdata",
                              "PETRI-seq_forward_reads.fa.gz",
                              package = "posDemux")
 reads <- readDNAStringSet(input_fasta)
 ```
+
 
 Note that this example file is a FASTA file. However, in practice
 it is usually a FASTQ file. `posDemux` accepts both `DNAStringSet` and `QualityScaledDNAStringSet` as input where the latter contain the quality scores of the reads. However, the quality score is ignored by the demultiplexer and the only reason to pass a `QualityScaledDNAStringSet` is that the quality scores are retained in the payload.
@@ -316,9 +318,14 @@ selected_freq_table <- freq_table[seq_len(bc_cutoff),]
 ```
 
 ```{r}
-table <- selected_freq_table[,c("bc3","bc2","bc1")] |> as("DataFrame")
-x <- filtered_res$demultiplex_res$assigned_barcodes |> as("DataFrame")
-x %in% table
+table <- selected_freq_table[,c("bc3","bc2","bc1")]
+x <- filtered_res$demultiplex_res$assigned_barcodes %>% as.data.frame()
+mapping <- posDemux:::get_mapping(table)
+table_encoded <- encode(table, mapping)
+x_encoded <- encode(x, mapping)
+mask <- x_encoded %in% table_encoded
+kept_barcodes <- filtered_res$demultiplex_res$assigned_barcodes[mask,]
+# x %in% table
 ```
 ```{r}
 selected_freq_table[,c("bc3","bc2","bc1")]

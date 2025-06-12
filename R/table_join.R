@@ -31,29 +31,33 @@ row_match <- function(x, table) {
   barcode_cols <- intersect(colnames(x), colnames(table))
   table_df <- as.data.frame(table[, barcode_cols])
   x_barcodes <- as.data.frame(x[,barcode_cols])
-  n_barcodes <- ncol(table)
-  # The order the barcodes appear in does not really matter, just that it stays
-  # the same during execution of the function
-  table_unique_barcodes <- map(table_df, unique)
-  n_unique_barcodes <- map_int(table_unique_barcodes, length)
-  cumulative_mapping <- c(1L, cumprod(n_unique_barcodes) %>% head(-1L))
-  shifted_cumulative_mapping <- cumprod(n_unique_barcodes)
-  encode <- . %>%
-    # We need zero-based indexing for this to work
-    map2(table_unique_barcodes, \(x, table) match(x, table) - 1L) %>%
-    map2(cumulative_mapping, `*`) %>% 
+  mapping <- get_mapping(table_df)
+  table_encoded <- encode(table_df, mapping)
+  x_encoded <- encode(x_barcodes, mapping)
+  x_encoded %in% table_encoded
+}
+
+get_mapping <- function(table){
+  # The order the barcodes appear in does not really matter
+  # as long as the same mapping object is used
+  unique_values <- map(table, unique)
+  n_unique_values <- map(unique_values, length)
+  cumprod <- cumprod(n_unique_values)
+  shifted_cumprod <- c(1L, cumprod(n_unique_values) %>% head(-1L))
+  list(unique = unique_values, n_unique = n_unique_values, 
+       cumprod = cumprod,
+       shifted_cumprod =  shifted_cumprod)
+}
+
+encode <- function(x, mapping) {
+   x %>% 
+    map2(mapping$unique, \(x, table) match(x, table) - 1L) %>%
+    map2(mapping$shifted_cumprod, `*`) %>% 
     {Reduce(`+`, ., simplify = TRUE)}
-  decode <- . %>% 
-    {map2(shifted_cumulative_mapping, cumulative_mapping,
-         \(x,y)  (. %% x) %/% y + 1L)} %>% 
-    map2(table_unique_barcodes, `[`)
-    
-  table_encoded <- encode(table_df)
-  x_encoded <- encode(x_barcodes)
-  x_encoded %in% table
 }
 
-encode <- function(x, table_unique_values){
-  
+decode <- function(x_encoded, mapping) {
+    {map2(mapping$cumprod, mapping$shifted_cumprod,
+        \(modulus, dividend)  (x_encoded %% modulus) %/% dividend + 1L)} %>% 
+    {map2(mapping$unique, ., `[`)}
 }
-
