@@ -343,7 +343,7 @@ res_table <- as.data.frame(selected_assigned_barcodes) %>%
 head(res_table)
 ```
 
-Finally, we can write the table to file, this is the recommended formatting for achieving this:
+Finally, we can write the table to file. The following is the suggested way for achieving the desired formatting:
 
 ```{r}
 file <- tempfile(pattern = "barcode_table", fileext = ".txt")
