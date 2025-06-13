@@ -326,42 +326,29 @@ read_in_selection <- row_match(assigned_barcodes, selected_freq_table)
 selected_assigned_barcodes <- assigned_barcodes[read_in_selection,]
 ```
 
-We continue with the UMIs (remember that the payload and assigned barcodes are aligned in order):
+We continue with the UMIs which we convert to a character vector (remember that the payload and assigned barcodes are aligned in order):
 
 ```{r}
 assigned_UMI <- filtered_res$demultiplex_res$payload$UMI %>% as.character()
-selected_assigned_UMI <- assigned_UMI[read_in_selection,]
+selected_assigned_UMI <- assigned_UMI[read_in_selection]
 ```
 
-With all of this done, we can finally make a data frame containing the UMI, read identifier and barcode assignments:
+With all of this done, we can make a data frame containing the UMI, read identifier and barcode assignments:
 
 ```{r}
 res_table <- as.data.frame(selected_assigned_barcodes) %>%
-  dplyr::mutate()
+  dplyr::mutate(read = rownames(selected_assigned_barcodes), UMI = selected_assigned_UMI) %>%
+  # Ensures the columns appears in the desired order
+  dplyr::select(read, UMI, bc3, bc2, bc1)
+head(res_table)
 ```
 
+Finally, we can write the table to file, this is the recommended formatting for achieving this:
 
 ```{r}
-
-table <- selected_freq_table[,c("bc3","bc2","bc1")]
-x <- filtered_res$demultiplex_res$assigned_barcodes %>% as.data.frame()
-mapping <- posDemux:::get_mapping(table)
-table_encoded <- encode(table, mapping)
-x_encoded <- encode(x, mapping)
-mask <- x_encoded %in% table_encoded
-kept_barcodes <- filtered_res$demultiplex_res$assigned_barcodes[mask,]
-# x %in% table
+file <- tempfile(pattern = "barcode_table", fileext = ".txt")
+write.table(res_table, file, row.names = FALSE, col.names = TRUE, sep = "\t", eol = "\n", quote = FALSE)
 ```
-```{r}
-selected_freq_table[,c("bc3","bc2","bc1")]
-S4Vectors::match(filtered_res$demultiplex_res$assigned_barcodes |> as("DataFrame"),
-          selected_freq_table[,c("bc3","bc2","bc1")] |> as("DataFrame")
-          
-          )
-```
-
-
-
 
 
 Edit this as you see fit =)
