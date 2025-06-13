@@ -22,7 +22,7 @@
 #' 
 #'
 #' @returns Logical vector, for each row in \code{table}, is the same row found
-#' row in \code{x}.
+#' in \code{x}.
 #' @export
 #'
 row_match <- function(x, table) {

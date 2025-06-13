@@ -15,7 +15,7 @@ this will be the top portion of a frequency table.}
 }
 \value{
 Logical vector, for each row in \code{table}, is the same row found
-row in \code{x}.
+in \code{x}.
 }
 \description{
 This function extends the functionality of \code{\link[base]{\%in\%}} for
