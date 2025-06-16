@@ -19,7 +19,8 @@ is 127.}
 \item{segments}{Character vector showing the segments of the
 sequences from 5' end to 3' end. The code applied is as follows:
 \itemize{
-\item \code{'A'}: Adapter, it is trimmed and ignored
+\item \code{'A'}: Adapter (often referred to as linker),
+is trimmed and ignored
 \item \code{'B'}: Barcode, used for demultiplexing
 \item \code{'P'}: Payload, sequence to be kept after trimming
 and demultiplexering (e.g. cDNA or UMI).

@@ -10,6 +10,38 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// create_encoding_vector
+Rcpp::XPtr<std::vector<int> > create_encoding_vector();
+RcppExport SEXP _posDemux_create_encoding_vector() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(create_encoding_vector());
+    return rcpp_result_gen;
+END_RCPP
+}
+// grow_encoding_vector
+void grow_encoding_vector(Rcpp::XPtr<std::vector<int>> vec, IntegerVector chunk);
+RcppExport SEXP _posDemux_grow_encoding_vector(SEXP vecSEXP, SEXP chunkSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<std::vector<int>> >::type vec(vecSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type chunk(chunkSEXP);
+    grow_encoding_vector(vec, chunk);
+    return R_NilValue;
+END_RCPP
+}
+// get_encoding_vector
+IntegerVector get_encoding_vector(Rcpp::XPtr<std::vector<int>> vec);
+RcppExport SEXP _posDemux_get_encoding_vector(SEXP vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<std::vector<int>> >::type vec(vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_encoding_vector(vec));
+    return rcpp_result_gen;
+END_RCPP
+}
 // hamming_match
 List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode, CharacterVector barcode_names, int width);
 RcppExport SEXP _posDemux_hamming_match(SEXP segmentSEXP, SEXP segment_namesSEXP, SEXP barcodeSEXP, SEXP barcode_namesSEXP, SEXP widthSEXP) {
@@ -27,6 +59,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_posDemux_create_encoding_vector", (DL_FUNC) &_posDemux_create_encoding_vector, 0},
+    {"_posDemux_grow_encoding_vector", (DL_FUNC) &_posDemux_grow_encoding_vector, 2},
+    {"_posDemux_get_encoding_vector", (DL_FUNC) &_posDemux_get_encoding_vector, 1},
     {"_posDemux_hamming_match", (DL_FUNC) &_posDemux_hamming_match, 5},
     {NULL, NULL, 0}
 };
