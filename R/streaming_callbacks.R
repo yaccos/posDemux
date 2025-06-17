@@ -1,6 +1,30 @@
+#' Suggested setup for FASTQ streaming
+#' @description
+#' Even though the user can define the arguments \code{state_init},
+#' \code{loader}, and \code{archiver}
+#' for [streaming_demultiplex()], this approach is only recommended
+#' for advanced users. This functions defines a premade combinations of
+#' these three arguments which should be suitable in most cases.
+#' The loader streams a FASTQ file in chunks and the archiver outputs
+#' a data frame to file consisting of the following of the read name (\code{read}),
+#' the sequences of all payloads (e.g. \code{UMI}), and barcode assignments
+#' (\code{c("bc3","bc2","bc1")}).
+#' 
+#' @param input_file The path to the FASTQ file to be used for demultiplexing
+#' @param output_table_file The path to which the output
+#' barcode table will be written
+#' @param chunk_size The number of reads to process in each chunk
+#' 
+#' @returns A list with the following elements, all of which are intended to be
+#' used as the corresponding arguments to [streaming_demultiplex()]:
+#' \itemize{
+#' \item \code{state_init}
+#' \item \code{loader}
+#' \item \code{archiver}
+#' }
 #' @importFrom purrr list_cbind
 #' @export
-workflow_funs <- function(input_file, output_table_file,
+streaming_callbacks <- function(input_file, output_table_file,
                           chunk_size=1e6) {
   res <- list()
   res$state_init <- list(total_reads=0L, demultiplexed_reads=0L,
@@ -11,14 +35,8 @@ workflow_funs <- function(input_file, output_table_file,
       message("Initializing FASTQ stream and output table")
       state$istream <- ShortRead::FastqStreamer(input_file,
                                                         n = chunk_size)
-      empty_chunk <- character() %>%  DNAStringSet()
-      # We make a pass though the demultiplexer with an empty chunk in order to
-      # start writing to the output barcode table
-      initial_res <- list(state=state, sequences=empty_chunk,
-                          should_terminate=FALSE)
-      return(initial_res)
     }
-    chunk  <- yield(state$istream) %>% ShortRead::sread()
+    chunk  <- ShortRead::yield(state$istream) %>% ShortRead::sread()
     n_reads_in_chunk <- length(chunk)
     if (n_reads_in_chunk == 0L || state$output_table_initialized) {
       # The case when the initial chunk is empty is given special treatment since

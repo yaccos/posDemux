@@ -105,6 +105,7 @@ combined_sequences <- c(junk_sequences, cell_sequences, artifact_sequences) |>
 
 names(combined_sequences) <- paste0("seq_",seq_along(combined_sequences))
 
+
 writeXStringSet(combined_sequences,
                 "inst/extdata/PETRI-seq_forward_reads.fa.gz",
                 compress = TRUE)

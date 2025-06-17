@@ -34,16 +34,7 @@
 #'
 filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   barcodes <- demultiplex_res$barcodes
-  n_barcode_sets <- length(barcodes)
-  assert_that(
-    length(allowed_mismatches) == 1L ||
-      n_barcode_sets == length(allowed_mismatches),
-    msg = "allowed_mismatches does not match the number of barcode sets"
-  )
-  if (length(allowed_mismatches) == 1L && n_barcode_sets > 1L) {
-    allowed_mismatches <- rep(allowed_mismatches, n_barcode_sets)
-  }
-  names(allowed_mismatches) <- names(demultiplex_res$barcodes)
+  allowed_mismatches <- validate_allowed_mismatches(allowed_mismatches, barcodes)
   mismatches <- demultiplex_res$mismatches
   raw_filter_res <- filter_sequences(demultiplex_res, allowed_mismatches)
   retained_sequences <- raw_filter_res$retained_sequences
@@ -59,6 +50,20 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
     retained = retained_sequences,
     summary_res = summary_res
   )
+}
+
+validate_allowed_mismatches <- function(allowed_mismatches, barcodes) {
+  n_barcode_sets <- length(barcodes)
+  assert_that(
+    length(allowed_mismatches) == 1L ||
+      n_barcode_sets == length(allowed_mismatches),
+    msg = "allowed_mismatches does not match the number of barcode sets"
+  )
+  if (length(allowed_mismatches) == 1L && n_barcode_sets > 1L) {
+    allowed_mismatches <- rep(allowed_mismatches, n_barcode_sets)
+  }
+  names(allowed_mismatches) <- names(barcodes)
+  allowed_mismatches
 }
 
 filter_sequences <- function(demultiplex_res, allowed_mismatches) {

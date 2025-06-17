@@ -67,6 +67,7 @@ streaming_demultiplex <- function(state_init,
                                   allowed_mismatches,
                                   segments,
                                   segment_lengths) {
+  allowed_mismatches <- validate_allowed_mismatches(allowed_mismatches, barcodes)
   summary <- summary_init(barcodes, allowed_mismatches)
   loader_res <- loader(state_init)
   encoded_barcodes <- create_encoding_vector()
@@ -108,8 +109,6 @@ summary_init <- function(barcodes, allowed_mismatches) {
     barcode_width <- width(barcode_set)[1L]
     n_allowed_mismatches <- allowed_mismatches[barcode_name]
     n_barcodes <- length(barcode_set)
-    this_mismatch_vector <- mismatches[, barcode_name, drop =
-                                         TRUE]
     mismatch_frame <- data.frame(n_mismatches =
                                    c(0L, seq_len(n_allowed_mismatches)),
                                  frequency = 0L)
