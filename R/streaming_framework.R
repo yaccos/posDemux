@@ -43,8 +43,22 @@
 #' they return are compatible.
 #' Since the data loader alone decides when to terminate,
 #' bad terminations crieria can cause a runaway loop.
+#' Usually, it will be useful to have a progress tracker of how many reads
+#' are demultiplexed. The framework itself does not implement this, so
+#' it is typically
+#' 
+#' @returns A list with three elements:
+#' \itemize{
+#' \item \code{freq_table}: The frequency table for all reads, akin to the output of
+#' [create_frequency_table()]
+#' \item \code{summary_res}: The summary result of match filtering of all reads
+#' per [create_summary_res()]
+#' \item \code{state_final}: The final state object returned from \code{loader}
 #'
-#' @seealso [filter_demultiplex_res()] and [combinatorial_demultiplex()]
+#' }
+#' @seealso [filter_demultiplex_res()], [combinatorial_demultiplex()], 
+#' [create_frequency_table()], and [create_summary_res()]
+#' for the underlying processing.
 #' @inheritParams combinatorial_demultiplex
 streaming_demultiplex <- function(state_init,
                                   loader,
@@ -61,7 +75,8 @@ streaming_demultiplex <- function(state_init,
   while (!loader_res$should_terminate) {
     state <- loader_res$state
     sequences <- loader_res$sequences
-    demultiplex_res <- combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
+    demultiplex_res <- combinatorial_demultiplex(sequences, barcodes, segments,
+                                                 segment_lengths)
     filtered_res <- filter_sequences(demultiplex_res, allowed_mismatches)
     summary <- summary_update(summary, filtered_res$retained,
                               filtered_res$demultiplex_res$mismatches)
@@ -77,8 +92,10 @@ streaming_demultiplex <- function(state_init,
   freq_table <- final_assigned_barcodes %>%
     as.matrix() %>% 
     create_frequency_table()
-  final_summary <- summary_finalize(summary)
-  list(filter_summary=final_summary, freq_table=freq_table)
+  n_unique_barcodes <- final_assigned_barcodes %>% unique() %>% length()
+  final_summary <- summary_finalize(summary, n_unique_barcodes)
+  list(filter_summary=final_summary, freq_table=freq_table,
+       state_final=loader_res$state)
 }
 
 summary_init <- function(barcodes, allowed_mismatches) {
@@ -125,7 +142,7 @@ summary_update <- function(filter_summary, retained_sequences, mismatches) {
         n_removed <- n_removed + sum(this_mismatch_vector > n_allowed_mismatches)
         mismatch_frame <- within(mismatch_frame, {
           # Yes, this is nested 5 levels deep, but currently I not know of any
-          # solution more aestetic
+          # solution more aesthetic
           frequency <- frequency +
             outer(this_mismatch_vector, n_mismatches, equals) %>%
             colSums()

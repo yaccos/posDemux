@@ -70,6 +70,16 @@ Up to one of the non-barcode segments can have its length
 set to \code{NA} which means
 it is considered a variadic length segment}
 }
+\value{
+A list with two elements:
+\itemize{
+\item \code{freq_table}: The frequency table for all reads, akin to the output of
+\code{\link[=create_frequency_table]{create_frequency_table()}}
+\item \code{summary_res}: The summary result of match filtering of all reads
+per \code{\link[=create_summary_res]{create_summary_res()}}
+
+}
+}
 \description{
 This function provides an interface to
 \code{\link{combinatorial_demultiplex}} and
@@ -87,7 +97,12 @@ object, the loader and archiver must be written such that the state objects
 they return are compatible.
 Since the data loader alone decides when to terminate,
 bad terminations crieria can cause a runaway loop.
+Usually, it will be useful to have a progress tracker of how many reads
+are demultiplexed. The framework itself does not implement this, so
+it is typically
 }
 \seealso{
-\code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}} and \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}}
+\code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}, \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}},
+\code{\link[=create_frequency_table]{create_frequency_table()}}, and \code{\link[=create_summary_res]{create_summary_res()}}
+for the underlying processing
 }
