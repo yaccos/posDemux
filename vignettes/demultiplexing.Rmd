@@ -158,24 +158,22 @@ names(barcode_files) <- paste0("bc", 1L:3L)
 barcode_index <- map(barcode_files, readDNAStringSet)
 ```
 
-... and the file containing the forward reads:
+... and the FASTQ file containing the forward reads:
 
 
 ```{r}
-input_fasta <- system.file("extdata",
-                             "PETRI-seq_forward_reads.fa.gz",
+input_fastq <- system.file("extdata",
+                             "PETRI-seq_forward_reads.fq.gz",
                              package = "posDemux")
-reads <- readDNAStringSet(input_fasta)
+reads <- readDNAStringSet(input_fastq, format = "fastq")
 ```
 
-
-Note that this example file is a FASTA file. However, in practice
-it is usually a FASTQ file. `posDemux` accepts both `DNAStringSet` and `QualityScaledDNAStringSet` as input where the latter contain the quality scores of the reads. However, the quality score is ignored by the demultiplexer and the only reason to pass a `QualityScaledDNAStringSet` is that the quality scores are retained in the payload.
+`posDemux` accepts both `DNAStringSet` and `QualityScaledDNAStringSet` as input where the latter contain the quality scores of the reads. However, the quality score is ignored by the demultiplexer and the only reason to pass a `QualityScaledDNAStringSet` is when it is desirable to retain the quality scores in the payload.
 
 ## Running the demultiplexer
 
 Before we run the demultiplexer, we must ensure that the barcodes index is arranged
-in the correction order:
+in the correct order:
 
 ```{r}
 barcodes <- barcode_index[c("bc3","bc2","bc1")]

@@ -29,7 +29,8 @@ Even though the user can define the arguments \code{state_init},
 for \code{\link[=streaming_demultiplex]{streaming_demultiplex()}}, this approach is only recommended
 for advanced users. This functions defines a premade combinations of
 these three arguments which should be suitable in most cases.
-The loader streams a FASTQ file in chunks and the archiver outputs
+The loader streams a FASTQ file in chunks using \code{\link[ShortRead:Sampler-class]{ShortRead::FastqStreamer()}}
+and the archiver outputs
 a data frame to file consisting of the following of the read name (\code{read}),
 the sequences of all payloads (e.g. \code{UMI}), and barcode assignments
 (\code{c("bc3","bc2","bc1")}).

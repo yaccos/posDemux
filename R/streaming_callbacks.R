@@ -5,7 +5,8 @@
 #' for [streaming_demultiplex()], this approach is only recommended
 #' for advanced users. This functions defines a premade combinations of
 #' these three arguments which should be suitable in most cases.
-#' The loader streams a FASTQ file in chunks and the archiver outputs
+#' The loader streams a FASTQ file in chunks using [ShortRead::FastqStreamer()]
+#' and the archiver outputs
 #' a data frame to file consisting of the following of the read name (\code{read}),
 #' the sequences of all payloads (e.g. \code{UMI}), and barcode assignments
 #' (\code{c("bc3","bc2","bc1")}).
@@ -38,7 +39,7 @@ streaming_callbacks <- function(input_file, output_table_file,
     }
     chunk  <- ShortRead::yield(state$istream) %>% ShortRead::sread()
     n_reads_in_chunk <- length(chunk)
-    if (n_reads_in_chunk == 0L || state$output_table_initialized) {
+    if (n_reads_in_chunk == 0L && state$output_table_initialized) {
       # The case when the initial chunk is empty is given special treatment since
       # we want to create the table regardless
       # No more reads to process, make the outer framework return
@@ -46,11 +47,11 @@ streaming_callbacks <- function(input_file, output_table_file,
       close(state$istream)
       state$istream <- NULL
       final_res <- list(state = state, sequences=NULL, should_terminate=TRUE)
-      message(glue("Done demultiplexing {state$total_reads}"))
+      message(glue("Done demultiplexing {state$total_reads} reads"))
       return(final_res)
     }
     state$total_reads <- state$total_reads + n_reads_in_chunk
-    list(state = state, sequences=NULL, should_terminate=FALSE)
+    list(state = state, sequences=chunk, should_terminate=FALSE)
   }
   
   res$archiver <- function(state, filtered_res) {

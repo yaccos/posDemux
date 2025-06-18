@@ -1,9 +1,9 @@
 get_tables <- function(){
   # Code extracted from vignette
-  input_fasta <- system.file("extdata",
-                             "PETRI-seq_forward_reads.fa.gz",
+  input_fastq <- system.file("extdata",
+                             "PETRI-seq_forward_reads.fq.gz",
                              package = "posDemux")
-  reads <- readDNAStringSet(input_fasta)
+  reads <- readDNAStringSet(input_fastq, format = "fastq")
   barcode_files <- system.file("extdata/PETRI-seq_barcodes",
                                c(bc1="bc1.fa",
                                  bc2="bc2.fa",

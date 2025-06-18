@@ -105,7 +105,21 @@ combined_sequences <- c(junk_sequences, cell_sequences, artifact_sequences) |>
 
 names(combined_sequences) <- paste0("seq_",seq_along(combined_sequences))
 
+# In order to make compliant, albeit not realistic PhreadQualities
+Q_scores <- sample(15:40,
+                   size = seq_length * length(combined_sequences),
+                   replace = TRUE)
+Phread_encoding <- character() %>% PhredQuality() %>% encoding()
 
-writeXStringSet(combined_sequences,
-                "inst/extdata/PETRI-seq_forward_reads.fa.gz",
+seq_quality <- match(Q_scores, Phread_encoding) %>%
+  {extract(names(Phread_encoding),.)} %>%
+  matrix(ncol=length(combined_sequences)) %>% 
+  apply(2L, paste, collapse="") %>% 
+  PhredQuality()
+
+quality_combined_sequences <- QualityScaledDNAStringSet(combined_sequences,
+                                                        seq_quality)
+
+writeQualityScaledXStringSet(quality_combined_sequences,
+                "inst/extdata/PETRI-seq_forward_reads.fq.gz",
                 compress = TRUE)

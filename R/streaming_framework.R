@@ -80,20 +80,19 @@ streaming_demultiplex <- function(state_init,
                                                  segment_lengths)
     filtered_res <- filter_sequences(demultiplex_res, allowed_mismatches)
     summary <- summary_update(summary, filtered_res$retained,
-                              filtered_res$demultiplex_res$mismatches)
-    this_barcode_encoding <- as.data.frame(filtered_res$demultiplex_res$assigned_barcodes,
+                              filtered_res$res$mismatches)
+    this_barcode_encoding <- as.data.frame(filtered_res$res$assigned_barcodes,
                                            row.names = FALSE) %>% encode(barcode_mapping)
     grow_encoding_vector(encoded_barcodes, this_barcode_encoding)
     state <- archiver(state, filtered_res)
     loader_res <- loader(state)
   }
-  final_assigned_barcodes <- get_encoding_vector(encoded_barcodes,
-                                                 barcode_mapping) %>% 
-    decode(encoded_barcodes, barcode_mapping)
+  final_assigned_barcodes <- get_encoding_vector(encoded_barcodes) %>% 
+    decode(barcode_mapping)
   freq_table <- final_assigned_barcodes %>%
     as.matrix() %>% 
     create_frequency_table()
-  n_unique_barcodes <- final_assigned_barcodes %>% unique() %>% length()
+  n_unique_barcodes <- nrow(freq_table)
   final_summary <- summary_finalize(summary, n_unique_barcodes)
   list(filter_summary=final_summary, freq_table=freq_table,
        state_final=loader_res$state)
