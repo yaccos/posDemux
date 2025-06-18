@@ -38,7 +38,7 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   mismatches <- demultiplex_res$mismatches
   raw_filter_res <- filter_sequences(demultiplex_res, allowed_mismatches)
   retained_sequences <- raw_filter_res$retained_sequences
-  res <- raw_filter_res$res
+  res <- raw_filter_res$demultiplex_res
   summary_res <- create_summary_res(retained_sequences,
                                     barcodes,
                                     res$assigned_barcodes,
@@ -73,5 +73,5 @@ filter_sequences <- function(demultiplex_res, allowed_mismatches) {
   demultiplex_res$assigned_barcodes %<>% extract(retained_sequences, )
   demultiplex_res$mismatches %<>% extract(retained_sequences, )
   demultiplex_res$payload %<>% map(. %>% extract(retained_sequences))
-  list(res = demultiplex_res, retained_sequences = retained_sequences)
+  list(demultiplex_res = demultiplex_res, retained_sequences = retained_sequences)
 }

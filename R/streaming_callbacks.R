@@ -10,12 +10,13 @@
 #' a data frame to file consisting of the following of the read name (\code{read}),
 #' the sequences of all payloads (e.g. \code{UMI}), and barcode assignments
 #' (\code{c("bc3","bc2","bc1")}).
-#' 
+#'
 #' @param input_file The path to the FASTQ file to be used for demultiplexing
 #' @param output_table_file The path to which the output
 #' barcode table will be written
-#' @param chunk_size The number of reads to process in each chunk
-#' 
+#' @param chunk_size Integer, the number of reads to process in each chunk
+#' @param verbose Logical scalar: Should the progress be displayed?
+#'
 #' @returns A list with the following elements, all of which are intended to be
 #' used as the corresponding arguments to [streaming_demultiplex()]:
 #' \itemize{
@@ -25,19 +26,25 @@
 #' }
 #' @importFrom purrr list_cbind
 #' @export
-streaming_callbacks <- function(input_file, output_table_file,
-                          chunk_size=1e6) {
+streaming_callbacks <- function(input_file,
+                                output_table_file,
+                                chunk_size = 1e6,
+                                verbose = TRUE) {
   res <- list()
-  res$state_init <- list(total_reads=0L, demultiplexed_reads=0L,
-                     output_table_initialized=FALSE)
+  res$state_init <- list(
+    total_reads = 0L,
+    demultiplexed_reads = 0L,
+    output_table_initialized = FALSE
+  )
   
   res$loader <- function(state) {
     if (!state$output_table_initialized) {
-      message("Initializing FASTQ stream and output table")
-      state$istream <- ShortRead::FastqStreamer(input_file,
-                                                        n = chunk_size)
+      if(verbose) message("Initializing FASTQ stream and output table")
+      state$istream <- ShortRead::FastqStreamer(input_file, n = chunk_size)
     }
-    chunk  <- ShortRead::yield(state$istream) %>% ShortRead::sread()
+    raw_chunk <- ShortRead::yield(state$istream)
+    chunk  <- ShortRead::sread(raw_chunk)
+    names(chunk) <- ShortRead::id(raw_chunk)
     n_reads_in_chunk <- length(chunk)
     if (n_reads_in_chunk == 0L && state$output_table_initialized) {
       # The case when the initial chunk is empty is given special treatment since
@@ -46,12 +53,20 @@ streaming_callbacks <- function(input_file, output_table_file,
       #Clean up resources
       close(state$istream)
       state$istream <- NULL
-      final_res <- list(state = state, sequences=NULL, should_terminate=TRUE)
-      message(glue("Done demultiplexing {state$total_reads} reads"))
+      final_res <- list(
+        state = state,
+        sequences = NULL,
+        should_terminate = TRUE
+      )
+      if(verbose) message(glue("Done demultiplexing"))
       return(final_res)
     }
     state$total_reads <- state$total_reads + n_reads_in_chunk
-    list(state = state, sequences=chunk, should_terminate=FALSE)
+    list(
+      state = state,
+      sequences = chunk,
+      should_terminate = FALSE
+    )
   }
   
   res$archiver <- function(state, filtered_res) {
@@ -63,9 +78,11 @@ streaming_callbacks <- function(input_file, output_table_file,
       read_names <- character()
     }
     barcode_table <- as.data.frame(barcode_matrix)
-    read_name_table <- data.frame(read=read_names)
-    payload_table <- purrr::map(filtered_res$demultiplex_res$payload,
-                                as.character()) %>% list_cbind()
+    read_name_table <- data.frame(read = read_names)
+    payload_table <- purrr::map(filtered_res$demultiplex_res$payload, as.character) %>%
+      {
+        rlang::exec(data.frame, !!!.)
+      }
     
     chunk_table <- cbind(read_name_table, payload_table, barcode_table)
     if (!state$output_table_initialized) {
@@ -74,14 +91,23 @@ streaming_callbacks <- function(input_file, output_table_file,
     } else {
       append <- TRUE
     }
-    data.table::fwrite(x = chunk_table, file = output_table_file, append = append,
-           row.names = FALSE, col.names = !append, sep = "\t", eol = "\n")
-    within(state,
-           {
-            demultiplexed_reads <- demultiplexed_reads + nrow(barcode_matrix)
-         message(glue("Processed {total_reads} reads, successfully demultiplexed {demultiplexed_reads} so far..."))
-           }
+    data.table::fwrite(
+      x = chunk_table,
+      file = output_table_file,
+      append = append,
+      row.names = FALSE,
+      col.names = !append,
+      sep = "\t",
+      eol = "\n"
     )
+    state <- within(state, {
+      demultiplexed_reads <- demultiplexed_reads + nrow(barcode_matrix)
+      if(verbose) message(
+        glue(
+          "Processed {total_reads} reads, successfully demultiplexed {demultiplexed_reads} reads so far..."
+        )
+      )
+    })
     state
   }
   res

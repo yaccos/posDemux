@@ -4,7 +4,12 @@
 \alias{streaming_callbacks}
 \title{Suggested setup for FASTQ streaming}
 \usage{
-streaming_callbacks(input_file, output_table_file, chunk_size = 1e+06)
+streaming_callbacks(
+  input_file,
+  output_table_file,
+  chunk_size = 1e+06,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{input_file}{The path to the FASTQ file to be used for demultiplexing}
@@ -12,7 +17,9 @@ streaming_callbacks(input_file, output_table_file, chunk_size = 1e+06)
 \item{output_table_file}{The path to which the output
 barcode table will be written}
 
-\item{chunk_size}{The number of reads to process in each chunk}
+\item{chunk_size}{Integer, the number of reads to process in each chunk}
+
+\item{verbose}{Logical scalar: Should the progress be displayed?}
 }
 \value{
 A list with the following elements, all of which are intended to be

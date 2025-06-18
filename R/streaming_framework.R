@@ -46,7 +46,7 @@
 #' Usually, it will be useful to have a progress tracker of how many reads
 #' are demultiplexed. The framework itself does not implement this, so
 #' it is typically
-#' 
+#'
 #' @returns A list with three elements:
 #' \itemize{
 #' \item \code{freq_table}: The frequency table for all reads, akin to the output of
@@ -56,7 +56,7 @@
 #' \item \code{state_final}: The final state object returned from \code{loader}
 #'
 #' }
-#' @seealso [filter_demultiplex_res()], [combinatorial_demultiplex()], 
+#' @seealso [filter_demultiplex_res()], [combinatorial_demultiplex()],
 #' [create_frequency_table()], and [create_summary_res()]
 #' for the underlying processing.
 #' @inheritParams combinatorial_demultiplex
@@ -76,26 +76,29 @@ streaming_demultiplex <- function(state_init,
   while (!loader_res$should_terminate) {
     state <- loader_res$state
     sequences <- loader_res$sequences
-    demultiplex_res <- combinatorial_demultiplex(sequences, barcodes, segments,
-                                                 segment_lengths)
+    demultiplex_res <- combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
     filtered_res <- filter_sequences(demultiplex_res, allowed_mismatches)
-    summary <- summary_update(summary, filtered_res$retained,
-                              filtered_res$res$mismatches)
-    this_barcode_encoding <- as.data.frame(filtered_res$res$assigned_barcodes,
+    summary <- summary_update(summary,
+                              filtered_res$retained,
+                              demultiplex_res$mismatches)
+    this_barcode_encoding <- as.data.frame(filtered_res$demultiplex_res$assigned_barcodes,
                                            row.names = FALSE) %>% encode(barcode_mapping)
     grow_encoding_vector(encoded_barcodes, this_barcode_encoding)
     state <- archiver(state, filtered_res)
     loader_res <- loader(state)
   }
-  final_assigned_barcodes <- get_encoding_vector(encoded_barcodes) %>% 
+  final_assigned_barcodes <- get_encoding_vector(encoded_barcodes) %>%
     decode(barcode_mapping)
   freq_table <- final_assigned_barcodes %>%
-    as.matrix() %>% 
+    as.matrix() %>%
     create_frequency_table()
   n_unique_barcodes <- nrow(freq_table)
   final_summary <- summary_finalize(summary, n_unique_barcodes)
-  list(filter_summary=final_summary, freq_table=freq_table,
-       state_final=loader_res$state)
+  list(
+    summary_res = final_summary,
+    freq_table = freq_table,
+    state_final = loader_res$state
+  )
 }
 
 summary_init <- function(barcodes, allowed_mismatches) {
@@ -130,7 +133,9 @@ summary_init <- function(barcodes, allowed_mismatches) {
 }
 
 
-summary_update <- function(filter_summary, retained_sequences, mismatches) {
+summary_update <- function(filter_summary,
+                           retained_sequences,
+                           mismatches) {
   within(filter_summary, {
     n_reads <- n_reads + length(retained_sequences)
     n_removed <- n_removed + sum(!retained_sequences)
@@ -158,6 +163,23 @@ summary_finalize <- function(filter_summary, n_unique_barcodes) {
     corrected_collision_lambda <- n_estimated_cells / n_barcode_combinations
     expected_collisions <- poisson_estimate_collisions(n_barcode_combinations, corrected_collision_lambda)
   })
+  # This should usually be unnecessary since the fields are referenced
+  # by names and not position,
+  # but since the tests
+  # also see if the fields come in the right order, we must specify it here
+  summary_field_order <- c(
+    "n_reads",
+    "n_removed",
+    "n_barcode_sets",
+    "n_barcode_combinations",
+    "n_unique_barcodes",
+    "n_estimated_cells",
+    "observed_collision_lambda",
+    "corrected_collision_lambda",
+    "expected_collisions",
+    "barcode_summary"
+  )
+  filter_summary <- filter_summary[summary_field_order]
   class(filter_summary) <- "demultiplex_filter_summary"
   filter_summary
 }

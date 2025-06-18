@@ -57,5 +57,6 @@ encode <- function(x, mapping) {
 decode <- function(x_encoded, mapping) {
     {map2(mapping$cumprod, mapping$shifted_cumprod,
         \(modulus, dividend)  (x_encoded %% modulus) %/% dividend + 1L)} %>% 
-    {map2(mapping$unique, ., `[`)}
+    {map2(mapping$unique, ., `[`)} %>% 
+    as.data.frame()
 }

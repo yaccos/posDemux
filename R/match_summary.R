@@ -154,7 +154,7 @@ poisson_correct_n <- function(N, n_obs) {
 #' \code{\link{create_summary_res}}
 #' @param ... Ignored
 #' @importFrom magrittr %>% extract equals
-#' @importFrom purrr map_int
+#' @importFrom purrr map_int walk2
 #' @import glue
 #' @returns Its input, invisibly.
 #' @export
