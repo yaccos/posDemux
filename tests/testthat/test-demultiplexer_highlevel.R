@@ -166,6 +166,9 @@ test_that("Filtering summary is correctly generated", {
 
 frequency_table <- create_frequency_table(demultiplex_filter$demultiplex_res$assigned_barcodes)
 
-test_frequency_table(frequency_table,
-                     expected_filtered_frequency_table,
-                     barcode_frame$name)
+
+test_that("Generated frequency table is correct", {
+  test_frequency_table(frequency_table,
+                       expected_filtered_frequency_table,
+                       barcode_frame$name)
+})

@@ -254,22 +254,17 @@ create_expected_summary_res <- function(possible_barcode_combinations, expected_
 }
 
 test_frequency_table <- function(actual, expected, barcode_names) {
-  test_that("Generated frequency table is correct",
-            {
-              purrr::walk(c("frequency","cumulative_frequency",
-                     "fraction","cumulative_fraction"), function(column) {
-                       expect_equal(actual[[column]],
-                                    expected[[column]])
-                     })
-              # For testing whether the barcodes in the
-              # frequency table are correct, we cannot just compare the columns
-              # as barcode combinations with tied frequency values can appear in
-              # any order. Hence, we test the barcode columns together with their
-              # respective frequencies using set operations
-              columns_to_test <- c(barcode_names, "frequency")
-              dplyr::setequal(actual[columns_to_test],
-                              expected[columns_to_test])
-              
-            }
-  )
-}
+    purrr::walk(c("frequency","cumulative_frequency",
+                  "fraction","cumulative_fraction"), function(column) {
+                    expect_equal(actual[[column]],
+                                 expected[[column]])
+                  })
+    # For testing whether the barcodes in the
+    # frequency table are correct, we cannot just compare the columns
+    # as barcode combinations with tied frequency values can appear in
+    # any order. Hence, we test the barcode columns together with their
+    # respective frequencies using set operations
+    columns_to_test <- c(barcode_names, "frequency")
+    expect_true(dplyr::setequal(actual[columns_to_test],
+                    expected[columns_to_test]))
+  }

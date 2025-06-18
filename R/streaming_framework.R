@@ -87,11 +87,8 @@ streaming_demultiplex <- function(state_init,
     state <- archiver(state, filtered_res)
     loader_res <- loader(state)
   }
-  final_assigned_barcodes <- get_encoding_vector(encoded_barcodes) %>%
-    decode(barcode_mapping)
-  freq_table <- final_assigned_barcodes %>%
-    as.matrix() %>%
-    create_frequency_table()
+  freq_table <- get_encoding_vector(encoded_barcodes) %>%
+    create_freq_table_from_encoding(barcode_mapping)
   n_unique_barcodes <- nrow(freq_table)
   final_summary <- summary_finalize(summary, n_unique_barcodes)
   list(

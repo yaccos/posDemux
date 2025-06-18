@@ -37,7 +37,8 @@ test_that("Demultiplex summary from streaming is correctly generated",
 
 test_that("Frequency table is correctly generated from streaming",
           {
-            expect_equal(streaming_res$freq_table, expected_freq_table)
+            test_frequency_table(streaming_res$freq_table, expected_freq_table,
+                                 names(barcodes))
           }
           )
 
