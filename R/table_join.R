@@ -20,10 +20,9 @@
 #' As opposed to [base::match()], this function is implemented more efficiently
 #' by converting each row into a numeric encoding before matching.
 #' 
-#' For technical reasons, it is not possible for \code{table} to have more than
-#' \eqn{2^{32}-1\approx 2.1\cdot 10^{9}} distinct rows, but this is usually not an issue anyway
-#' as matrices and data frames exceeding this number of rows are not allowed by \R
-#' at the time of writing.
+#' For technical reasons, it is not permitted for the product of the number of the
+#' unique values of the columns in \code{table} to
+#' exceed \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
 #' 
 #' 
 #'
