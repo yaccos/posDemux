@@ -42,3 +42,13 @@ a data frame to file consisting of the following of the read name (\code{read}),
 the sequences of all payloads (e.g. \code{UMI}), and barcode assignments
 (\code{c("bc3","bc2","bc1")}).
 }
+\details{
+If the read names have any spaces in them,
+the loader will only keep the portion of
+the read name preceding the first space. This is due to the Illumina
+platform's behavior of encoding the sequencing direction (forward or reverse)
+past the space.
+Keeping the read names with the space is usually not desirable as it makes
+the resulting barcode table more confusing and makes it more difficult to
+group the forward and reverse reads together afterwards.
+}

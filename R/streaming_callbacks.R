@@ -16,6 +16,17 @@
 #' barcode table will be written
 #' @param chunk_size Integer, the number of reads to process in each chunk
 #' @param verbose Logical scalar: Should the progress be displayed?
+#' 
+#' @details
+#' If the read names have any spaces in them, 
+#' the loader will only keep the portion of
+#' the read name preceding the first space. This is due to the Illumina
+#' platform's behavior of encoding the sequencing direction (forward or reverse)
+#' past the space. 
+#' Keeping the read names with the space is usually not desirable as it makes
+#' the resulting barcode table more confusing and makes it more difficult to
+#' group the forward and reverse reads together afterwards.
+#' 
 #'
 #' @returns A list with the following elements, all of which are intended to be
 #' used as the corresponding arguments to [streaming_demultiplex()]:
@@ -44,7 +55,9 @@ streaming_callbacks <- function(input_file,
     }
     raw_chunk <- ShortRead::yield(state$istream)
     chunk  <- ShortRead::sread(raw_chunk)
-    names(chunk) <- ShortRead::id(raw_chunk)
+    # For pair-end reads, we usually don't want what is trailing after the space
+    # in order to have the same identifiers to both forward and reverse reads 
+    names(chunk) <- ShortRead::id(raw_chunk) %>% {sub(" .*$", "", .)}
     n_reads_in_chunk <- length(chunk)
     if (n_reads_in_chunk == 0L && state$output_table_initialized) {
       # The case when the initial chunk is empty is given special treatment since
