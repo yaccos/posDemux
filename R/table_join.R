@@ -20,11 +20,16 @@
 #' As opposed to [base::match()], this function is implemented more efficiently
 #' by converting each row into a numeric encoding before matching.
 #' 
+#' For technical reasons, it is not possible for \code{table} to have more than
+#' \eqn{2^{32}-1\approx 2.1\cdot 10^{9}} distinct rows, but this is usually not an issue anyway
+#' as matrices and data frames exceeding this number of rows are not allowed by \R
+#' at the time of writing.
+#' 
+#' 
 #'
 #' @returns Logical vector, for each row in \code{table}, is the same row found
 #' in \code{x}.
 #' @export
-#'
 row_match <- function(x, table) {
   barcode_cols <- intersect(colnames(x), colnames(table))
   table_df <- as.data.frame(table[, barcode_cols])
@@ -39,7 +44,10 @@ get_mapping <- function(table) {
   # The order the barcodes appear in does not really matter
   # as long as the same mapping object is used
   unique_values <- map(table, unique)
-  n_unique_values <- map(unique_values, length)
+  n_unique_values <- map_int(unique_values, length)
+  assert_that(prod(n_unique_values) <= .Machine$integer.max,
+              msg=glue("Number of possible barcode combinations
+                       exceeds the maximum of {.Machine$integer.max}"))
   cumprod <- cumprod(n_unique_values)
   shifted_cumprod <- c(1L, cumprod(n_unique_values) %>% head(-1L))
   list(unique = unique_values, n_unique = n_unique_values, 

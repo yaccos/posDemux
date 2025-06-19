@@ -26,6 +26,11 @@ As this function is intended to be used for data frames containing more than
 just the barcodes, the intersection of the column names is used for matching.
 As opposed to \code{\link[base:match]{base::match()}}, this function is implemented more efficiently
 by converting each row into a numeric encoding before matching.
+
+For technical reasons, it is not possible for \code{table} to have more than
+\eqn{2^{32}-1\approx 2.1\cdot 10^{9}} distinct rows, but this is usually not an issue anyway
+as matrices and data frames exceeding this number of rows are not allowed by \R
+at the time of writing.
 }
 \seealso{
 \code{\link[=create_frequency_table]{create_frequency_table()}} for how frequency tables are constructed,

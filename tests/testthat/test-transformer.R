@@ -26,3 +26,16 @@ test_that("Row matching work as expected",
           }
           
           )
+
+test_that("Encodings requering numbers higher than .Machine$integer.max are disallowed",
+          {
+            n_barcodes_per_set <- 100L
+            barcode_names <- glue("bc{1L:5L}") %>% set_names(.,.)
+            barcode_name_table <- outer(seq_len(n_barcodes_per_set), barcode_names,
+                                        \(x,y) glue("{y}_{x}")) %>%
+              unclass() %>%
+              as.data.frame(optional = FALSE)
+            expect_error(posDemux:::get_mapping(barcode_name_table))
+          }
+          
+          )

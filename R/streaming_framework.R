@@ -45,7 +45,10 @@
 #' bad terminations crieria can cause a runaway loop.
 #' Usually, it will be useful to have a progress tracker of how many reads
 #' are demultiplexed. The framework itself does not implement this, so
-#' it is typically
+#' it is typically implemented into the archiver or loader.
+#' 
+#' For technical reasons, it is not possible to do streaming when the number of
+#' possible barcode combinations exceeds \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
 #'
 #' @returns A list with three elements:
 #' \itemize{
