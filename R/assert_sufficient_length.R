@@ -12,7 +12,7 @@ assert_sufficient_length <- function(sequences, minimum_length) {
   if(rlang::is_named(sequences)) {
     # We print their names if they exist
     tail_msg <- glue("These are:")
-    names_too_short <- names(sequences)
+    names_too_short <- names(sequences)[!sequence_long_enough]
     collased_names <- paste(names_too_short, collapse = "\n")
     stop(head_msg, tail_msg, collased_names)
   } else {
