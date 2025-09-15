@@ -301,7 +301,7 @@ We can also illustrate this filtering by looking at the distribution of barcode 
 # Since the cutoff lines of the plot are provided by the literal x-coordinate,
 # we must use the frequency cutoff
 frequency_plot(freq_table, cutoff = freq_cutoff, type = "density",
-               log_scale = TRUE)
+               log_scale_x = TRUE)
 ```
 
 ## Exporting results

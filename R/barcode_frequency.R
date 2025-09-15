@@ -72,7 +72,9 @@ create_freq_table_from_encoding <- function(encoded_barcodes, mapping) {
 #' and \code{\link{frequency_to_bc_cutoff}}.
 #' @param type The type of frequency plot to make, either \code{"histogram"}
 #' or \code{"density"}
-#' @param log_scale Logical: Should a log scale be applied to the x-axis of the
+#' @param log_scale_x Logical: Should a log scale be applied to the x-axis of the
+#' frequency plot?
+#' @param log_scale_y Logical: Should a log scale be applied to the y-axis of the
 #' frequency plot?
 #'
 #' @seealso [bc_to_frequency_cutoff()] [frequency_to_bc_cutoff()]
@@ -84,7 +86,9 @@ create_freq_table_from_encoding <- function(encoded_barcodes, mapping) {
 frequency_plot <- function(frequency_table,
                            cutoff = NULL,
                            type = "histogram",
-                           log_scale = TRUE) {
+                           log_scale_x = TRUE,
+                           log_scale_y = FALSE
+                           ) {
   n_reads <- sum(frequency_table$frequency)
   plot_type <- switch (type,
                        histogram = \() geom_histogram(),
@@ -92,11 +96,23 @@ frequency_plot <- function(frequency_table,
   if (is.null(plot_type)) {
     stop("The type argument must either be 'histogram' or 'density'")
   }
+  if (type == "histogram"){
+    ylab <- "Frequency"
+  } else if(log_scale_y) {
+    # This plot is special since the values closest to zero
+    # represent the most reads
+    ylab <- "log10(Relative Frequency)"
+  } else {
+    ylab <- "Relative Frequency"
+  }
   p <- ggplot(frequency_table, aes(x = .data$frequency)) +
     plot_type() +
-    labs(x = "Number of reads", y = "Frequency")
-  if (log_scale) {
+    labs(x = "Number of reads", y = ylab)
+  if (log_scale_x) {
     p <- p + scale_x_log10()
+  }
+  if (log_scale_y) {
+    p <- p + scale_y_log10()
   }
   if (!is.null(cutoff)) {
     p <- p + geom_vline(xintercept = cutoff, linetype = "dashed")

@@ -9,7 +9,8 @@ frequency_plot(
   frequency_table,
   cutoff = NULL,
   type = "histogram",
-  log_scale = TRUE
+  log_scale_x = TRUE,
+  log_scale_y = FALSE
 )
 
 knee_plot(frequency_table, cutoff = NULL)
@@ -31,7 +32,10 @@ and \code{\link{frequency_to_bc_cutoff}}.}
 \item{type}{The type of frequency plot to make, either \code{"histogram"}
 or \code{"density"}}
 
-\item{log_scale}{Logical: Should a log scale be applied to the x-axis of the
+\item{log_scale_x}{Logical: Should a log scale be applied to the x-axis of the
+frequency plot?}
+
+\item{log_scale_y}{Logical: Should a log scale be applied to the y-axis of the
 frequency plot?}
 }
 \value{

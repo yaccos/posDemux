@@ -32,7 +32,8 @@ interactive_bc_cutoff <- function(frequency_table) {
       radioButtons("freq_plot_type","Type of frequency plot",
                    choices = c("Density"="density", "Histogram"="histogram"),
                    selected = "density"),
-      checkboxInput("log_scale", "Log scale on frequency plot x-axis"),
+      checkboxInput("log_scale_x", "Log scale on frequency plot x-axis"),
+      checkboxInput("log_scale_y", "Log scale on frequency plot y-axis"),
       actionButton("exit", "Confirm cutoff selection")
     ),
     mainPanel = mainPanel(
@@ -75,7 +76,9 @@ interactive_bc_cutoff <- function(frequency_table) {
       frequency_plot(frequency_table,
                      cutoff = frequency_cutoff(),
                      type = input$freq_plot_type,
-                     log_scale = input$log_scale) + 
+                     log_scale_x = input$log_scale_x,
+                     log_scale_y = input$log_scale_y
+                     ) + 
         theme(text = element_text(size = 18))
     )
     output$frequency_cutoff <- renderPrint(
