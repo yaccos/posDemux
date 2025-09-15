@@ -29,6 +29,7 @@ interactive_bc_cutoff <- function(frequency_table) {
       
       glue("Total number of reads: {n_reads}") %>% h4(),
       textOutput("reads_kept") %>% h4(),
+      textOutput("frequency_cutoff") %>% h4(),
       radioButtons("freq_plot_type","Type of frequency plot",
                    choices = c("Density"="density", "Histogram"="histogram"),
                    selected = "density"),
@@ -87,6 +88,9 @@ interactive_bc_cutoff <- function(frequency_table) {
     output$reads_kept <- renderText(
         glue("Number of reads kept: {reads_kept()} \\
               ({percentage_kept()}%)")
+    )
+    output$frequency_cutoff <- renderText(
+      glue("Number of reads in last barcode included: {frequency_cutoff()}")
     )
     observeEvent(input$exit,
                  stopApp(input$cutoff)
