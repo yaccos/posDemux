@@ -2,7 +2,7 @@ Package: posDemux
 Type: Package
 Title: Positional combinatorial sequence demultiplexer
 Encoding: UTF-8
-Version: 0.14
+Version: 0.15
 Date: 2025-06-19
 Authors@R: 
    person(given = "Jakob Peder",
@@ -21,7 +21,7 @@ Depends: R (>= 4.4.0)
 Imports: Rcpp (>= 1.0.14), Biostrings, XVector, IRanges, assertthat, glue, magrittr, dplyr, rlang, ShortRead, data.table
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
 biocViews: SequenceMatching, Sequencing, Software
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat,

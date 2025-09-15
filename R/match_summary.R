@@ -167,7 +167,7 @@ print.demultiplex_filter_summary <- function(x, ...) {
                {x$n_removed} ({removed_percentage %>% round(2L)}%)"
   ) %>%
     cat("\n")
-  glue("Observed number of unique barcodes: {x$n_unique_barcodes}") %>%
+  glue("Observed number of unique barcode combinations: {x$n_unique_barcodes}") %>%
     cat("\n")
   glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>%
     cat("\n")

@@ -15,11 +15,11 @@ this will be the top portion of a frequency table.}
 }
 \value{
 Logical vector, for each row in \code{table}, is the same row found
-in \code{x}.
+in \code{x}?
 }
 \description{
 This function extends the functionality of \code{\link[base]{\%in\%}} for
-finding which rows in the first argument is exists in the second.
+finding which rows in the first argument exists in the second.
 }
 \details{
 As this function is intended to be used for data frames containing more than

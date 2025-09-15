@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function extends the functionality of \code{\link[base]{%in%}} for
-#' finding which rows in the first argument is exists in the second.
+#' finding which rows in the first argument exists in the second.
 #' 
 #' 
 #' @param x A matrix or data frame which rows to be matched. 
@@ -27,7 +27,7 @@
 #' 
 #'
 #' @returns Logical vector, for each row in \code{table}, is the same row found
-#' in \code{x}.
+#' in \code{x}?
 #' @export
 row_match <- function(x, table) {
   barcode_cols <- intersect(colnames(x), colnames(table))
