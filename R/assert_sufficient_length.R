@@ -8,13 +8,16 @@ assert_sufficient_length <- function(sequences, minimum_length) {
   }
   # One or more sequences are not long enough
   n_too_short <- sum(!sequence_long_enough)
-  head_msg <- glue("{n_too_short} sequence(s) are too short given the provided lengths of the segments\n")
-  if(rlang::is_named(sequences)) {
+  head_msg <- glue("{n_too_short} sequence(s) are too short given the provided lengths of the segments")
+  if(rlang::is_named(sequences) && n_too_short <= 100L) {
     # We print their names if they exist
+    # We only print the identifiers if there 100 of them or less.
+    # Printing hundreds or thousands of identifiers is not informative and 
+    # in extreme cases may make R to suffer from a stack overflow
     tail_msg <- glue("These are:")
     names_too_short <- names(sequences)[!sequence_long_enough]
     collased_names <- paste(names_too_short, collapse = "\n")
-    stop(head_msg, tail_msg, collased_names)
+    stop(glue("{head_msg}\n{tail_msg}\n{collased_names}"))
   } else {
     # Otherwise just print how many there are
     # We could in theory print their positions, but this quickly
