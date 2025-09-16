@@ -87,12 +87,21 @@ frequency_plot <- function(frequency_table,
                            cutoff = NULL,
                            type = "histogram",
                            log_scale_x = TRUE,
-                           log_scale_y = FALSE
+                           log_scale_y = FALSE,
+                           scale_by_reads = FALSE
                            ) {
   n_reads <- sum(frequency_table$frequency)
-  plot_type <- switch (type,
-                       histogram = \() geom_histogram(),
-                       density = \() stat_density())
+  if (!scale_by_reads){
+    plot_type <- switch (type,
+                         histogram = \() geom_histogram(),
+                         density = \() stat_density())  
+  } else {
+    plot_type <- switch (type,
+                         histogram = \() geom_histogram(aes(y = after_stat(count * x))),
+                         density = \() stat_density(aes(y = after_stat(count * x / sum(count)))))
+    
+  }
+  
   if (is.null(plot_type)) {
     stop("The type argument must either be 'histogram' or 'density'")
   }
