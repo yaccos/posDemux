@@ -76,7 +76,16 @@ The demultiplexer is written with Illumina sequencing in mind. It assumes that s
 
 This package does not by itself support combining barcodes on both reverse and forward reads, but this limitation can be circumvented by either artificially merging reads or manipulating the result structures from the demultiplexer.
 
-For large-scale analysis, there may be desirable to demultiplex smaller chunks of the input instead of loading the all the reads into memory at once. As there are different ways one wish to do streaming, we have chosen not to include streaming functionality into the package, but rather encourage the user to built a streaming interface on top of it if desired.
+## Ways to interact with this package
+
+This vignette describes the basic usage of the package where the FASTQ files
+are read into R before the demultiplexing begins. For large datasets or 
+memory-limited systems, reading all sequences into memory at once is too taxing.
+For this reason, `posDemux` has a streaming API where only parts of the into files
+is read at a time. For brevity, this functionality is explained in its own vignette (`vignette("streaming")`)
+We believe that most end-users won't interact with this package directly, but rather
+in the form of a custom-made bioinformatic pipeline. Also, we think that most developers of
+bioinformatics pipelines would prefer the streaming API. Still, we think those developing with this package should have an understanding of its low-level API as to understand what it does under the hood. 
 
 ## Install `posDemux`
 
@@ -288,13 +297,12 @@ reconstrued_bc_cutoff <- frequency_to_bc_cutoff(freq_table, freq_cutoff)
 reconstrued_bc_cutoff
 ```
 
-
-
-This can be illustrated by the Knee plot:
+The cutoff can be illustrated by the Knee plot as in the interactive application:
 
 ```{r}
 knee_plot(frequency_table = freq_table, cutoff = bc_cutoff)
 ```
+
 We can also illustrate this filtering by looking at the distribution of barcode frequencies:
 
 ```{r}
@@ -303,6 +311,16 @@ We can also illustrate this filtering by looking at the distribution of barcode 
 frequency_plot(freq_table, cutoff = freq_cutoff, type = "density",
                log_scale_x = TRUE)
 ```
+
+Often the frequency plot get easier to interpret when we scale the y-axis by the number of reads, hence creating a mass plot of where the reads are distributed based on their respective barcodes:
+
+```{r}
+# Since the cutoff lines of the plot are provided by the literal x-coordinate,
+# we must use the frequency cutoff
+frequency_plot(freq_table, cutoff = freq_cutoff, type = "density",
+               log_scale_x = TRUE, scale_by_reads = TRUE)
+```
+
 
 ## Exporting results
 
@@ -347,13 +365,6 @@ Finally, we can write the table to file. The following is the suggested way for 
 file <- tempfile(pattern = "barcode_table", fileext = ".txt")
 write.table(res_table, file, row.names = FALSE, col.names = TRUE, sep = "\t", eol = "\n", quote = FALSE)
 ```
-
-
-Edit this as you see fit =)
-
-Here is an example of you can cite your package inside the vignette:
-
--   `r Biocpkg("posDemux")` `r Citep(bib[["posDemux"]])`
 
 # Reproducibility
 

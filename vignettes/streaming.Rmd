@@ -1,0 +1,109 @@
+---
+title: "Streaming data into the demultiplexer"
+bibliography: ../inst/REFERENCES.bib
+author: 
+  - name: Jakob Peder Pettersen
+    affiliation:
+    - UiT, the Artic University of Norway, Department of Computer Science
+    email: jakobpeder.pettersen@gmail.com
+output: 
+  BiocStyle::html_document:
+    self_contained: yes
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('posDemux')`"
+vignette: >
+  %\VignetteIndexEntry{Demultiplexing with streaming}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+)
+```
+
+```{r vignetteSetup, echo=FALSE, message=FALSE, warning = FALSE}
+## Bib setup
+library("RefManageR")
+
+## Write bibliography information
+bib_packages <- c(
+    R = citation(),
+    BiocStyle = citation("BiocStyle")[1],
+    knitr = citation("knitr")[1],
+    RefManageR = citation("RefManageR")[1],
+    rmarkdown = citation("rmarkdown")[1],
+    sessioninfo = citation("sessioninfo")[1],
+    testthat = citation("testthat")[1]
+)
+
+bib <- ReadBib("../inst/REFERENCES.bib")
+
+# for (pkg in names(bib_packages)) {
+#   bib[[pkg]] <- bib_packages[[pkg]]
+# }
+
+
+BibOptions(check.entries = FALSE, style = "markdown", cite.style = "numeric",
+           bib.style = "numeric")
+
+```
+
+# Why streaming?
+
+Given that sequence files can consist of gigabytes of data, storing everything in memory at once can prove to be too much for the computer. Fortunately, for demultiplexing of barcodes, we can demultiplex the barcodes independently of each other. In theory, we could read the entries from a FASTQ file one by one, and for each of them call the demultiplexer and output the barcode assignments to a file. However, due to overhead in file reading and the `R` interpreter, the most efficient option is to process the files in chunks of a predefined size.
+
+## Which chunk size to use?
+
+The chunk size should be large enough for the constant overhead of initiating a file read and interpreting the required `R` instructions to be neglectable. Still, the chunk size should be small enough to only make a modest memory footprint. In practice, with modern computers having gigabytes of RAM, we find a chunk size of  $10^6$ reads to be a reasonable choice. The example datasets used in this vignette are far too small to require streaming (including a dataset of realistic size would make the package exceed the maximum package size), so for purely demonstrational purposed, we choose a chunk size of $10^4$ reads.
+
+# Overview of the streaming API
+
+
+
+
+
+## When and why to use this package
+
+This package is aimed at single-cell RNA-seq approaches such as SPLiT-seq `r Citep(bib[c("Rosenberg2018","Kuijpers2024")])`, BacDrop `r Citep(bib[c("Ma2023")])` and PETRI-seq `r Citep(bib[c("Blattman2020","Blattman2024")])`. Here, each cell to be sequences is defined by it own unique combination of multiple DNA barcodes. We do assume that the individual barcodes come from a predefined whitelist, but that the combination of barcodes is random and that every possible combination of barcodes is valid. In order to identify which cell each read is coming from, we must extract the barcodes, compare them with the reference barcodes, and find the best match.
+
+# Reproducibility
+
+The `r Biocpkg("posDemux")` package `r Citep(bib[["posDemux"]])` was made possible thanks to:
+
+-   R `r Citep(bib[["R"]])`
+-   `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
+-   `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])`
+-   `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`
+-   `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])`
+-   `r CRANpkg("sessioninfo")` `r Citep(bib[["sessioninfo"]])`
+-   `r CRANpkg("testthat")` `r Citep(bib[["testthat"]])`
+
+This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
+
+`R` session information.
+
+```{r reproduce3, echo=FALSE}
+## Session info
+library("sessioninfo")
+options(width = 120)
+session_info()
+```
+
+# Bibliography
+
+This vignette was generated using `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])` with `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])` running behind the scenes.
+
+Citations made with `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`.
+
+```{r vignetteBiblio, results = "asis", echo = FALSE, warning = FALSE, message = FALSE}
+## Print bibliography
+PrintBibliography(bib, .opts = list(hyperlink = "to.doc", style = "html"))
+```

@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 scratch.R
 ^LICENSE\.md$
+^doc$
+^Meta$
