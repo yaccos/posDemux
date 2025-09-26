@@ -32,7 +32,7 @@ correct_n <- function(n_obs, tol = 0.01) {
   n
 }
 
-test_that("Correcting the number of cells work", 
+test_that("Correcting the number of features work", 
           {
             local({
             n_obs <- N * (1- exp(-lambdas))
@@ -43,7 +43,7 @@ test_that("Correcting the number of cells work",
 )
 
 test_that("The iterative method for finding number
-          of cells agrees with the algebraic one", 
+          of features agrees with the algebraic one", 
           {
           local({
             tol <- 10^(-5)

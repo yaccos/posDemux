@@ -10,7 +10,8 @@ frequency_plot(
   cutoff = NULL,
   type = "histogram",
   log_scale_x = TRUE,
-  log_scale_y = FALSE
+  log_scale_y = FALSE,
+  scale_by_reads = FALSE
 )
 
 knee_plot(frequency_table, cutoff = NULL)

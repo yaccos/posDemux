@@ -44,23 +44,23 @@ providing diagnostics for the filtering process. It contains the
 the following fields:
 \itemize{
 \item \code{n_reads}: The total number of reads in the dataset before filtering.
-\item \code{n_removed}: The number of reads removed by filtering.
+\item \code{n_removed}: The number of reads removed because demultiplexing failed.
 \item \code{n_barcode_sets}: The number of barcode sets.
 \item \code{n_barcode_combinations}: The possible number
 of barcode combinations.
 \item \code{n_unique_barcodes}: The number of observed unique barcode combinations
-(i.e. cells) detected after filtering mismatches.
-\item \code{n_estimated_cells}: The estimated number of cells having a
+(i.e. features which may be cells) detected after filtering mismatches.
+\item \code{n_estimated_features}: The estimated number of features having a
 detected combination of barcodes.
 This number will always be greater or equal than \code{n_unique_barcodes} due
 to barcode collisions
 \item \code{observed_collision_lambda}: The ratio of observed barcode
 combinations divided by the total number of possible barcode combinations
-\item \code{corrected_collision_lambda}: The ratio of estimated number of cells
+\item \code{corrected_collision_lambda}: The ratio of estimated number of features
 to the total number of possible barcode combinations
 \item \code{expected_collisions}: The statistically expected number
 of barcode collisions or more precicely the expected number of
-observed barcodes which correspond to two or more cells
+observed barcodes which correspond to two or more features
 \item \code{barcode_summary}: A list containing a summary for each barcode set.
 Each element contains the following:
 \itemize{
@@ -83,18 +83,22 @@ its results will be returned automatically from
 \details{
 Following a uniform distribution of barcodes, the expected number
 of barcode collisions
-(observed barcodes combinations being composed of two or more cells)
+(observed barcodes combinations being composed of two or more features)
 is given by
 \deqn{N\left(1-e^{-\lambda}-\lambda e^{-\lambda}\right),}
 where \eqn{N} is the number of possible barcode combinations
 and \eqn{\lambda} is in this summary referred to as the collision lambda.
-\deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of cells,
-but this entity is unknown as we cannot know how many cells
+\deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features,
+but this entity is unknown as we cannot know how many features
 there were originally only based on the number of observed
 barcodes due to potential collisions. Utilizing the fact that the expected
 observed number of barcodes is given by
 \deqn{N\left(1-e^{-\lambda}\right),}
 we can correct the estimate for \eqn{\lambda} from the known value
 of the observed barcode combinations, and thus estimate the number
-of cells and barcode collisions.
+of features and barcode collisions.
+
+While each unique feature can be conceptually thought of as single cell with its transcripts,
+realistic datasets have many features with relatively small numbers of reads which
+are artifacts and unlikely to correspond to true cells.
 }

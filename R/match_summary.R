@@ -27,23 +27,23 @@
 #' the following fields:
 #' \itemize{
 #' \item \code{n_reads}: The total number of reads in the dataset before filtering.
-#' \item \code{n_removed}: The number of reads removed by filtering.
+#' \item \code{n_removed}: The number of reads removed because demultiplexing failed.
 #' \item \code{n_barcode_sets}: The number of barcode sets.
 #' \item \code{n_barcode_combinations}: The possible number
 #' of barcode combinations.
 #' \item \code{n_unique_barcodes}: The number of observed unique barcode combinations
-#' (i.e. cells) detected after filtering mismatches.
-#' \item \code{n_estimated_cells}: The estimated number of cells having a 
+#' (i.e. features which may be cells) detected after filtering mismatches.
+#' \item \code{n_estimated_features}: The estimated number of features having a 
 #' detected combination of barcodes.
 #' This number will always be greater or equal than \code{n_unique_barcodes} due
 #' to barcode collisions
 #' \item \code{observed_collision_lambda}: The ratio of observed barcode
 #'  combinations divided by the total number of possible barcode combinations
-#' \item \code{corrected_collision_lambda}: The ratio of estimated number of cells
+#' \item \code{corrected_collision_lambda}: The ratio of estimated number of features
 #' to the total number of possible barcode combinations
 #' \item \code{expected_collisions}: The statistically expected number
 #' of barcode collisions or more precicely the expected number of
-#' observed barcodes which correspond to two or more cells
+#' observed barcodes which correspond to two or more features
 #' \item \code{barcode_summary}: A list containing a summary for each barcode set.
 #' Each element contains the following:
 #' \itemize{
@@ -60,20 +60,24 @@
 #' @details
 #'  Following a uniform distribution of barcodes, the expected number
 #'  of barcode collisions
-#'  (observed barcodes combinations being composed of two or more cells)
+#'  (observed barcodes combinations being composed of two or more features)
 #'  is given by
 #'  \deqn{N\left(1-e^{-\lambda}-\lambda e^{-\lambda}\right),}
 #'  where \eqn{N} is the number of possible barcode combinations
 #'  and \eqn{\lambda} is in this summary referred to as the collision lambda.
-#'  \deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of cells,
-#'  but this entity is unknown as we cannot know how many cells
+#'  \deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features,
+#'  but this entity is unknown as we cannot know how many features
 #'  there were originally only based on the number of observed
 #'  barcodes due to potential collisions. Utilizing the fact that the expected
 #'  observed number of barcodes is given by
 #'  \deqn{N\left(1-e^{-\lambda}\right),}
 #'  we can correct the estimate for \eqn{\lambda} from the known value
 #'  of the observed barcode combinations, and thus estimate the number
-#'  of cells and barcode collisions.
+#'  of features and barcode collisions.
+#'  
+#'  While each unique feature can be conceptually thought of as single cell with its transcripts,
+#'  realistic datasets have many features with relatively small numbers of reads which
+#'  are artifacts and unlikely to correspond to true cells.
 #'  
 #' 
 #' 
@@ -89,11 +93,11 @@ create_summary_res <- function(retained_sequences,
     unique(MARGIN = 1L) %>%
     nrow()
   n_barcode_combinations <- prod(n_barcodes_per_set)
-  n_estimated_cells <- poisson_correct_n(n_barcode_combinations,
+  n_estimated_features <- poisson_correct_n(n_barcode_combinations,
                                          n_unique_barcodes)
   n_barcodes_per_set <- map_int(barcodes, length)
   observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
-  corrected_collision_lambda <- n_estimated_cells / n_barcode_combinations
+  corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
   expected_collisions <- poisson_estimate_collisions(n_barcode_combinations,
                                                      corrected_collision_lambda)
   barcode_summary <- imap(barcodes, function(barcode_set, barcode_name) {
@@ -123,7 +127,7 @@ create_summary_res <- function(retained_sequences,
     n_barcode_sets = barcodes %>% length(),
     n_barcode_combinations = n_barcode_combinations,
     n_unique_barcodes = n_unique_barcodes,
-    n_estimated_cells = n_estimated_cells,
+    n_estimated_features = n_estimated_features,
     observed_collision_lambda = observed_collision_lambda,
     corrected_collision_lambda = corrected_collision_lambda,
     expected_collisions = expected_collisions,
@@ -138,7 +142,7 @@ poisson_estimate_collisions <- function(N, lambda) {
   N * (1 - exp(-lambda) - lambda * exp(-lambda))
 }
 
-# Estimates the true number of cells taking barcode collisions into account
+# Estimates the true number of features taking barcode collisions into account
 poisson_correct_n <- function(N, n_obs) {
   -N*log(1 - n_obs/ N)
 }
@@ -163,7 +167,7 @@ print.demultiplex_filter_summary <- function(x, ...) {
     cat("\n")
   removed_percentage <- x$n_removed / x$n_reads * 100
   glue(
-    "Number of reads removed by filtering: \\
+    "Number of reads failing to demultiplex: \\
                {x$n_removed} ({removed_percentage %>% round(2L)}%)"
   ) %>%
     cat("\n")
@@ -171,16 +175,16 @@ print.demultiplex_filter_summary <- function(x, ...) {
     cat("\n")
   glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>%
     cat("\n")
-  glue("Estimated number of cells: {x$n_estimated_cells %>% round(1L)}") %>%
+  glue("Estimated number of features: {x$n_estimated_features %>% round(1L)}") %>%
     cat("\n")
-  glue("Observed cell to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>% 
+  glue("Observed feature to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>% 
     cat("\n")
-  glue("Corrected cell to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>% 
+  glue("Corrected feature to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>% 
     cat("\n")
   collision_percentage <- x$expected_collisions / x$n_unique_barcodes * 100
   glue(
     "Estimated number of observed barcode combinations
-    corresponding to more than one cell: \\
+    corresponding to more than one feature: \\
     {x$expected_collisions %>% round(1L)} ({collision_percentage %>% round(2L)}%)"
   ) %>%
     cat("\n")

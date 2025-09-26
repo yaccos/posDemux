@@ -212,9 +212,9 @@ create_expected_summary_res <- function(possible_barcode_combinations, expected_
   # of n_unique_barcodes
   n_unique_barcodes <- nrow(expected_filtered_frequency_table)
   observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
-  n_estimated_cells <- posDemux:::poisson_correct_n(n_barcode_combinations,
+  n_estimated_features <- posDemux:::poisson_correct_n(n_barcode_combinations,
                                                     n_unique_barcodes)
-  corrected_collision_lambda <- n_estimated_cells / n_barcode_combinations
+  corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
   expected_collisions <- 
     posDemux:::poisson_estimate_collisions(n_barcode_combinations,
                                            corrected_collision_lambda) 
@@ -224,7 +224,7 @@ create_expected_summary_res <- function(possible_barcode_combinations, expected_
     n_barcode_sets = nrow(barcode_frame),
     n_barcode_combinations = n_barcode_combinations,
     n_unique_barcodes = n_unique_barcodes,
-    n_estimated_cells = n_estimated_cells,
+    n_estimated_features = n_estimated_features,
     observed_collision_lambda = observed_collision_lambda,
     corrected_collision_lambda = corrected_collision_lambda,
     expected_collisions = expected_collisions,

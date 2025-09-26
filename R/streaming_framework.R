@@ -159,10 +159,11 @@ summary_update <- function(filter_summary,
 summary_finalize <- function(filter_summary, n_unique_barcodes) {
   filter_summary <- within(filter_summary, {
     n_unique_barcodes <- n_unique_barcodes
-    n_estimated_cells <- poisson_correct_n(n_barcode_combinations, n_unique_barcodes)
+    n_estimated_features <- poisson_correct_n(n_barcode_combinations, n_unique_barcodes)
     observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
-    corrected_collision_lambda <- n_estimated_cells / n_barcode_combinations
-    expected_collisions <- poisson_estimate_collisions(n_barcode_combinations, corrected_collision_lambda)
+    corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
+    expected_collisions <- poisson_estimate_collisions(n_barcode_combinations,
+                                                       corrected_collision_lambda)
   })
   # This should usually be unnecessary since the fields are referenced
   # by names and not position,
@@ -174,7 +175,7 @@ summary_finalize <- function(filter_summary, n_unique_barcodes) {
     "n_barcode_sets",
     "n_barcode_combinations",
     "n_unique_barcodes",
-    "n_estimated_cells",
+    "n_estimated_features",
     "observed_collision_lambda",
     "corrected_collision_lambda",
     "expected_collisions",
