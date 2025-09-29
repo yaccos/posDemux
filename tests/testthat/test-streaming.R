@@ -23,7 +23,9 @@ segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
 callbacks <- streaming_callbacks(input_file = input_fastq,
                                  output_table_file = output_table_file,
                                  chunk_size = 10000L,
-                                 verbose = FALSE)
+                                 verbose = FALSE,
+                                 min_width = sum(segment_lengths, na.rm = TRUE)
+                                 )
 streaming_res <- rlang::exec(streaming_demultiplex, !!! callbacks,
                              barcodes=barcodes, allowed_mismatches = 1L,
             segments = sequence_annotation, segment_lengths = segment_lengths)
@@ -55,5 +57,30 @@ test_that("Barcode table is correctly generated from streaming",
                                                  UMI = expected_UMI %>% unname()) %>%
               cbind(as.data.frame(expected_assigned_barcodes, row.names = FALSE))
             expect_equal(barcode_table, expected_barcode_table)
+          }
+)
+
+test_that("Trying to stream a file where some of the reads are too
+          short will yield a warning, but not an error",
+          {
+            # Testing escape hatch for reads being too short to be segmented
+            reads_shortended <- reads[1L:10L]
+            reads_too_short <- c(3L, 5L, 8L)
+            reads_shortended[reads_too_short] <- subseq(reads_shortended[reads_too_short],
+                                                        start = 1L , width = 50L)
+            input_fastq <- tempfile()
+            writeQualityScaledXStringSet(reads_shortended, input_fastq)
+            segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
+            callbacks <- streaming_callbacks(input_file = input_fastq,
+                                             output_table_file = output_table_file,
+                                             chunk_size = 10000L,
+                                             verbose = FALSE,
+                                             min_width = sum(segment_lengths, na.rm = TRUE)
+            )
+            # This should warn us about seq_3, seq_5, and seq_8 being too short,
+            # but not raise an error
+            streaming_res <- expect_warning(rlang::exec(streaming_demultiplex, !!! callbacks,
+                                                        barcodes=barcodes, allowed_mismatches = 1L,
+                                                        segments = sequence_annotation, segment_lengths = segment_lengths))
           }
           )

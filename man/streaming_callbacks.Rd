@@ -8,7 +8,8 @@ streaming_callbacks(
   input_file,
   output_table_file,
   chunk_size = 1e+06,
-  verbose = TRUE
+  verbose = TRUE,
+  min_width = NULL
 )
 }
 \arguments{
@@ -20,6 +21,13 @@ barcode table will be written}
 \item{chunk_size}{Integer, the number of reads to process in each chunk}
 
 \item{verbose}{Logical scalar: Should the progress be displayed?}
+
+\item{min_width}{Optional integer scalar: Minimum width of the sequences to keep.
+For reads which are shorter than this, a warning it emitted and the
+reads are removed and ignored and thus not appear in any statistics.
+The data loader is \strong{not} supposed to be used as a length filter, so this option
+is more like an escape hatch for being able to deal with sequences which have not been
+properly filtered beforehand.}
 }
 \value{
 A list with the following elements, all of which are intended to be

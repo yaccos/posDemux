@@ -62,6 +62,9 @@
 #' If there are two barcodes both having the minimum number of mismatches
 #' the first one will be selected. If is therefore important to choose the
 #' error tolerance to be equal or less than the redunancy of the barcodes.
+#' Since the output of the function matches the order of input, all sequences
+#' are assumed to be long enough for all segments to be extracted. Otherwise,
+#' an error is raised. 
 #' @export
 combinatorial_demultiplex <- function(sequences, barcodes,
                                       segments, segment_lengths) {
