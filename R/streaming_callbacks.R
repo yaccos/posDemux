@@ -1,3 +1,7 @@
+log_progress <- function(msg) {
+  message(glue("{date()} => {msg}"))
+}
+
 #' Suggested setup for FASTQ streaming
 #' @description
 #' Even though the user can define the arguments \code{state_init},
@@ -58,7 +62,7 @@ streaming_callbacks <- function(input_file,
   
   res$loader <- function(state) {
     if (!state$output_table_initialized) {
-      if(verbose) message("Initializing FASTQ stream and output table")
+      if(verbose) log_progress("Initializing FASTQ stream and output table")
       state$istream <- ShortRead::FastqStreamer(input_file, n = chunk_size)
     }
     raw_chunk <- ShortRead::yield(state$istream)
@@ -79,7 +83,7 @@ streaming_callbacks <- function(input_file,
         sequences = NULL,
         should_terminate = TRUE
       )
-      if(verbose) message(glue("Done demultiplexing"))
+      if(verbose) log_progress("Done demultiplexing")
       return(final_res)
     }
     if (min_width %>% is.null() %>% magrittr::not()){
@@ -127,11 +131,10 @@ streaming_callbacks <- function(input_file,
     )
     state <- within(state, {
       demultiplexed_reads <- demultiplexed_reads + nrow(barcode_matrix)
-      if(verbose) message(
-        glue(
+      if(verbose)
+        log_progress(
           "Processed {total_reads} reads, successfully demultiplexed {demultiplexed_reads} reads so far..."
         )
-      )
     })
     state
   }
