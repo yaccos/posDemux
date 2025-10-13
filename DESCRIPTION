@@ -2,8 +2,8 @@ Package: posDemux
 Type: Package
 Title: Positional combinatorial sequence demultiplexer
 Encoding: UTF-8
-Version: 0.17
-Date: 2025-09-29
+Version: 0.18
+Date: 2025-10-13
 Authors@R: 
    person(given = "Jakob Peder",
    family = "Pettersen",

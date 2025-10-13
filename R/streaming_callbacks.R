@@ -132,9 +132,9 @@ streaming_callbacks <- function(input_file,
     state <- within(state, {
       demultiplexed_reads <- demultiplexed_reads + nrow(barcode_matrix)
       if(verbose)
-        log_progress(
+        glue(
           "Processed {total_reads} reads, successfully demultiplexed {demultiplexed_reads} reads so far..."
-        )
+        ) %>% log_progress()
     })
     state
   }
