@@ -49,6 +49,17 @@ create_freq_table_from_encoding <- function(encoded_barcodes, mapping) {
     )
 }
 
+create_freq_table_from_count_table <- function(count_table, mapping) {
+  # Materializes the Rcpp count table
+  count_res <- get_count_table(count_table)
+  decode(count_res$encoding, mapping) %>% 
+    mutate(frequency = count_res$frequency) %>% 
+    arrange(desc(frequency)) %>% 
+    mutate(cumulative_frequency = cumsum(.data$frequency),
+           fraction = .data$frequency / sum(.data$frequency),
+           cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency))
+}
+
 #' Diagnostic plots from demultiplexing
 #'
 #' @description

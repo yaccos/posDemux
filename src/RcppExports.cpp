@@ -10,6 +10,38 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// create_count_table
+Rcpp::XPtr<std::unordered_map<int, int>> create_count_table();
+RcppExport SEXP _posDemux_create_count_table() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(create_count_table());
+    return rcpp_result_gen;
+END_RCPP
+}
+// add_table_entries
+void add_table_entries(Rcpp::XPtr<std::unordered_map<int, int>> table, IntegerVector chunk);
+RcppExport SEXP _posDemux_add_table_entries(SEXP tableSEXP, SEXP chunkSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<std::unordered_map<int, int>> >::type table(tableSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type chunk(chunkSEXP);
+    add_table_entries(table, chunk);
+    return R_NilValue;
+END_RCPP
+}
+// get_count_table
+List get_count_table(Rcpp::XPtr<std::unordered_map<int, int>> table);
+RcppExport SEXP _posDemux_get_count_table(SEXP tableSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<std::unordered_map<int, int>> >::type table(tableSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_count_table(table));
+    return rcpp_result_gen;
+END_RCPP
+}
 // create_encoding_vector
 Rcpp::XPtr<std::vector<int> > create_encoding_vector();
 RcppExport SEXP _posDemux_create_encoding_vector() {
@@ -59,6 +91,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_posDemux_create_count_table", (DL_FUNC) &_posDemux_create_count_table, 0},
+    {"_posDemux_add_table_entries", (DL_FUNC) &_posDemux_add_table_entries, 2},
+    {"_posDemux_get_count_table", (DL_FUNC) &_posDemux_get_count_table, 1},
     {"_posDemux_create_encoding_vector", (DL_FUNC) &_posDemux_create_encoding_vector, 0},
     {"_posDemux_grow_encoding_vector", (DL_FUNC) &_posDemux_grow_encoding_vector, 2},
     {"_posDemux_get_encoding_vector", (DL_FUNC) &_posDemux_get_encoding_vector, 1},

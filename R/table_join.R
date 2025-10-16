@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function extends the functionality of \code{\link[base]{%in%}} for
-#' finding which rows in the first argument exists in the second.
+#' finding which rows in the first argument exist in the second.
 #' 
 #' 
 #' @param x A matrix or data frame which rows to be matched. 
