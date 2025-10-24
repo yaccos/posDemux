@@ -18,7 +18,7 @@ Description: Demultiplexing and filtering utilities intended for reads with
    combinations to keep.
 License: AGPL (>= 3)
 Depends: R (>= 4.4.0)
-Imports: Rcpp (>= 1.0.14), Biostrings, XVector, IRanges, assertthat, glue, magrittr, dplyr, rlang, ShortRead, readr
+Imports: Rcpp (>= 1.0.14), Biostrings, XVector, IRanges, assertthat, glue, magrittr, dplyr, rlang, ShortRead, readr, stringr
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
 biocViews: SequenceMatching, Sequencing, Software
 RoxygenNote: 7.3.3
