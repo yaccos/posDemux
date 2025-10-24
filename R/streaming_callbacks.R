@@ -69,9 +69,7 @@ streaming_callbacks <- function(input_file,
     chunk  <- ShortRead::sread(raw_chunk)
     # For pair-end reads, we usually don't want what is trailing after the space
     # in order to have the same identifiers to both forward and reverse reads 
-    names(chunk) <- ShortRead::id(raw_chunk) %>% 
-      as.character() %>%
-      stringr::str_replace(" .*$", "")
+    names(chunk) <- ShortRead::id(raw_chunk) %>% {sub(" .*$", "", .)}
     n_reads_in_chunk <- length(chunk)
     if (n_reads_in_chunk == 0L && state$output_table_initialized) {
       # The case when the initial chunk is empty is given special treatment since
