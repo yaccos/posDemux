@@ -120,13 +120,11 @@ streaming_callbacks <- function(input_file,
     } else {
       append <- TRUE
     }
-    data.table::fwrite(
+    readr::write_tsv(
       x = chunk_table,
       file = output_table_file,
       append = append,
-      row.names = FALSE,
-      col.names = !append,
-      sep = "\t",
+      col_names = !append,
       eol = "\n"
     )
     state <- within(state, {
