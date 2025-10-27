@@ -102,6 +102,19 @@ BiocManager::install("posDemux")
 BiocManager::valid()
 ```
 
+If you want to obtain the development version of the package, it is available on [GitHub](https://github.com/yaccos/posDemux):
+
+```{r "github_install", eval = FALSE}
+if (!requireNamespace("devtools", quietly = TRUE)) {
+      install.packages("devtools")
+  }
+
+devtools::install("yaccos/posDemux")
+```
+
+If you compile the package from source, we do recommend
+you use the compiler flag `ftree-vectorize` as this provides
+considerable speedup to the demultiplexer
 
 
 ## Asking for help
@@ -121,10 +134,10 @@ citation("posDemux")
 
 ## Quick overview of the method
 
-The PETRI-seq method is a method for single-cell RNA-sequencing of bacteria `r Citep(bib[c("Blattman2020","Blattman2024")])`. It uses pair-end Illumina sequencing where the forward read contain the cell barcodes and the transcript UMI, whereas the reverse reads contain the cDNA to be aligned to the genome. Hence, `posDemux` will only be applied to the forward reads.
+The PETRI-seq method is a method for single-cell RNA-sequencing of bacteria `r Citep(bib[c("Blattman2020","Blattman2024")])`. It uses pair-end Illumina sequencing where the forward read contain the cell barcodes and the transcript UMI, whereas the reverse reads contain the cDNA to be aligned to the genome. Hence, `posDemux` will only be applied to the forward reads. We start by loading the `posDemux` itself and some helper packages:
 
 ```{r "start", message=FALSE}
-library("posDemux")
+library(posDemux)
 library(Biostrings)
 library(purrr)
 library(magrittr)

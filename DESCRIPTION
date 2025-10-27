@@ -2,7 +2,7 @@ Package: posDemux
 Type: Package
 Title: Positional combinatorial sequence demultiplexer
 Encoding: UTF-8
-Version: 0.20
+Version: 0.21
 Date: 2025-10-13
 Authors@R: 
    person(given = "Jakob Peder",
@@ -25,6 +25,7 @@ RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat,
+    devtools,
     DNABarcodes,
     knitr,
     rmarkdown,
@@ -32,6 +33,10 @@ Suggests:
     tidyr,
     BiocStyle,
     RefManageR,
-    sessioninfo
+    sessioninfo,
+    DBI,
+    chunked,
+    RSQLite,
+    dbplyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
