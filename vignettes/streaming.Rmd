@@ -111,7 +111,8 @@ library(posDemux)
 input_fastq <- system.file("extdata",
                              "PETRI-seq_forward_reads.fq.gz",
                              package = "posDemux")
-output_barcode_table <- tempfile(pattern = "barcode_table", fileext = ".txt")
+output_barcode_table <- tempfile(pattern = "barcode_table",
+                                 fileext = ".txt")
 default_callbacks <- streaming_callbacks(input_file = input_fastq,
                     output_table_file = output_barcode_table,
                     chunk_size = 1e+4,
@@ -123,29 +124,28 @@ default_callbacks <- streaming_callbacks(input_file = input_fastq,
 With the callbacks in place, we specify the barcodes, and the segments and feed them into the streaming framework:
 
 ```{r}
-suppressPackageStartupMessages(
-  {
+suppressPackageStartupMessages({
   library(purrr)
   library(Biostrings)
-  }
+})
+barcode_files <- system.file(
+  "extdata/PETRI-seq_barcodes",
+  c(bc1 = "bc1.fa", bc2 = "bc2.fa", bc3 = "bc3.fa"),
+  package = "posDemux"
 )
-barcode_files <- system.file("extdata/PETRI-seq_barcodes",
-                             c(bc1="bc1.fa",
-                               bc2="bc2.fa",
-                               bc3="bc3.fa"),
-                             package = "posDemux")
 names(barcode_files) <- paste0("bc", 1L:3L)
 barcode_index <- map(barcode_files, readDNAStringSet)
-barcodes <- barcode_index[c("bc3","bc2","bc1")]
+barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
 sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
 segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
-streaming_summary_res <- streaming_demultiplex(state_init = default_callbacks$state_init,
-                      loader = default_callbacks$loader,
-                      archiver = default_callbacks$archiver,
-                      barcodes = barcodes,
-                      allowed_mismatches = 1L,
-                      segments = sequence_annotation,
-                      segment_lengths = segment_lengths
+streaming_summary_res <- streaming_demultiplex(
+  state_init = default_callbacks$state_init,
+  loader = default_callbacks$loader,
+  archiver = default_callbacks$archiver,
+  barcodes = barcodes,
+  allowed_mismatches = 1L,
+  segments = sequence_annotation,
+  segment_lengths = segment_lengths
 )
 ```
 
@@ -190,12 +190,11 @@ selected_freq_table <- freq_table[seq_len(bc_cutoff),]
 We typically want to create a copy of the barcode table including only those reads which are selected by the barcode frequency and thus match a row in `selected_freq_table`. We **could** use the most direct approach and provide the selected barcode table in the same file format, just with desired rows kept. However, this could become impractical for downstream analysis as using this new table as a lookup would require us to load it all into memory, causing the same problem one level down. For memory-constrained environment, we therefore suggest another idea: Dumping the data into SQLite database which later can be queried. For simplicity, we paste all the barcode designations together in one columns. We begin by setting up the database:
 
 ```{r}
-suppressPackageStartupMessages(
-  {
+suppressPackageStartupMessages({
   library(DBI)
-  }
-)
-output_database_path <- tempfile(pattern = "selected_barcode_table", fileext = ".sqlite")
+})
+output_database_path <- tempfile(pattern = "selected_barcode_table",
+                                 fileext = ".sqlite")
 output_db <- dbConnect(RSQLite::SQLite(), output_database_path)
 ```
 
@@ -203,19 +202,24 @@ For doing the streaming of the barcode table and combining it with outputting to
 
 ```{r}
 chunk_size <- 1e4
-suppressPackageStartupMessages(
-  {
-library(chunked)
-library(magrittr)
-  }
-)
-read_table_chunkwise(file = output_barcode_table, header = TRUE, sep = "\t", chunk_size = chunk_size) %>%
-# For use withing a pipeline, it is more convenient to use inner_join() than
-# to use posDemux::row_match() and it achieves the save result
-inner_join(selected_freq_table)  %>% 
-mutate(celltag = do.call(paste, c(across(all_of(names(barcodes))), sep = "_"))) %>% 
-select(read, UMI, celltag) %>% 
-write_chunkwise(dbplyr::src_dbi(output_db), "selected_barcodes")
+suppressPackageStartupMessages({
+  library(chunked)
+  library(magrittr)
+})
+read_table_chunkwise(
+  file = output_barcode_table,
+  header = TRUE,
+  sep = "\t",
+  chunk_size = chunk_size
+) %>%
+  # For use withing a pipeline, it is more convenient to use inner_join() than
+  # to use posDemux::row_match() and it achieves the save result
+  inner_join(selected_freq_table)  %>%
+  mutate(celltag = do.call(paste, c(
+    barcodes %>% names() %>% all_of() %>% across(), sep = "_"
+  ))) %>%
+  select(read, UMI, celltag) %>%
+  write_chunkwise(dbplyr::src_dbi(output_db), "selected_barcodes")
 ```
 
 Finally, we make a index on the barcodes such that lookups are fast and close the database connection:
@@ -228,6 +232,154 @@ dbDisconnect(output_db)
 
 
 # Streaming using custom callbacks
+
+## Desired properties
+
+In cases where the default callbacks are not sufficient, it is possible for the user to write custom callback functions. For our example, we will use the same sample dataset as before, but pretend the reads for some reason come in a FASTA file (which the default loader does not support). In addition, we want the UMIs to go into its own FASTA files instead of being a column in the barcode table. Unlike, the default callbacks, we don't include any progress printouts, nor do we truncate read names.
+
+## The state object
+
+For progress printouts, we want the state object of the streaming to contain the total number of reads and the number of reads where demultiplexing was successful. Additionally for our specific case, the loader needs to know where to begin reading the FASTA file for each chunk. For the final numbers, this is not really necessary because the required information is provided by the streaming framework itself when finishing. Thus, we want the state object to contain the fields which are both integers:
+
+* `total_reads`
+* `demultiplexed_reads`
+
+`total_reads` will be updated by the loader, whereas `demultiplexed_reads` will be updated by the archiver at the end of each chunk. Furthermore, the archiver needs to write the column headers to the barcode table when first writing to it, so it must know whether it is working at its first chunk. This gives rise to the logical flag `output_table_initialized`. We thus initialize the state as follows:
+
+```{r}
+custom_state_init <- list(
+  total_reads = 0L, demultiplexed_reads = 0L, output_table_initialized = FALSE
+  )
+```
+
+
+## The loader
+
+The loader is a function which accepts the state as its sole parameter and outputs a list of three parameters:
+
+* `state`: To be passed into the archiver
+* `sequences`: The sequences in the chunk as a `Biostrings::DNAStringSet`
+* `should_terminate`: A logical flag to signal to the streaming framework that it should terminate. Note that this also means the loader is in charge of the termination criterion.
+
+We decide to hard-code the loader to read in $10^4$ sequences for each chunk.
+
+```{r}
+input_fasta <- system.file("extdata",
+                             "PETRI-seq_forward_reads.fa.gz",
+                             package = "posDemux")
+
+loader <- function(state) {
+  n_reads_per_chunk <- 1e4
+    if (!state$output_table_initialized) {
+      message("Starting to load sequences")
+    }
+    chunk <- Biostrings::readDNAStringSet(filepath = input_fasta, format = "fasta",
+                                 nrec = n_reads_per_chunk, skip = state$total_reads)
+    n_reads_in_chunk <- length(chunk)
+    if (n_reads_in_chunk == 0L && state$output_table_initialized) {
+      # The case when the initial chunk is empty is given special treatment since
+      # we want to create the table regardless
+      # No more reads to process, make the outer framework return
+      final_res <- list(
+        state = state,
+        sequences = NULL,
+        should_terminate = TRUE
+      )
+      message("Done demultiplexing")
+      return(final_res)
+    }
+    state$total_reads <- state$total_reads + n_reads_in_chunk
+    list(
+      state = state,
+      sequences = chunk,
+      should_terminate = FALSE
+    )
+  }
+```
+
+## The archiver
+
+The archiver has the state obtained from the loader as its first argument and 
+the results of `filter_demultiplex_res()` of the chunk as its second argument.
+Its return value is the state to provide to the demultiplexer.
+
+```{r}
+output_umi_file <- tempfile(pattern = "umi.fa",
+                                 fileext = ".txt")
+custom_output_table <- tempfile(pattern = "barcode_table_custom",
+                                 fileext = ".txt")
+archiver <- function(state, filtered_res) {
+    barcode_matrix  <- filtered_res$demultiplex_res$assigned_barcodes
+    barcode_names <- colnames(barcode_matrix)
+    read_names <- rownames(barcode_matrix)
+    # If the table has no rows, we may risk getting a NULL value
+    if (is.null(read_names)) {
+      read_names <- character()
+    }
+    barcode_table <- as.data.frame(barcode_matrix)
+    read_name_table <- data.frame(read = read_names)
+    umis <- filtered_res$demultiplex_res$payload$UMI
+    
+    
+    chunk_table <- cbind(read_name_table, barcode_table)
+    if (!state$output_table_initialized) {
+      append <- FALSE
+      state$output_table_initialized <- TRUE
+    } else {
+      append <- TRUE
+    }
+    
+    Biostrings::writeXStringSet(umis, filepath = output_umi_file, append = TRUE)
+    readr::write_tsv(
+      x = chunk_table,
+      file = custom_output_table,
+      append = append,
+      col_names = !append,
+      eol = "\n"
+    )
+    state <- within(state, {
+      demultiplexed_reads <- demultiplexed_reads + nrow(barcode_matrix)
+      glue::glue(
+          "Processed {total_reads} reads, successfully demultiplexed {demultiplexed_reads} reads so far..."
+        ) %>% message()
+    })
+    state
+  }
+```
+
+## Putting it all together
+
+With the initial state and the callbacks being defined,
+we are now ready to put them to use:
+
+```{r}
+custom_summary_res <- streaming_demultiplex(
+  state_init = custom_state_init,
+  loader = loader,
+  archiver = archiver,
+  barcodes = barcodes,
+  allowed_mismatches = 1L,
+  segments = sequence_annotation,
+  segment_lengths = segment_lengths
+)
+```
+
+## Verifying results
+
+We finally load the files we wrote to in order to verify that they contain what
+we desire. We load the barcode table:
+
+```{r}
+readr::read_tsv(custom_output_table)
+```
+
+and the UMI sequences:
+
+```{r}
+Biostrings::readDNAStringSet(output_umi_file, format = "fasta")
+```
+
+
 
 # Reproducibility
 

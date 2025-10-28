@@ -204,7 +204,12 @@ barcodes <- barcode_index[c("bc3","bc2","bc1")]
 We are now ready to run the demultiplexer:
 
 ```{r}
-demultiplex_res <- combinatorial_demultiplex(reads, barcodes = barcodes, segments = sequence_annotation, segment_lengths = segment_lengths)
+demultiplex_res <- combinatorial_demultiplex(
+  reads,
+  barcodes = barcodes,
+  segments = sequence_annotation,
+  segment_lengths = segment_lengths
+)
 ```
 
 The main results from this demultiplexer are the table of assigned barcodes:
@@ -236,7 +241,10 @@ This subsection consider the first type of filtering. During demultiplexing, the
 In our example, the smallest Hamming distance between two different barcodes is 3 for all barcode sets. Given $n$, the number of barcode sequencing errors which can be reliably corrected in a barcode set, the minimum distance required between two distinct barcodes needs to be at least $2n+1$. This means that in our case, we can correct for exactly one sequencing error:
 
 ```{r}
-filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
+filtered_res <- filter_demultiplex_res(
+  demultiplex_res,
+  allowed_mismatches = 1L
+  )
 ```
 
 We will now inspect the summary of the demultiplexing and filtering:
@@ -270,7 +278,9 @@ the remaining barcode combinations not covered all have a small number of reads.
 We first create a frequency table of the barcodes is question:
 
 ```{r}
-freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
+freq_table <- create_frequency_table(
+  filtered_res$demultiplex_res$assigned_barcodes
+  )
 head(freq_table)
 ```
 
@@ -366,7 +376,8 @@ With all of this done, we can make a data frame containing the UMI, read identif
 
 ```{r}
 res_table <- as.data.frame(selected_assigned_barcodes) %>%
-  dplyr::mutate(read = rownames(selected_assigned_barcodes), UMI = selected_assigned_UMI) %>%
+  dplyr::mutate(read = rownames(selected_assigned_barcodes),
+                UMI = selected_assigned_UMI) %>%
   # Ensures the columns appears in the desired order
   dplyr::select(read, UMI, bc3, bc2, bc1)
 head(res_table)
@@ -376,7 +387,8 @@ Finally, we can write the table to file. The following is the suggested way for 
 
 ```{r}
 file <- tempfile(pattern = "barcode_table", fileext = ".txt")
-write.table(res_table, file, row.names = FALSE, col.names = TRUE, sep = "\t", eol = "\n", quote = FALSE)
+write.table(res_table, file, row.names = FALSE,
+            col.names = TRUE, sep = "\t", eol = "\n", quote = FALSE)
 ```
 
 # Reproducibility
