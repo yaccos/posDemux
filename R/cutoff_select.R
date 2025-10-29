@@ -126,7 +126,7 @@ interactive_bc_cutoff <- function(frequency_table) {
 #' is set to the maximum frequency in the table plus one. This feature
 #' makes sure that the cutoff line is visible in the frequency plot.
 #' 
-#' @returns Integer, the converted cutoff values.
+#' @returns Integer, the converted cutoff values
 #' @export
 #'
 bc_to_frequency_cutoff <- function(frequency_table, cutoff) {

@@ -86,10 +86,9 @@ This function provides an interface to
 \code{\link{combinatorial_demultiplex}} and
 \code{\link{filter_demultiplex_res}} such that reads are streamed in chunks
 instead having to load everything at once, hence reducing memory consumption.
-It accepts two functions which are called once per chunk.
+It accepts two functions which are called once per chunk:
 A data loader function for producing the sequences of the chunk and an
-archiver writing the results to file. This function also decides the size of the chunk.
-for sequences and an online archiver function
+archiver writing the results to file.
 }
 \details{
 The data loader decides the size of each chunk.

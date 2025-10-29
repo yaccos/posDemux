@@ -65,6 +65,10 @@
 #' Since the output of the function matches the order of input, all sequences
 #' are assumed to be long enough for all segments to be extracted. Otherwise,
 #' an error is raised. 
+#' 
+#' @example inst/examples/demultiplexer.R
+#' 
+#' 
 #' @export
 combinatorial_demultiplex <- function(sequences, barcodes,
                                       segments, segment_lengths) {

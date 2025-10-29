@@ -19,7 +19,7 @@ in \code{x}?
 }
 \description{
 This function extends the functionality of \code{\link[base]{\%in\%}} for
-finding which rows in the first argument exists in the second.
+finding which rows in the first argument exist in the second.
 }
 \details{
 As this function is intended to be used for data frames containing more than

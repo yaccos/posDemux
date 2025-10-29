@@ -24,6 +24,7 @@
 #' }
 #' @import ggplot2
 #' @importFrom rlang .data
+#' @example inst/examples/match_filter.R
 #' @export
 #'
 create_frequency_table <- function(assigned_barcode) {

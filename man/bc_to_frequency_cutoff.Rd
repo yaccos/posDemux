@@ -18,7 +18,7 @@ order of frequency.}
 \item{cutoff}{Integer vector, the cutoff values to be converted.}
 }
 \value{
-Integer, the converted cutoff values.
+Integer, the converted cutoff values
 }
 \description{
 There are at least two ways to specify the cutoff to use when
