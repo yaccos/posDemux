@@ -5,7 +5,6 @@ library(tibble)
 library(Biostrings)
 library(glue)
 library(ggplot2)
-library(stringi)
 library(posDemux)
 set.seed(29505L)
 

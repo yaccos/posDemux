@@ -13,18 +13,6 @@ get_count_table <- function(table) {
     .Call(`_posDemux_get_count_table`, table)
 }
 
-create_encoding_vector <- function() {
-    .Call(`_posDemux_create_encoding_vector`)
-}
-
-grow_encoding_vector <- function(vec, chunk) {
-    invisible(.Call(`_posDemux_grow_encoding_vector`, vec, chunk))
-}
-
-get_encoding_vector <- function(vec) {
-    .Call(`_posDemux_get_encoding_vector`, vec)
-}
-
 hamming_match <- function(segment, segment_names, barcode, barcode_names, width) {
     .Call(`_posDemux_hamming_match`, segment, segment_names, barcode, barcode_names, width)
 }

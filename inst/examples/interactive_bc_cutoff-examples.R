@@ -1,6 +1,7 @@
 if (interactive()) {
   library(purrr)
   library(shiny)
+  library(Biostrings)
   input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
   reads <- readDNAStringSet(input_fastq, format = "fastq")
   barcode_files <- system.file(

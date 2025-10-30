@@ -32,6 +32,7 @@ knee plots or selecting the number of barcodes to include.
 }
 \examples{
 library(purrr)
+library(Biostrings)
 input_fastq <- system.file("extdata",
                            "PETRI-seq_forward_reads.fq.gz",
                            package = "posDemux")

@@ -106,6 +106,7 @@ possible barcode combinations exceeds \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
 }
 \examples{
 library(purrr)
+library(Biostrings)
 input_fastq <- system.file("extdata",
                            "PETRI-seq_forward_reads.fq.gz",
                            package = "posDemux")

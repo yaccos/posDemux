@@ -75,6 +75,7 @@ an error is raised.
 }
 \examples{
 library(purrr)
+library(Biostrings)
 sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
 segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
 barcode_files <- system.file("extdata/PETRI-seq_barcodes",

@@ -1,4 +1,5 @@
 library(purrr)
+library(Biostrings)
 input_fastq <- system.file("extdata",
                            "PETRI-seq_forward_reads.fq.gz",
                            package = "posDemux")

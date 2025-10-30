@@ -21,6 +21,7 @@ and subsequent filtering, including the results per barcode set.
 }
 \examples{
 library(purrr)
+library(Biostrings)
 input_fastq <- system.file("extdata",
                            "PETRI-seq_forward_reads.fq.gz",
                            package = "posDemux")

@@ -104,6 +104,7 @@ are artifacts and unlikely to correspond to true cells.
 }
 \examples{
 library(purrr)
+library(Biostrings)
 input_fastq <- system.file("extdata",
                            "PETRI-seq_forward_reads.fq.gz",
                            package = "posDemux")
