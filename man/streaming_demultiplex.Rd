@@ -24,7 +24,7 @@ iterations taken as the \code{state} field of the output of \code{archiver}.
 Its return value is a list with the following fields:
 \itemize{
 \item \code{state}: The state to be passed into \code{archiver}
-\item \code{sequences}: A \code{\link{XStringSet}} object, the sequences
+\item \code{sequences}: A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
 to be demultiplexed in the current chunk.
 \item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
 process terminates and the final results are returned.
@@ -43,12 +43,16 @@ field \code{summary_res} is missing.
 }
 Its output is a state object fed into the next call to \code{loader}.}
 
-\item{barcodes}{A list of \code{\link{XStringSet}} objects in the same order they
+\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects in the same order they
 appear in \code{sequences}, the barcodes
-to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
+to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode
 is 127.}
+
+\item{allowed_mismatches}{Integer vector of length one or the same length
+as the number of barcode segments, the maximum Hamming distance from including
+a read in the output.}
 
 \item{segments}{Character vector showing the segments of the
 sequences from 5' end to 3' end. The code applied is as follows:

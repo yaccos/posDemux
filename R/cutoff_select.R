@@ -12,7 +12,7 @@
 #'
 #' @param frequency_table The frequency table
 #' from \code{\link{create_frequency_table}}
-#' @return A \code{\link[=shinyApp]{shiny.appobj}} which launches when printed and returns the
+#' @return A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the
 #' last selected cutoff (invisibly) when it stops.
 #' 
 #' @example inst/examples/interactive_bc_cutoff-examples.R

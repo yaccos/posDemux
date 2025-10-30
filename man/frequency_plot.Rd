@@ -38,9 +38,12 @@ frequency plot?}
 
 \item{log_scale_y}{Logical: Should a log scale be applied to the y-axis of the
 frequency plot?}
+
+\item{scale_by_reads}{Logical: Should the y-axis of the plot be scaled by the
+number of reads on the x-axis?}
 }
 \value{
-A \code{\link{ggplot}} object which can be displayed immediately or
+A \code{\link[ggplot2]{ggplot}} object which can be displayed immediately or
 further modified
 }
 \description{

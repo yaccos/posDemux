@@ -11,7 +11,7 @@ interactive_bc_cutoff(frequency_table)
 from \code{\link{create_frequency_table}}}
 }
 \value{
-A \code{\link[=shinyApp]{shiny.appobj}} which launches when printed and returns the
+A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the
 last selected cutoff (invisibly) when it stops.
 }
 \description{

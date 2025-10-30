@@ -81,6 +81,7 @@
 #'  
 #' 
 #' @example inst/examples/match_filter-examples.R
+#' @export
 create_summary_res <- function(retained_sequences,
                                barcodes,
                                assigned_barcodes,

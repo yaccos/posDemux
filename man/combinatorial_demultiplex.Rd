@@ -7,11 +7,11 @@
 combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
 }
 \arguments{
-\item{sequences}{A \code{\link{XStringSet}} object, the sequences to be demultiplexed}
+\item{sequences}{A \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} object, the sequences to be demultiplexed}
 
-\item{barcodes}{A list of \code{\link{XStringSet}} objects in the same order they
+\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects in the same order they
 appear in \code{sequences}, the barcodes
-to be used for demultiplexing. All of the barcodes in each \code{\link{XStringSet}} must
+to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode
 is 127.}
@@ -45,7 +45,7 @@ sequences and the columns to the barcode segments
 \item \code{mismatches}: An \code{integer} matrix with the number of mismatches
 between the assigned barcodes and the sequences. The rows correspond to the
 sequences and the columns to the barcode segments.
-\item \code{payload}: A list of \code{\link{XStringSet}} objects, each containing
+\item \code{payload}: A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects, each containing
 the results for a payload segment.
 \item \code{barcodes}: The \code{barcodes} argument passed into the function.
 It is included in order to ease downstream processing.

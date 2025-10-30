@@ -17,7 +17,7 @@
 #' Its return value is a list with the following fields:
 #' \itemize{
 #' \item \code{state}: The state to be passed into \code{archiver}
-#' \item \code{sequences}: A \code{\link{XStringSet}} object, the sequences
+#' \item \code{sequences}: A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
 #' to be demultiplexed in the current chunk.
 #' \item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
 #' process terminates and the final results are returned.
@@ -62,6 +62,7 @@
 #' [create_frequency_table()], and [create_summary_res()]
 #' for the underlying processing.
 #' @inheritParams combinatorial_demultiplex
+#' @inheritParams filter_demultiplex_res
 #' @example inst/examples/streaming-examples.R
 #' @export
 streaming_demultiplex <- function(state_init,

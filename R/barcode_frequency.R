@@ -88,10 +88,12 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' frequency plot?
 #' @param log_scale_y Logical: Should a log scale be applied to the y-axis of the
 #' frequency plot?
+#' @param scale_by_reads Logical: Should the y-axis of the plot be scaled by the
+#' number of reads on the x-axis?
 #'
 #' @seealso [bc_to_frequency_cutoff()] [frequency_to_bc_cutoff()]
 #'
-#' @returns A \code{\link{ggplot}} object which can be displayed immediately or
+#' @returns A \code{\link[ggplot2]{ggplot}} object which can be displayed immediately or
 #' further modified
 #'
 #' @example inst/examples/frequency_plot-examples.R
