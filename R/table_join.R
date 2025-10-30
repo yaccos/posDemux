@@ -41,6 +41,7 @@ row_match <- function(x, table) {
   x_encoded %in% table_encoded
 }
 
+#' @importFrom utils head
 get_mapping <- function(table) {
   # The order the barcodes appear in does not really matter
   # as long as the same mapping object is used

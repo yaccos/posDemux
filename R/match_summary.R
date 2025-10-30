@@ -111,7 +111,7 @@ create_summary_res <- function(retained_sequences,
     
     mismatch_frame <- data.frame(n_mismatches =
                                    c(0L, seq_len(n_allowed_mismatches))) %>%
-      mutate(frequency = outer(this_mismatch_vector, n_mismatches, equals) %>%
+      mutate(frequency = outer(this_mismatch_vector, .data$n_mismatches, equals) %>%
                colSums())
     this_removed <-  sum(this_mismatch_vector > n_allowed_mismatches)
     list(
@@ -159,7 +159,6 @@ poisson_correct_n <- function(N, n_obs) {
 #' @param x An object of class \code{demultiplex_filter_summary} from 
 #' \code{\link{create_summary_res}}
 #' @param ... Ignored
-#' @importFrom magrittr %>% extract equals
 #' @importFrom purrr map_int walk2
 #' @import glue
 #' @returns Its input, invisibly.

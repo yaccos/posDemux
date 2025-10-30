@@ -27,8 +27,6 @@
 #' The value of \code{n_removed} does not in general equal the sum of
 #' \code{n_removed_per_barcode} since a read can have too many mismatches
 #' with multiple barcodes.
-#'
-#' @importFrom magrittr set_names %<>%
 #' @importFrom purrr imap
 #' @example inst/examples/match_filter-examples.R
 #' @export

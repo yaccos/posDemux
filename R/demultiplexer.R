@@ -43,6 +43,7 @@
 #' 
 #' @importFrom Biostrings subseq width xscat
 #' @importFrom purrr imap_int map map2 pmap iwalk
+#' @importFrom methods is
 #'
 #' @return A list with the following elements:
 #'  \itemize{

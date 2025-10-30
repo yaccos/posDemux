@@ -15,8 +15,8 @@
 #' of errors introduced in each barcode. Remaining barcodes will
 #' be returned without errors
 #' }
-#' @importFrom magrittr subtract add
 #' @importFrom Biostrings width
+#' @importFrom utils combn
 #'
 #' @noRd
 mutate_barcodes <- function(barcodes, mismatches, times) {

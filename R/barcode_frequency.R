@@ -33,8 +33,8 @@ create_frequency_table <- function(assigned_barcode) {
     count(pick(everything()), name = "frequency", sort = TRUE) %>%
     mutate(
       cumulative_frequency = cumsum(.data$frequency),
-      fraction = frequency / sum(.data$frequency),
-      cumulative_fraction = cumulative_frequency / sum(.data$frequency)
+      fraction = .data$frequency / sum(.data$frequency),
+      cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency)
     )
 }
 
@@ -55,7 +55,7 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
   count_res <- get_count_table(count_table)
   decode(count_res$encoding, mapping) %>% 
     mutate(frequency = count_res$frequency) %>% 
-    arrange(desc(frequency)) %>% 
+    arrange(desc(.data$frequency)) %>% 
     mutate(cumulative_frequency = cumsum(.data$frequency),
            fraction = .data$frequency / sum(.data$frequency),
            cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency))
@@ -92,6 +92,8 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' number of reads on the x-axis?
 #'
 #' @seealso [bc_to_frequency_cutoff()] [frequency_to_bc_cutoff()]
+#' 
+#' @importFrom rlang .data
 #'
 #' @returns A \code{\link[ggplot2]{ggplot}} object which can be displayed immediately or
 #' further modified
@@ -112,8 +114,8 @@ frequency_plot <- function(frequency_table,
                          density = \() stat_density())  
   } else {
     plot_type <- switch (type,
-                         histogram = \() geom_histogram(aes(y = after_stat(count * x))),
-                         density = \() stat_density(aes(y = after_stat(count * x / sum(count)))))
+                         histogram = \() geom_histogram(aes(y = after_stat(.data$count * .data$x))),
+                         density = \() stat_density(aes(y = after_stat(.data$count * .data$x / sum(.data$count)))))
     
   }
   
@@ -146,14 +148,15 @@ frequency_plot <- function(frequency_table,
 
 #' @rdname frequency_plot
 #' @import dplyr
+#' @importFrom rlang .data
 #' @export
 knee_plot <- function(frequency_table, cutoff = NULL) {
   augmented_frequency_table <- frequency_table %>%
-    select(cumulative_fraction) %>%
+    select("cumulative_fraction") %>%
     mutate(index = seq_len(n())) %>%
     add_row(index = 0L, cumulative_fraction = 0)
   p <- ggplot(augmented_frequency_table,
-              aes(x = index, y = cumulative_fraction)) +
+              aes(x = .data$index, y = .data$cumulative_fraction)) +
     geom_line() +
     labs(x = "Barcode (ordered largest to smallest)", y = "Cumulative fraction of reads") +
     ylim(0, 1) +
