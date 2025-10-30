@@ -47,6 +47,8 @@ log_progress <- function(msg) {
 #' \item \code{archiver}
 #' }
 #' @importFrom purrr list_cbind
+#' 
+#' @example inst/examples/streaming-examples.R
 #' @export
 streaming_callbacks <- function(input_file,
                                 output_table_file,

@@ -66,7 +66,7 @@
 #' are assumed to be long enough for all segments to be extracted. Otherwise,
 #' an error is raised. 
 #' 
-#' @example inst/examples/demultiplexer.R
+#' @example inst/examples/demultiplexer-examples.R
 #' 
 #' 
 #' @export

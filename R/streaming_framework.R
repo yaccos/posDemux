@@ -62,6 +62,7 @@
 #' [create_frequency_table()], and [create_summary_res()]
 #' for the underlying processing.
 #' @inheritParams combinatorial_demultiplex
+#' @example inst/examples/streaming-examples.R
 #' @export
 streaming_demultiplex <- function(state_init,
                                   loader,

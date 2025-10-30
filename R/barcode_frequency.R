@@ -24,7 +24,7 @@
 #' }
 #' @import ggplot2
 #' @importFrom rlang .data
-#' @example inst/examples/match_filter.R
+#' @example inst/examples/match_filter-examples.R
 #' @export
 #'
 create_frequency_table <- function(assigned_barcode) {
@@ -91,9 +91,10 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #'
 #' @seealso [bc_to_frequency_cutoff()] [frequency_to_bc_cutoff()]
 #'
-#' @returns A \code{\link{ggplot}} which can be displayed immediately or
+#' @returns A \code{\link{ggplot}} object which can be displayed immediately or
 #' further modified
 #'
+#' @example inst/examples/frequency_plot-examples.R
 #' @export
 frequency_plot <- function(frequency_table,
                            cutoff = NULL,

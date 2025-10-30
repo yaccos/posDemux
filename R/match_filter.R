@@ -30,7 +30,7 @@
 #'
 #' @importFrom magrittr set_names %<>%
 #' @importFrom purrr imap
-#' @example inst/examples/match_filter.R
+#' @example inst/examples/match_filter-examples.R
 #' @export
 #'
 filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {

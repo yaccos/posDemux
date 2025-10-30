@@ -1,5 +1,4 @@
 library(purrr)
-library(Biostrings)
 input_fastq <- system.file("extdata",
                            "PETRI-seq_forward_reads.fq.gz",
                            package = "posDemux")
@@ -20,10 +19,18 @@ demultiplex_res <- posDemux::combinatorial_demultiplex(reads, barcodes = barcode
 filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
 freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
 
-bc_cutoff <- 100L
+bc_cutoff <- 500L
+# Notice the bend (knee) of the curve
+knee_plot(freq_table, cutoff = bc_cutoff)
+
+# Note that we must convert the cutoff when constructing the frequency plot
 freq_cutoff <- bc_to_frequency_cutoff(freq_table, bc_cutoff)
-# Note: The reconstructed barcode cutoff is not equal to the original due to ties
-# in the frequency table
-reconstructed_bc_cutoff <- frequency_to_bc_cutoff(freq_table, freq_cutoff)
-# The frequency cutoff is still preserved through these conversions
-reconstruced_freq_cutoff <- bc_to_frequency_cutoff(freq_table, reconstructed_bc_cutoff)
+
+# This is the most basic type of frequency plot which can be made,
+# but it is a bit hard to interpret whether a selected cutoff is sensible
+frequency_plot(freq_table, cutoff = freq_cutoff, type = "histogram", log_scale_x = FALSE,
+               log_scale_y = FALSE, scale_by_reads = FALSE)
+
+# For most practical purposes, this is the most informative version
+frequency_plot(freq_table, cutoff = freq_cutoff, type = "density", log_scale_x = TRUE,
+               log_scale_y = FALSE, scale_by_reads = TRUE)

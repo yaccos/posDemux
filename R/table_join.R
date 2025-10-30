@@ -28,6 +28,8 @@
 #'
 #' @returns Logical vector, for each row in \code{table}, is the same row found
 #' in \code{x}?
+#' 
+#' @example inst/examples/row_match-examples.R
 #' @export
 row_match <- function(x, table) {
   barcode_cols <- intersect(colnames(x), colnames(table))

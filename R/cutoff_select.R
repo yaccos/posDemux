@@ -12,8 +12,11 @@
 #'
 #' @param frequency_table The frequency table
 #' from \code{\link{create_frequency_table}}
-#' @return A \code{shiny.appobj} which launches when printed and returns the
+#' @return A \code{\link[=shinyApp]{shiny.appobj}} which launches when printed and returns the
 #' last selected cutoff (invisibly) when it stops.
+#' 
+#' @example inst/examples/interactive_bc_cutoff-examples.R
+#' 
 #' @export
 interactive_bc_cutoff <- function(frequency_table) {
   n_barcode_combinations <- frequency_table %>% nrow()
@@ -127,6 +130,7 @@ interactive_bc_cutoff <- function(frequency_table) {
 #' makes sure that the cutoff line is visible in the frequency plot.
 #' 
 #' @returns Integer, the converted cutoff values
+#' @example inst/examples/cutoff_conversion-examples.R
 #' @export
 #'
 bc_to_frequency_cutoff <- function(frequency_table, cutoff) {

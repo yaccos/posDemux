@@ -80,12 +80,13 @@
 #'  are artifacts and unlikely to correspond to true cells.
 #'  
 #' 
-#' 
+#' @example inst/examples/match_filter-examples.R
 create_summary_res <- function(retained_sequences,
                                barcodes,
                                assigned_barcodes,
                                allowed_mismatches,
                                mismatches) {
+  allowed_mismatches <- validate_allowed_mismatches(allowed_mismatches, barcodes)
   n_removed <- sum(!retained_sequences)
   n_reads <- length(retained_sequences)
   n_barcodes_per_set <- map_int(barcodes, length)
@@ -161,6 +162,7 @@ poisson_correct_n <- function(N, n_obs) {
 #' @importFrom purrr map_int walk2
 #' @import glue
 #' @returns Its input, invisibly.
+#' @example inst/examples/match_filter-examples.R
 #' @export
 print.demultiplex_filter_summary <- function(x, ...) {
   glue("Total number of reads: {x$n_reads}") %>%
