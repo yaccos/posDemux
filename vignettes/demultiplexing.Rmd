@@ -113,7 +113,7 @@ devtools::install("yaccos/posDemux")
 ```
 
 If you compile the package from source, we do recommend
-you use the compiler flag `ftree-vectorize` as this provides
+you use the compiler flag `-ftree-vectorize` as this provides
 considerable speedup to the demultiplexer
 
 

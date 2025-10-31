@@ -23,7 +23,7 @@ print(filtered_res$summary_res)
 
 # This also works, but is usually not necessary to call directly
 alternative_summary_res <- create_summary_res(
-  retained_sequences = filtered_res$retained,
+  retained = filtered_res$retained,
   barcodes = barcodes,
   assigned_barcodes = demultiplex_res$assigned_barcodes,
   allowed_mismatches = 1L,

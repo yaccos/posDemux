@@ -2,44 +2,51 @@
 % Please edit documentation in R/match_summary.R
 \name{create_summary_res}
 \alias{create_summary_res}
+\alias{print.demultiplex_filter_summary}
 \title{Create a summary of match filtering}
 \usage{
 create_summary_res(
-  retained_sequences,
+  retained,
   barcodes,
   assigned_barcodes,
   allowed_mismatches,
   mismatches
 )
+
+\method{print}{demultiplex_filter_summary}(x, ...)
 }
 \arguments{
-\item{retained_sequences}{Logical vector with the same length as
+\item{retained}{Logical vector with the same length as
 the number of reads in the input to the demultiplexer.
 \code{TRUE} if the corresponding read
 is retained. Corresponds to the field \code{retained} of the output of
 \code{\link{filter_demultiplex_res}}.}
 
-\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
-appear in \code{sequences}, the barcodes
-to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
-have the same length as specified by the \code{segment_lengths} argument and be named.
-For computational reasons, the maximum possible length of an individual barcode
-is 127.}
+\item{barcodes}{A list of
+\code{\link[Biostrings:XStringSet-class]{XStringSet}} objects, the
+barcodes which were used for demultiplexing.}
 
-\item{assigned_barcodes}{Character matrix of the assigned barcodes
+\item{assigned_barcodes}{Character matrix of the assigned barcodes.
 Corresponds to of the field \code{assigned_barcodes}
-of \code{\link{combinatorial_demultiplex}}}
+of \code{\link{combinatorial_demultiplex}}.}
 
 \item{allowed_mismatches}{Integer vector of length one or the same length
-as the number of barcode segments, the maximum Hamming distance from including
-a read in the output.}
+as the number of barcode segments; the threshold Hamming distance. All reads
+having a number of mismatches above this number in any of the barcodes will
+be filtered away.}
 
-\item{mismatches}{Integer matrix of the number of mismatches of each assigned barcode
+\item{mismatches}{Integer matrix of the number of
+mismatches of each assigned barcode.
 Corresponds to the field \code{mismatches} of
-\code{\link{combinatorial_demultiplex}}}
+\code{\link{combinatorial_demultiplex}}.}
+
+\item{x}{An object of class \code{demultiplex_filter_summary} from
+\code{create_summary_res()}.}
+
+\item{...}{Ignored}
 }
 \value{
-A list of S3 class \code{demultiplex_filter_summary}
+\code{create_summary_res()} returns a list of S3 class \code{demultiplex_filter_summary}
 providing diagnostics for the filtering process. It contains the
 the following fields:
 \itemize{
@@ -53,14 +60,14 @@ of barcode combinations.
 \item \code{n_estimated_features}: The estimated number of features having a
 detected combination of barcodes.
 This number will always be greater or equal than \code{n_unique_barcodes} due
-to barcode collisions
+to barcode collisions.
 \item \code{observed_collision_lambda}: The ratio of observed barcode
-combinations divided by the total number of possible barcode combinations
+combinations divided by the total number of possible barcode combinations.
 \item \code{corrected_collision_lambda}: The ratio of estimated number of features
-to the total number of possible barcode combinations
+to the total number of possible barcode combinations.
 \item \code{expected_collisions}: The statistically expected number
 of barcode collisions or more precicely the expected number of
-observed barcodes which correspond to two or more features
+observed barcodes which correspond to two or more features.
 \item \code{barcode_summary}: A list containing a summary for each barcode set.
 Each element contains the following:
 \itemize{
@@ -73,12 +80,14 @@ Each element contains the following:
 of the allowed number of mismatches for the given barcode set.
 }
 }
+The \code{print()} method returns its output invisibly.
 }
 \description{
-This is a helper function in order to create a summary of the demultiplexing
+\code{create_summary_res()} is a helper function in order to create a summary of the demultiplexing
 and following match filtering. It is not designed to be invoked directly, but
 its results will be returned automatically from
-\code{\link{filter_demultiplex_res}}.
+\code{\link{filter_demultiplex_res}}. This returned object has it own method
+for printing the result in a user-friendly manner.
 }
 \details{
 Following a uniform distribution of barcodes, the expected number
@@ -87,12 +96,11 @@ of barcode collisions
 is given by
 \deqn{N\left(1-e^{-\lambda}-\lambda e^{-\lambda}\right),}
 where \eqn{N} is the number of possible barcode combinations
-and \eqn{\lambda} is in this summary referred to as the collision lambda.
-\deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features,
-but this entity is unknown as we cannot know how many features
-there were originally only based on the number of observed
-barcodes due to potential collisions. Utilizing the fact that the expected
-observed number of barcodes is given by
+and \eqn{\lambda} is in this summary referred to as the collision lambda:
+\deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features.
+However, \eqn{n} is unknown as we cannot know how many features
+there were originally due to potential collisions.
+Utilizing the fact that the expected observed number of barcodes is given by
 \deqn{N\left(1-e^{-\lambda}\right),}
 we can correct the estimate for \eqn{\lambda} from the known value
 of the observed barcode combinations, and thus estimate the number
@@ -128,7 +136,7 @@ print(filtered_res$summary_res)
 
 # This also works, but is usually not necessary to call directly
 alternative_summary_res <- create_summary_res(
-  retained_sequences = filtered_res$retained,
+  retained = filtered_res$retained,
   barcodes = barcodes,
   assigned_barcodes = demultiplex_res$assigned_barcodes,
   allowed_mismatches = 1L,

@@ -10,12 +10,12 @@ row_match(x, table)
 \item{x}{A matrix or data frame which rows to be matched.
 Typically, this will be a matrix of assigned barcodes for each read.}
 
-\item{table}{A matrix or data frame with the rows to matched against. Typically,
+\item{table}{A matrix or data frame with the rows to be matched against. Typically,
 this will be the top portion of a frequency table.}
 }
 \value{
-Logical vector, for each row in \code{table}, is the same row found
-in \code{x}?
+Logical vector, for each row in \code{x}, is the same row found
+in \code{table}?
 }
 \description{
 This function extends the functionality of \code{\link[base]{\%in\%}} for
@@ -54,6 +54,6 @@ selected_barcode_table <- barcode_table[selected_rows,]
 \seealso{
 \code{\link[=create_freq_table]{create_freq_table()}} for how frequency tables are constructed,
 \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}} for more information on the matrix of assigned
-barcodes
+barcodes,
 and \code{\link[dplyr:mutate-joins]{dplyr::inner_join()}} for a function with similar functionality.
 }

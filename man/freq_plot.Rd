@@ -23,15 +23,15 @@ from \code{\link{create_freq_table}}}
 \item{cutoff}{Optional scalar numeric, the
 x-coordinate for drawing a vertical dashed line
 in the plots in order to indicate the cutoff. Please note that this argument
-is interpreted literally, meaning the in order to correctly display
+is interpreted literally, meaning that in order to correctly display
 the same cutoff on both type of plots,
-the cutoff values has to be transformed. In order to safely convert between
+the cutoff value has to be transformed. In order to safely convert between
 the two types of cutoffs, use the functions
 \code{\link{bc_to_freq_cutoff}}
 and \code{\link{freq_to_bc_cutoff}}.}
 
 \item{type}{The type of frequency plot to make, either \code{"histogram"}
-or \code{"density"}}
+or \code{"density"}.}
 
 \item{log_scale_x}{Logical: Should a log scale be applied to the x-axis of the
 frequency plot?}

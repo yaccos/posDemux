@@ -8,10 +8,11 @@
 #' of reads removed.
 #'
 #' @param demultiplex_res Unprocessed output from
-#'  \code{\link{combinatorial_demultiplex}}
+#'  \code{\link{combinatorial_demultiplex}}.
 #' @param allowed_mismatches Integer vector of length one or the same length
-#' as the number of barcode segments, the maximum Hamming distance from including
-#' a read in the output.
+#' as the number of barcode segments; the threshold Hamming distance. All reads
+#' having a number of mismatches above this number in any of the barcodes will
+#' be filtered away.
 #' @returns A list with the following elements:
 #' \itemize{
 #' \item \code{demultiplex_res}: The contents of \code{demultiplex_res} with
@@ -29,6 +30,7 @@
 #' with multiple barcodes.
 #' @importFrom purrr imap
 #' @example inst/examples/match_filter-examples.R
+#' @seealso [create_summary_res()]
 #' @export
 #'
 filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
@@ -36,9 +38,9 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   allowed_mismatches <- validate_allowed_mismatches(allowed_mismatches, barcodes)
   mismatches <- demultiplex_res$mismatches
   raw_filter_res <- filter_sequences(demultiplex_res, allowed_mismatches)
-  retained_sequences <- raw_filter_res$retained_sequences
+  retained <- raw_filter_res$retained
   res <- raw_filter_res$demultiplex_res
-  summary_res <- create_summary_res(retained_sequences,
+  summary_res <- create_summary_res(retained,
                                     barcodes,
                                     res$assigned_barcodes,
                                     allowed_mismatches,
@@ -46,7 +48,7 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   
   list(
     demultiplex_res = res,
-    retained = retained_sequences,
+    retained = retained,
     summary_res = summary_res
   )
 }
@@ -68,9 +70,9 @@ validate_allowed_mismatches <- function(allowed_mismatches, barcodes) {
 filter_sequences <- function(demultiplex_res, allowed_mismatches) {
   mismatches <- demultiplex_res$mismatches
   mismatches_above_threshold <- sweep(mismatches, 2L, allowed_mismatches, FUN = `>`)
-  retained_sequences <- rowSums(mismatches_above_threshold) == 0L
-  demultiplex_res$assigned_barcodes %<>% extract(retained_sequences, )
-  demultiplex_res$mismatches %<>% extract(retained_sequences, )
-  demultiplex_res$payload %<>% map(. %>% extract(retained_sequences))
-  list(demultiplex_res = demultiplex_res, retained_sequences = retained_sequences)
+  retained <- rowSums(mismatches_above_threshold) == 0L
+  demultiplex_res$assigned_barcodes %<>% extract(retained, )
+  demultiplex_res$mismatches %<>% extract(retained, )
+  demultiplex_res$payload %<>% map(. %>% extract(retained))
+  list(demultiplex_res = demultiplex_res, retained = retained)
 }

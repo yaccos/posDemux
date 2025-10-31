@@ -1,28 +1,33 @@
 #' Create a summary of match filtering
 #' @description
-#' This is a helper function in order to create a summary of the demultiplexing
+#' \code{create_summary_res()} is a helper function in order to create a summary of the demultiplexing
 #' and following match filtering. It is not designed to be invoked directly, but
 #' its results will be returned automatically from
-#' \code{\link{filter_demultiplex_res}}.
+#' \code{\link{filter_demultiplex_res}}. This returned object has it own method
+#' for printing the result in a user-friendly manner.
 #' 
 #' 
 #' @inheritParams filter_demultiplex_res
 #' @inheritParams combinatorial_demultiplex
-#' @param retained_sequences Logical vector with the same length as
+#' @param barcodes A list of
+#'  \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects, the
+#'  barcodes which were used for demultiplexing.
+#' @param retained Logical vector with the same length as
 #'  the number of reads in the input to the demultiplexer.
 #'  \code{TRUE} if the corresponding read
 #'  is retained. Corresponds to the field \code{retained} of the output of
 #'  \code{\link{filter_demultiplex_res}}.
-#' @param assigned_barcodes Character matrix of the assigned barcodes
+#' @param assigned_barcodes Character matrix of the assigned barcodes.
 #' Corresponds to of the field \code{assigned_barcodes}
-#' of \code{\link{combinatorial_demultiplex}}
-#' @param mismatches Integer matrix of the number of mismatches of each assigned barcode
+#' of \code{\link{combinatorial_demultiplex}}.
+#' @param mismatches Integer matrix of the number of
+#'  mismatches of each assigned barcode.
 #' Corresponds to the field \code{mismatches} of
-#'  \code{\link{combinatorial_demultiplex}}
+#'  \code{\link{combinatorial_demultiplex}}.
 #'  
 #'  
 #' @return
-#' A list of S3 class \code{demultiplex_filter_summary}
+#' \code{create_summary_res()} returns a list of S3 class \code{demultiplex_filter_summary}
 #' providing diagnostics for the filtering process. It contains the
 #' the following fields:
 #' \itemize{
@@ -36,14 +41,14 @@
 #' \item \code{n_estimated_features}: The estimated number of features having a 
 #' detected combination of barcodes.
 #' This number will always be greater or equal than \code{n_unique_barcodes} due
-#' to barcode collisions
+#' to barcode collisions.
 #' \item \code{observed_collision_lambda}: The ratio of observed barcode
-#'  combinations divided by the total number of possible barcode combinations
+#'  combinations divided by the total number of possible barcode combinations.
 #' \item \code{corrected_collision_lambda}: The ratio of estimated number of features
-#' to the total number of possible barcode combinations
+#' to the total number of possible barcode combinations.
 #' \item \code{expected_collisions}: The statistically expected number
 #' of barcode collisions or more precicely the expected number of
-#' observed barcodes which correspond to two or more features
+#' observed barcodes which correspond to two or more features.
 #' \item \code{barcode_summary}: A list containing a summary for each barcode set.
 #' Each element contains the following:
 #' \itemize{
@@ -56,6 +61,7 @@
 #' of the allowed number of mismatches for the given barcode set.
 #' }
 #' }
+#' The \code{print()} method returns its output invisibly.
 #' 
 #' @details
 #'  Following a uniform distribution of barcodes, the expected number
@@ -64,12 +70,11 @@
 #'  is given by
 #'  \deqn{N\left(1-e^{-\lambda}-\lambda e^{-\lambda}\right),}
 #'  where \eqn{N} is the number of possible barcode combinations
-#'  and \eqn{\lambda} is in this summary referred to as the collision lambda.
-#'  \deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features,
-#'  but this entity is unknown as we cannot know how many features
-#'  there were originally only based on the number of observed
-#'  barcodes due to potential collisions. Utilizing the fact that the expected
-#'  observed number of barcodes is given by
+#'  and \eqn{\lambda} is in this summary referred to as the collision lambda:
+#'  \deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features. 
+#'  However, \eqn{n} is unknown as we cannot know how many features
+#'  there were originally due to potential collisions.
+#'  Utilizing the fact that the expected observed number of barcodes is given by
 #'  \deqn{N\left(1-e^{-\lambda}\right),}
 #'  we can correct the estimate for \eqn{\lambda} from the known value
 #'  of the observed barcode combinations, and thus estimate the number
@@ -82,14 +87,14 @@
 #' 
 #' @example inst/examples/match_filter-examples.R
 #' @export
-create_summary_res <- function(retained_sequences,
+create_summary_res <- function(retained,
                                barcodes,
                                assigned_barcodes,
                                allowed_mismatches,
                                mismatches) {
   allowed_mismatches <- validate_allowed_mismatches(allowed_mismatches, barcodes)
-  n_removed <- sum(!retained_sequences)
-  n_reads <- length(retained_sequences)
+  n_removed <- sum(!retained)
+  n_reads <- length(retained)
   n_barcodes_per_set <- map_int(barcodes, length)
   n_unique_barcodes <- assigned_barcodes %>%
     unique(MARGIN = 1L) %>%
@@ -149,20 +154,12 @@ poisson_correct_n <- function(N, n_obs) {
   -N*log(1 - n_obs/ N)
 }
 
-#' Prints diagnostic demultiplexing results
-#'
-#' @description
-#' Prints diagnostic information about the results of demultiplexing
-#'  and subsequent filtering, including the results per barcode set.
-#'
-#'
 #' @param x An object of class \code{demultiplex_filter_summary} from 
-#' \code{\link{create_summary_res}}
+#' \code{create_summary_res()}.
 #' @param ... Ignored
 #' @importFrom purrr map_int walk2
 #' @import glue
-#' @returns Its input, invisibly.
-#' @example inst/examples/match_filter-examples.R
+#' @rdname create_summary_res
 #' @export
 print.demultiplex_filter_summary <- function(x, ...) {
   glue("Total number of reads: {x$n_reads}") %>%

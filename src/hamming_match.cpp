@@ -16,7 +16,7 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
                    CharacterVector barcode_names, int width) {
   XStringSet_holder segment_holder = hold_XStringSet(segment);
   XStringSet_holder barcode_holder = hold_XStringSet(barcode);
-  int n_segments = get_length_from_XStringSet_holder(&segment_holder);
+  int n_reads = get_length_from_XStringSet_holder(&segment_holder);
   int n_barcodes = get_length_from_XStringSet_holder(&barcode_holder);
   /*
    This array will hold the barcodes sequences in a linear order such that 
@@ -35,9 +35,9 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
   
   // IntegerVector this_mismatches(n_barcodes);
   int8_t *this_mismatches = (int8_t *) R_alloc(sizeof(int8_t), n_barcodes);
-  IntegerVector mismatches(n_segments);
-  CharacterVector assigned_barcodes(n_segments);
-  for (int i = 0; i < n_segments; i++) {
+  IntegerVector mismatches(n_reads);
+  CharacterVector assigned_barcodes(n_reads);
+  for (int i = 0; i < n_reads; i++) {
     // Initialize the mismatches vector to zero. Otherwise, we would have the
     // iterations accumulate mismatches from previous segments
     memset(this_mismatches, (int8_t) 0, sizeof(*this_mismatches) * n_barcodes);
@@ -49,6 +49,9 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
          (the most common for package repositories),
          this creates a branch which likely causes considerable slowdowns as
          branch prediction will be pure guesswork.
+         Compiling with -ftree-vectorize is beneficial here as it causes the 
+         compiler to emit SIDM instructions which can lead to considerable
+         speedups
          */
         this_mismatches[j] += this_segment.ptr[k] != barcode_holder_array[k*n_barcodes + j];
       }

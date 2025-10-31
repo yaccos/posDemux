@@ -8,9 +8,9 @@ create_freq_table(assigned_barcodes)
 }
 \arguments{
 \item{assigned_barcodes}{A character or integer matrix, corresponding to the field
-\code{assigned_barcodes} from \code{\link{combinatorial_demultiplex}}
+\code{assigned_barcodes} from \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}}
 or the field \code{demultiplex_res$assigned_barcodes}
-from \code{\link{filter_demultiplex_res}}.}
+from \code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}.}
 }
 \value{
 A data frame where each row corresponds to a unique observed
@@ -28,7 +28,7 @@ and the last columns were the following:
 \description{
 Creates a sorted frequency table of each of the observed
 barcode combinations. This function is indended to be used after running
-\code{\link{filter_demultiplex_res}} and before creating frequency plots,
+\code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}} and before creating frequency plots,
 knee plots, or selecting the number of barcodes to include.
 }
 \examples{
@@ -53,14 +53,4 @@ demultiplex_res <- posDemux::combinatorial_demultiplex(reads, barcodes = barcode
                                                        segment_lengths = segment_lengths)
 filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
 freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
-print(filtered_res$summary_res)
-
-# This also works, but is usually not necessary to call directly
-alternative_summary_res <- create_summary_res(
-  retained_sequences = filtered_res$retained,
-  barcodes = barcodes,
-  assigned_barcodes = demultiplex_res$assigned_barcodes,
-  allowed_mismatches = 1L,
-  mismatches = demultiplex_res$mismatches
-  )
 }

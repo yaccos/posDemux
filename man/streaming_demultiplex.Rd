@@ -15,7 +15,7 @@ streaming_demultiplex(
 )
 }
 \arguments{
-\item{state_init}{The initial state to pass into \code{loader}}
+\item{state_init}{The initial state to pass into \code{loader}.}
 
 \item{loader}{Function loading the reads. It has the signature
 \code{f(state)}, where \code{state} is a user-defined object
@@ -23,7 +23,7 @@ which is initialized to be \code{state_init} and for the subsequent
 iterations taken as the \code{state} field of the output of \code{archiver}.
 Its return value is a list with the following fields:
 \itemize{
-\item \code{state}: The state to be passed into \code{archiver}
+\item \code{state}: The state to be passed into \code{archiver}.
 \item \code{sequences}: A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
 to be demultiplexed in the current chunk.
 \item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
@@ -32,27 +32,28 @@ Notice that this termination happens before the sequences of the final
 call to \code{loader} are demultiplexed
 }}
 
-\item{archiver}{Function taking care of archiving the demultiplexing results.
+\item{archiver}{Function taking care of archiving the demultiplexed results.
 Its arguments are:
 \itemize{
-\item \code{state}: The state of the process returned by \code{loader}
+\item \code{state}: The state of the process returned by \code{loader}.
 \item \code{filtered_res}: The output from running
-\code{\link{combinatorial_demultiplex}} and
-\code{\link{filter_demultiplex_res}} on the data expect that the
+\code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}} and
+\link{filter_demultiplex_res} on the data expect that the
 field \code{summary_res} is missing.
 }
 Its output is a state object fed into the next call to \code{loader}.}
 
 \item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
-appear in \code{sequences}, the barcodes
+appear in the sequences, the barcodes
 to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode
 is 127.}
 
 \item{allowed_mismatches}{Integer vector of length one or the same length
-as the number of barcode segments, the maximum Hamming distance from including
-a read in the output.}
+as the number of barcode segments; the threshold Hamming distance. All reads
+having a number of mismatches above this number in any of the barcodes will
+be filtered away.}
 
 \item{segments}{Character vector showing the segments of the
 sequences from 5' end to 3' end. The code applied is as follows:
@@ -87,8 +88,8 @@ per \code{\link[=create_summary_res]{create_summary_res()}}
 }
 \description{
 This function provides an interface to
-\code{\link{combinatorial_demultiplex}} and
-\code{\link{filter_demultiplex_res}} such that reads are streamed in chunks
+\code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}} and
+\code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}} such that reads are streamed in chunks
 instead having to load everything at once, hence reducing memory consumption.
 It accepts two functions which are called once per chunk:
 A data loader function for producing the sequences of the chunk and an

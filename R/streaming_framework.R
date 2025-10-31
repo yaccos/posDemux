@@ -2,21 +2,21 @@
 #'
 #' @description
 #' This function provides an interface to
-#' \code{\link{combinatorial_demultiplex}} and
-#' \code{\link{filter_demultiplex_res}} such that reads are streamed in chunks
+#' [combinatorial_demultiplex()] and
+#' [filter_demultiplex_res()] such that reads are streamed in chunks
 #' instead having to load everything at once, hence reducing memory consumption.
 #' It accepts two functions which are called once per chunk:
 #' A data loader function for producing the sequences of the chunk and an
 #' archiver writing the results to file.
 #'
-#' @param state_init The initial state to pass into \code{loader}
+#' @param state_init The initial state to pass into \code{loader}.
 #' @param loader Function loading the reads. It has the signature
 #' \code{f(state)}, where \code{state} is a user-defined object
 #' which is initialized to be \code{state_init} and for the subsequent
 #' iterations taken as the \code{state} field of the output of \code{archiver}.
 #' Its return value is a list with the following fields:
 #' \itemize{
-#' \item \code{state}: The state to be passed into \code{archiver}
+#' \item \code{state}: The state to be passed into \code{archiver}.
 #' \item \code{sequences}: A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
 #' to be demultiplexed in the current chunk.
 #' \item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
@@ -25,13 +25,13 @@
 #' call to \code{loader} are demultiplexed
 #' }
 #'
-#' @param archiver Function taking care of archiving the demultiplexing results.
+#' @param archiver Function taking care of archiving the demultiplexed results.
 #' Its arguments are:
 #' \itemize{
-#' \item \code{state}: The state of the process returned by \code{loader}
+#' \item \code{state}: The state of the process returned by \code{loader}.
 #' \item \code{filtered_res}: The output from running
-#' \code{\link{combinatorial_demultiplex}} and
-#' \code{\link{filter_demultiplex_res}} on the data expect that the
+#' [combinatorial_demultiplex()] and
+#' [filter_demultiplex_res] on the data expect that the
 #' field \code{summary_res} is missing.
 #' }
 #' Its output is a state object fed into the next call to \code{loader}.
@@ -135,11 +135,11 @@ summary_init <- function(barcodes, allowed_mismatches) {
 
 
 summary_update <- function(filter_summary,
-                           retained_sequences,
+                           retained,
                            mismatches) {
   within(filter_summary, {
-    n_reads <- n_reads + length(retained_sequences)
-    n_removed <- n_removed + sum(!retained_sequences)
+    n_reads <- n_reads + length(retained)
+    n_removed <- n_removed + sum(!retained)
     barcode_summary <- imap(barcode_summary, function(barcode_summary, barcode_name) {
       this_mismatch_vector <- mismatches[, barcode_name, drop = TRUE]
       within(barcode_summary, {

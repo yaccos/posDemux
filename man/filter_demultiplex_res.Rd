@@ -8,11 +8,12 @@ filter_demultiplex_res(demultiplex_res, allowed_mismatches)
 }
 \arguments{
 \item{demultiplex_res}{Unprocessed output from
-\code{\link{combinatorial_demultiplex}}}
+\code{\link{combinatorial_demultiplex}}.}
 
 \item{allowed_mismatches}{Integer vector of length one or the same length
-as the number of barcode segments, the maximum Hamming distance from including
-a read in the output.}
+as the number of barcode segments; the threshold Hamming distance. All reads
+having a number of mismatches above this number in any of the barcodes will
+be filtered away.}
 }
 \value{
 A list with the following elements:
@@ -65,10 +66,13 @@ print(filtered_res$summary_res)
 
 # This also works, but is usually not necessary to call directly
 alternative_summary_res <- create_summary_res(
-  retained_sequences = filtered_res$retained,
+  retained = filtered_res$retained,
   barcodes = barcodes,
   assigned_barcodes = demultiplex_res$assigned_barcodes,
   allowed_mismatches = 1L,
   mismatches = demultiplex_res$mismatches
   )
+}
+\seealso{
+\code{\link[=create_summary_res]{create_summary_res()}}
 }

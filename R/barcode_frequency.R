@@ -3,13 +3,13 @@
 #' @description
 #' Creates a sorted frequency table of each of the observed
 #' barcode combinations. This function is indended to be used after running
-#' \code{\link{filter_demultiplex_res}} and before creating frequency plots,
+#' [filter_demultiplex_res()] and before creating frequency plots,
 #' knee plots, or selecting the number of barcodes to include.
 #'
 #' @param assigned_barcodes A character or integer matrix, corresponding to the field
-#' \code{assigned_barcodes} from \code{\link{combinatorial_demultiplex}}
+#' \code{assigned_barcodes} from [combinatorial_demultiplex()]
 #' or the field \code{demultiplex_res$assigned_barcodes}
-#' from \code{\link{filter_demultiplex_res}}.
+#' from [filter_demultiplex_res()].
 #'
 #'
 #' @returns A data frame where each row corresponds to a unique observed
@@ -25,7 +25,7 @@
 #' }
 #' @import ggplot2
 #' @importFrom rlang .data
-#' @example inst/examples/match_filter-examples.R
+#' @example inst/examples/freq_table-examples.R
 #' @export
 #'
 create_freq_table <- function(assigned_barcodes) {
@@ -77,14 +77,14 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' @param cutoff Optional scalar numeric, the
 #' x-coordinate for drawing a vertical dashed line
 #' in the plots in order to indicate the cutoff. Please note that this argument
-#' is interpreted literally, meaning the in order to correctly display
+#' is interpreted literally, meaning that in order to correctly display
 #' the same cutoff on both type of plots,
-#' the cutoff values has to be transformed. In order to safely convert between
+#' the cutoff value has to be transformed. In order to safely convert between
 #' the two types of cutoffs, use the functions
 #' \code{\link{bc_to_freq_cutoff}}
 #' and \code{\link{freq_to_bc_cutoff}}.
 #' @param type The type of frequency plot to make, either \code{"histogram"}
-#' or \code{"density"}
+#' or \code{"density"}.
 #' @param log_scale_x Logical: Should a log scale be applied to the x-axis of the
 #' frequency plot?
 #' @param log_scale_y Logical: Should a log scale be applied to the y-axis of the
@@ -99,7 +99,7 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' @returns A \code{\link[ggplot2]{ggplot}} object which can be displayed immediately or
 #' further modified
 #'
-#' @example inst/examples/frequency_plot-examples.R
+#' @example inst/examples/freq_plot-examples.R
 #' @export
 freq_plot <- function(freq_table,
                            cutoff = NULL,

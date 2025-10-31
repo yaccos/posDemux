@@ -10,7 +10,7 @@ combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
 \item{sequences}{A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences to be demultiplexed}
 
 \item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
-appear in \code{sequences}, the barcodes
+appear in the sequences, the barcodes
 to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode

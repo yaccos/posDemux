@@ -11,7 +11,7 @@
 #' @import shiny
 #'
 #' @param freq_table The frequency table
-#' from \code{\link{create_freq_table}}
+#' from \code{\link{create_freq_table}}.
 #' @return A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the
 #' last selected cutoff (invisibly) when it stops.
 #' 
