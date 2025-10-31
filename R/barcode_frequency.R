@@ -4,31 +4,32 @@
 #' Creates a sorted frequency table of each of the observed
 #' barcode combinations. This function is indended to be used after running
 #' \code{\link{filter_demultiplex_res}} and before creating frequency plots,
-#' knee plots or selecting the number of barcodes to include.
+#' knee plots, or selecting the number of barcodes to include.
 #'
-#' @param assigned_barcode A character or integer matrix, corresponding to the field
-#' \code{assigned_barcode} from \code{\link{combinatorial_demultiplex}}
-#' or the field \code{demultiplex_res$assigned_barcode}
-#' from \code{\link{combinatorial_demultiplex}}
+#' @param assigned_barcodes A character or integer matrix, corresponding to the field
+#' \code{assigned_barcodes} from \code{\link{combinatorial_demultiplex}}
+#' or the field \code{demultiplex_res$assigned_barcodes}
+#' from \code{\link{filter_demultiplex_res}}.
 #'
 #'
-#' @returns A data frame where each row correspond to a unique observed
+#' @returns A data frame where each row corresponds to a unique observed
 #' barcode combination. The rows are sorted in descending order of frequency.
-#' The first columns are specify the barcode assignment and the last columns were the
-#' following:
+#' The first columns specify the 
+#' barcode assignment (e.g \code{bc3}, \code{bc2}, \code{bc1})
+#' and the last columns were the following:
 #' \itemize{
 #' \item \code{frequency}: The number of reads with the barcode combination
-#' \item \code{cumulative_frequency}: The cumulative frequency of the barcode combination
+#' \item \code{cumulative_frequency}: The cumulative frequency of the barcode combination counted from the top
 #' \item \code{fraction}: The fraction of reads with the barcode combination
-#' \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination
+#' \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination counted from the top
 #' }
 #' @import ggplot2
 #' @importFrom rlang .data
 #' @example inst/examples/match_filter-examples.R
 #' @export
 #'
-create_freq_table <- function(assigned_barcode) {
-  assigned_barcode %>%
+create_freq_table <- function(assigned_barcodes) {
+  assigned_barcodes %>%
     as.data.frame() %>%
     count(pick(everything()), name = "frequency", sort = TRUE) %>%
     mutate(

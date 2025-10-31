@@ -36,7 +36,7 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
   // IntegerVector this_mismatches(n_barcodes);
   int8_t *this_mismatches = (int8_t *) R_alloc(sizeof(int8_t), n_barcodes);
   IntegerVector mismatches(n_segments);
-  CharacterVector assigned_barcode(n_segments);
+  CharacterVector assigned_barcodes(n_segments);
   for (int i = 0; i < n_segments; i++) {
     // Initialize the mismatches vector to zero. Otherwise, we would have the
     // iterations accumulate mismatches from previous segments
@@ -61,7 +61,7 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
        min_mismatches = this_mismatches[j];
      }
     }
-    assigned_barcode[i] = barcode_names[assigned_barcode_idx];
+    assigned_barcodes[i] = barcode_names[assigned_barcode_idx];
     mismatches[i] = this_mismatches[assigned_barcode_idx];
   }
 
@@ -69,8 +69,8 @@ List hamming_match(SEXP segment, SEXP segment_names, SEXP barcode,
  * Note: segments_names might be NULL instead of a character vector. However,
  * even NULL values will be handled gracefully by the following assignments  
  */
-assigned_barcode.attr("names") = segment_names;
+assigned_barcodes.attr("names") = segment_names;
 mismatches.attr("names") = segment_names;
-return List::create(Named("assigned_barcode") = assigned_barcode,
+return List::create(Named("assigned_barcodes") = assigned_barcodes,
                     Named("mismatches") = mismatches);
 }

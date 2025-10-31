@@ -1,9 +1,9 @@
 #' Combinatorial demultiplexer
 #'
-#' @param sequences A \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} object, the sequences to be demultiplexed
-#' @param barcodes A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects in the same order they
+#' @param sequences A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences to be demultiplexed
+#' @param barcodes A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
 #' appear in \code{sequences}, the barcodes
-#' to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} must
+#' to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
 #' have the same length as specified by the \code{segment_lengths} argument and be named.
 #' For computational reasons, the maximum possible length of an individual barcode
 #' is 127.
@@ -14,10 +14,10 @@
 #'     is trimmed and ignored
 #'     \item \code{'B'}: Barcode, used for demultiplexing
 #'     \item \code{'P'}: Payload, sequence to be kept after trimming
-#'     and demultiplexering (e.g. cDNA or UMI).
+#'     and demultiplexing (e.g. cDNA or UMI).
 #'   }
 #' If this vector is named, this will determine the names of the payload sets.
-#' Names by the barcode sets will be determined by the names of the argument
+#' Names of the barcode sets will be determined by the names of the argument
 #' \code{barcodes} (if any).
 #' @param segment_lengths Integer vector with the same length
 #'  as \code{segments}, lengths of the segments provided in the same order as in
@@ -26,16 +26,19 @@
 #'  set to \code{NA} which means
 #'  it is considered a variadic length segment
 #' @description
-#' This function performs combinatorial demultiplexing and trimming
-#' of sequences. The sequences have a structure as defined by the argument
+#' This function performs segmenting of sequences and combinatorial
+#' demultiplexing and segmenting of sequences.
+#' The sequences have a structure as defined by the argument
 #' \code{segments} with corresponding lengths in \code{segment_lengths}. 
-#' As trimming and extraction can take place from either end, a single 
+#' As segmentation and extraction can take place from either end, a single 
 #' middle segment can be variadic in length. There are three types of segments:
 #' Adapter, Barcode and Payload. The adapter is trimmed and ignored, the barcode
-#' is used for demultiplexing, and the payload is kept after trimming and demultiplexing
-#' and returned from the function. If there are multiple payload segments, they
-#' each segment constitute their own segment in a list. For type stability reasons,
-#' such a list is returned. The barcodes can be positioned at 
+#' is used for demultiplexing, and the payload is kept after segmenting and demultiplexing
+#' and returned from the function.
+#' If there are multiple payload segments, then
+#' each segment constitutes its own segment in a list. For type stability reasons,
+#' such a list is returned also when there is zero or one payload segments.
+#' The barcodes can be positioned at 
 #' either end of the sequences,
 #' but no barcode can (for obvious reasons) be variadic in length.
 #' 
@@ -53,7 +56,7 @@
 #'  \item \code{mismatches}: An \code{integer} matrix with the number of mismatches
 #'  between the assigned barcodes and the sequences. The rows correspond to the
 #'  sequences and the columns to the barcode segments.
-#'  \item \code{payload}: A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects, each containing
+#'  \item \code{payload}: A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects, each containing
 #'  the results for a payload segment.
 #'  \item \code{barcodes}: The \code{barcodes} argument passed into the function.
 #'  It is included in order to ease downstream processing.
@@ -61,11 +64,10 @@
 #'  
 #' @details
 #' If there are two barcodes both having the minimum number of mismatches
-#' the first one will be selected. If is therefore important to choose the
-#' error tolerance to be equal or less than the redunancy of the barcodes.
-#' Since the output of the function matches the order of input, all sequences
-#' are assumed to be long enough for all segments to be extracted. Otherwise,
-#' an error is raised. 
+#' the first one will be selected. It is therefore important to choose the
+#' error tolerance to be equal or less than the redundancy of the barcodes.
+#' All sequences are assumed to be long enough for all segments to be extracted.
+#' Otherwise, an error is raised. 
 #' 
 #' @example inst/examples/demultiplexer-examples.R
 #' 
@@ -144,8 +146,8 @@ extract_variadic_sequence <- function(segments, element_NA_idx, n_segments, segm
                                                 five_prime_segments, five_prime_lengths)
   three_prime_results <- extract_and_demultiplex(three_prime_sequences, three_prime_barcodes,
                                                  three_prime_segments, three_prime_lengths)
-  assigned_barcodes <- cbind(five_prime_results$assigned_barcode,
-                             three_prime_results$assigned_barcode)
+  assigned_barcodes <- cbind(five_prime_results$assigned_barcodes,
+                             three_prime_results$assigned_barcodes)
   mismatches <- cbind(five_prime_results$mismatches,
                       three_prime_results$mismatches)
   if (varidic_segment_type == "P") {
@@ -210,10 +212,10 @@ extract_and_demultiplex <- function(sequences, barcodes,
                                           names(barcode), width)
                           }
   )
-  assigned_barcode <- do.call(cbind, map(barcode_results, "assigned_barcode"))
+  assigned_barcodes <- do.call(cbind, map(barcode_results, "assigned_barcodes"))
   mismatches <- do.call(cbind, map(barcode_results, "mismatches"))
   list(
-    assigned_barcode = assigned_barcode,
+    assigned_barcodes = assigned_barcodes,
     mismatches = mismatches,
     payload = payload_sequences
   )

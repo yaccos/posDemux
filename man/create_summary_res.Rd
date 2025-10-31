@@ -19,9 +19,9 @@ the number of reads in the input to the demultiplexer.
 is retained. Corresponds to the field \code{retained} of the output of
 \code{\link{filter_demultiplex_res}}.}
 
-\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects in the same order they
+\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
 appear in \code{sequences}, the barcodes
-to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} must
+to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode
 is 127.}

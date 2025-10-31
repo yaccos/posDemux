@@ -7,11 +7,11 @@
 combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
 }
 \arguments{
-\item{sequences}{A \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} object, the sequences to be demultiplexed}
+\item{sequences}{A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences to be demultiplexed}
 
-\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects in the same order they
+\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
 appear in \code{sequences}, the barcodes
-to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} must
+to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode
 is 127.}
@@ -23,10 +23,10 @@ sequences from 5' end to 3' end. The code applied is as follows:
 is trimmed and ignored
 \item \code{'B'}: Barcode, used for demultiplexing
 \item \code{'P'}: Payload, sequence to be kept after trimming
-and demultiplexering (e.g. cDNA or UMI).
+and demultiplexing (e.g. cDNA or UMI).
 }
 If this vector is named, this will determine the names of the payload sets.
-Names by the barcode sets will be determined by the names of the argument
+Names of the barcode sets will be determined by the names of the argument
 \code{barcodes} (if any).}
 
 \item{segment_lengths}{Integer vector with the same length
@@ -45,33 +45,35 @@ sequences and the columns to the barcode segments
 \item \code{mismatches}: An \code{integer} matrix with the number of mismatches
 between the assigned barcodes and the sequences. The rows correspond to the
 sequences and the columns to the barcode segments.
-\item \code{payload}: A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects, each containing
+\item \code{payload}: A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects, each containing
 the results for a payload segment.
 \item \code{barcodes}: The \code{barcodes} argument passed into the function.
 It is included in order to ease downstream processing.
 }
 }
 \description{
-This function performs combinatorial demultiplexing and trimming
-of sequences. The sequences have a structure as defined by the argument
+This function performs segmenting of sequences and combinatorial
+demultiplexing and segmenting of sequences.
+The sequences have a structure as defined by the argument
 \code{segments} with corresponding lengths in \code{segment_lengths}.
-As trimming and extraction can take place from either end, a single
+As segmentation and extraction can take place from either end, a single
 middle segment can be variadic in length. There are three types of segments:
 Adapter, Barcode and Payload. The adapter is trimmed and ignored, the barcode
-is used for demultiplexing, and the payload is kept after trimming and demultiplexing
-and returned from the function. If there are multiple payload segments, they
-each segment constitute their own segment in a list. For type stability reasons,
-such a list is returned. The barcodes can be positioned at
+is used for demultiplexing, and the payload is kept after segmenting and demultiplexing
+and returned from the function.
+If there are multiple payload segments, then
+each segment constitutes its own segment in a list. For type stability reasons,
+such a list is returned also when there is zero or one payload segments.
+The barcodes can be positioned at
 either end of the sequences,
 but no barcode can (for obvious reasons) be variadic in length.
 }
 \details{
 If there are two barcodes both having the minimum number of mismatches
-the first one will be selected. If is therefore important to choose the
-error tolerance to be equal or less than the redunancy of the barcodes.
-Since the output of the function matches the order of input, all sequences
-are assumed to be long enough for all segments to be extracted. Otherwise,
-an error is raised.
+the first one will be selected. It is therefore important to choose the
+error tolerance to be equal or less than the redundancy of the barcodes.
+All sequences are assumed to be long enough for all segments to be extracted.
+Otherwise, an error is raised.
 }
 \examples{
 library(purrr)

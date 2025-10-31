@@ -43,9 +43,9 @@ field \code{summary_res} is missing.
 }
 Its output is a state object fed into the next call to \code{loader}.}
 
-\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} objects in the same order they
+\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
 appear in \code{sequences}, the barcodes
-to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{Biostrings:XStringSet}} must
+to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
 have the same length as specified by the \code{segment_lengths} argument and be named.
 For computational reasons, the maximum possible length of an individual barcode
 is 127.}
@@ -61,10 +61,10 @@ sequences from 5' end to 3' end. The code applied is as follows:
 is trimmed and ignored
 \item \code{'B'}: Barcode, used for demultiplexing
 \item \code{'P'}: Payload, sequence to be kept after trimming
-and demultiplexering (e.g. cDNA or UMI).
+and demultiplexing (e.g. cDNA or UMI).
 }
 If this vector is named, this will determine the names of the payload sets.
-Names by the barcode sets will be determined by the names of the argument
+Names of the barcode sets will be determined by the names of the argument
 \code{barcodes} (if any).}
 
 \item{segment_lengths}{Integer vector with the same length
