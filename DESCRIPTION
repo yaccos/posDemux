@@ -2,7 +2,7 @@ Package: posDemux
 Type: Package
 Title: Positional combinatorial sequence demultiplexer
 Encoding: UTF-8
-Version: 0.25
+Version: 0.26
 Date: 2025-10-30
 Authors@R: 
    person(given = "Jakob Peder",
@@ -12,32 +12,21 @@ Authors@R:
    comment = c(ORCID = "0000-0002-3485-1634")
    )
 Description: Demultiplexing and filtering utilities intended for reads with
-   combinatorial barcodes (i.e PETRI-seq and SPLiT-seq). The demultiplexer algorithm
-   is based on the position of the segments to extract and compare the barcodes with the reference.
+   combinatorial barcodes (i.e. PETRI-seq and SPLiT-seq). The demultiplexer algorithm
+   uses the position of the segments to extract and compare the barcodes with the reference (whitelist).
    A Shiny application is provided to interactively select cutoffs for which barcode
    combinations to keep.
 License: AGPL (>= 3)
 Depends: R (>= 4.4.0)
-Imports: Biostrings, ggplot2, methods,
-    assertthat, glue, magrittr, dplyr, rlang, ShortRead, readr, shiny, purrr
+Imports: Biostrings, ggplot2, methods, assertthat, glue,
+    magrittr, dplyr, rlang, ShortRead, readr, shiny, purrr
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
-biocViews: SequenceMatching, Sequencing, Software
+biocViews: SequenceMatching, Sequencing, Software, RNASeq
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
-    testthat,
-    devtools,
-    DNABarcodes,
-    knitr,
-    rmarkdown,
-    tibble,
-    tidyr,
-    BiocStyle,
-    RefManageR,
-    sessioninfo,
-    DBI,
-    chunked,
-    RSQLite,
-    dbplyr
+    testthat, devtools, DNABarcodes, knitr, rmarkdown,
+    tibble, tidyr, BiocStyle, RefManageR, sessioninfo,
+    DBI, chunked, RSQLite, dbplyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr

@@ -22,17 +22,17 @@ expected_unique_mat <- unique_rows %>%
   extract(., expected_order) %>%
   do.call(rbind, .)
 
-frequency_table <- create_frequency_table(mat)
+freq_table <- create_freq_table(mat)
 
 test_that("Frequency table is correct for unnamed integer matrices", {
-  expect_equal(nrow(frequency_table),n_expected_combinations)
-  frequency <- frequency_table$frequency
+  expect_equal(nrow(freq_table),n_expected_combinations)
+  frequency <- freq_table$frequency
   expect_equal(frequency,sorted_expected_frequency)
-  cumulative_frequency <- frequency_table$cumulative_frequency
+  cumulative_frequency <- freq_table$cumulative_frequency
   expect_equal(cumulative_frequency, expected_cumulative_frequency)
   # We must unname the matrix because the data frame methods
-  # in create_frequency_table makes up column names if there are none
-  reconstructed_unique_mat <- frequency_table %>%
+  # in create_freq_table makes up column names if there are none
+  reconstructed_unique_mat <- freq_table %>%
     select(-frequency, -cumulative_frequency, -fraction, -cumulative_fraction) %>%
     as.matrix() %>% 
     unname()
@@ -48,16 +48,16 @@ test_that("Frequency table is correct for named integer matrices", {
     sample() %>% 
     extract(named_unique_rows, .) %>% 
     do.call(rbind, .)
-  named_frequency_table <- create_frequency_table(named_mat)
+  named_freq_table <- create_freq_table(named_mat)
   expected_unique_mat <- named_unique_rows %>%
     extract(., expected_order) %>%
     do.call(rbind, .)
-  expect_equal(nrow(named_frequency_table),n_expected_combinations)
-  frequency <- named_frequency_table$frequency
-  expect_equal(named_frequency_table$frequency, sorted_expected_frequency)
-  cumulative_frequency <- named_frequency_table$cumulative_frequency
+  expect_equal(nrow(named_freq_table),n_expected_combinations)
+  frequency <- named_freq_table$frequency
+  expect_equal(named_freq_table$frequency, sorted_expected_frequency)
+  cumulative_frequency <- named_freq_table$cumulative_frequency
   expect_equal(cumulative_frequency, expected_cumulative_frequency)
-  reconstructed_unique_mat <- named_frequency_table %>%
+  reconstructed_unique_mat <- named_freq_table %>%
     select(-frequency, -cumulative_frequency, -fraction, -cumulative_fraction) %>%
     as.matrix()
   expect_equal(reconstructed_unique_mat, expected_unique_mat)

@@ -18,7 +18,7 @@ get_tables <- function(){
                                                          segments = sequence_annotation,
                                                          segment_lengths = segment_lengths)
   filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
-  freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
+  freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
   bc_cutoff <- 500L
   selected_freq_table <- freq_table[seq_len(bc_cutoff),]
   list(x=filtered_res$demultiplex_res$assigned_barcodes,

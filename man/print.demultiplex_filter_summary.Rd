@@ -40,7 +40,7 @@ demultiplex_res <- posDemux::combinatorial_demultiplex(reads, barcodes = barcode
                                                        segments = sequence_annotation,
                                                        segment_lengths = segment_lengths)
 filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
-freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
+freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
 print(filtered_res$summary_res)
 
 # This also works, but is usually not necessary to call directly

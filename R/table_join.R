@@ -9,7 +9,7 @@
 #' Typically, this will be a matrix of assigned barcodes for each read.
 #' @param table A matrix or data frame with the rows to matched against. Typically,
 #' this will be the top portion of a frequency table.
-#' @seealso [create_frequency_table()] for how frequency tables are constructed,
+#' @seealso [create_freq_table()] for how frequency tables are constructed,
 #' [combinatorial_demultiplex()] for more information on the matrix of assigned
 #'  barcodes
 #'  and [dplyr::inner_join()] for a function with similar functionality.

@@ -21,7 +21,7 @@ if (interactive()) {
     segment_lengths = segment_lengths
   )
   filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
-  freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
+  freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
   selection_app <- interactive_bc_cutoff(freq_table)
   selected_bc_cutoff <- runApp(selection_app)
 }

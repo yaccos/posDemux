@@ -10,17 +10,17 @@
 #' artifacts or broken cells.
 #' @import shiny
 #'
-#' @param frequency_table The frequency table
-#' from \code{\link{create_frequency_table}}
+#' @param freq_table The frequency table
+#' from \code{\link{create_freq_table}}
 #' @return A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the
 #' last selected cutoff (invisibly) when it stops.
 #' 
 #' @example inst/examples/interactive_bc_cutoff-examples.R
 #' 
 #' @export
-interactive_bc_cutoff <- function(frequency_table) {
-  n_barcode_combinations <- frequency_table %>% nrow()
-  n_reads <- frequency_table %>% pull("frequency") %>% sum()
+interactive_bc_cutoff <- function(freq_table) {
+  n_barcode_combinations <- freq_table %>% nrow()
+  n_reads <- freq_table %>% pull("frequency") %>% sum()
   ui <- pageWithSidebar(
     headerPanel("Barcode cutoff selector"),
     sidebarPanel = sidebarPanel(
@@ -51,17 +51,17 @@ interactive_bc_cutoff <- function(frequency_table) {
   
   server <- function(input, output, session) {
     output$knee_plot <- renderPlot(
-      knee_plot(frequency_table, input$cutoff) +
+      knee_plot(freq_table, input$cutoff) +
         theme(text = element_text(size = 18))
     )
     
     filtered_table <- reactive(
-      frequency_table[seq_len(input$cutoff),]
+      freq_table[seq_len(input$cutoff),]
     )
 
     frequency_cutoff <- reactive(
-      bc_to_frequency_cutoff(frequency_table,
-                                             input$cutoff)
+      bc_to_freq_cutoff(freq_table,
+                        input$cutoff)
     )
     
     
@@ -78,13 +78,13 @@ interactive_bc_cutoff <- function(frequency_table) {
     
     
     output$frequency_plot <- renderPlot(
-      frequency_plot(frequency_table,
-                     cutoff = frequency_cutoff(),
-                     type = input$freq_plot_type,
-                     log_scale_x = input$log_scale_x,
-                     log_scale_y = input$log_scale_y,
-                     scale_by_reads = input$scale_by_reads
-                     ) + 
+      freq_plot(freq_table,
+                cutoff = frequency_cutoff(),
+                type = input$freq_plot_type,
+                log_scale_x = input$log_scale_x,
+                log_scale_y = input$log_scale_y,
+                scale_by_reads = input$scale_by_reads
+      ) + 
         theme(text = element_text(size = 18))
     )
     output$frequency_cutoff <- renderPrint(
@@ -114,12 +114,12 @@ interactive_bc_cutoff <- function(frequency_table) {
 #' keeping a given number of barcode combinations with the highest frequencies.
 #' The other way is to specify the frequency cutoff directly without regard to the number
 #' of barcode combination to keep. In the former case,
-#' \code{bc_to_frequency_cutoff()} is used to find the frequency cutoff, whereas
-#' in the latter case \code{frequency_to_bc_cutoff()} is used to find the barcode
-#' cutoff.
+#' \code{bc_to_freq_cutoff()} is used to find the corresponding frequency cutoff,
+#'  whereas in the latter case \code{freq_to_bc_cutoff()}
+#' is used to find the corresponding barcode cutoff.
 #'
-#' @param frequency_table The frequency table
-#' from \code{\link{create_frequency_table}}. In case the table is derived
+#' @param freq_table The frequency table
+#' from \code{\link{create_freq_table}}. In case the table is derived
 #' from another source, it must be sorted in descending
 #' order of frequency.
 #' @param cutoff Integer vector, the cutoff values to be converted.
@@ -133,17 +133,17 @@ interactive_bc_cutoff <- function(frequency_table) {
 #' @example inst/examples/cutoff_conversion-examples.R
 #' @export
 #'
-bc_to_frequency_cutoff <- function(frequency_table, cutoff) {
-  frequency_table %>%
+bc_to_freq_cutoff <- function(freq_table, cutoff) {
+  freq_table %>%
     pull("frequency") %>%
     c(max(.) + 1L, .) %>%
     extract(cutoff + 1L)
 }
 
-#' @rdname bc_to_frequency_cutoff
+#' @rdname bc_to_freq_cutoff
 #' @export
-frequency_to_bc_cutoff <- function(frequency_table, cutoff) {
-  frequency_table$frequency %>% outer(cutoff, `>=`) %>%
+freq_to_bc_cutoff <- function(freq_table, cutoff) {
+  freq_table$frequency %>% outer(cutoff, `>=`) %>%
     colSums()
 }
   

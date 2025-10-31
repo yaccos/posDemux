@@ -36,7 +36,7 @@ create_barcode_frame <- function(segment_map, segment_length, n_allowed_mismatch
     )
 }
 
-create_preliminary_frequency_table <- function(possible_barcode_combinations,
+create_preliminary_freq_table <- function(possible_barcode_combinations,
                                                n_unique_barcodes,
                                                mean_reads_per_artifact,
                                                mean_reads_per_cell,
@@ -64,7 +64,7 @@ create_preliminary_frequency_table <- function(possible_barcode_combinations,
       rnbinom(n_unique_barcodes, mu = mean_reads_per_cell, size =
                 rbinom_size)
     ) %>% ifelse(. == 0L, 1L, .)) %>%
-    complete_frequency_table()
+    complete_freq_table()
   preliminary_frequency_table
 }
 
@@ -82,7 +82,7 @@ get_mutation_count <- function(mutation_p, n_reads) {
   )
 }
 
-test_plot_generation <- function(frequency_table) {
+test_plot_generation <- function(freq_table) {
   test_that("Frequency and Knee plots are made without raising errors", {
     frequency_plot_file <- tempfile("frequency_plot", fileext = ".pdf")
     knee_plot_file <- tempfile("knee_plot.pdf", fileext = ".pdf")
@@ -90,11 +90,11 @@ test_plot_generation <- function(frequency_table) {
       # Otherwise generated annoying saving messages
       {
         expect_no_error(
-          frequency_plot(frequency_table) %>% ggsave(filename = frequency_plot_file, 
+          freq_plot(freq_table) %>% ggsave(filename = frequency_plot_file, 
                                                      plot = .)
         )
         expect_no_error(
-          knee_plot(frequency_table) %>% ggsave(filename = knee_plot_file, 
+          knee_plot(freq_table) %>% ggsave(filename = knee_plot_file, 
                                                 plot = .)
         )
       }
@@ -122,18 +122,18 @@ compare_sequence_list <- function(actual, expect) {
   )
 }
 
-create_filtered_frequency_table <- function(frequency_table,
+create_filtered_freq_table <- function(freq_table,
                                             combination_membership, removed_reads) {
   reads_removed_per_barcode <- table(combination_membership[removed_reads])
   
   subtraction_idxs <- names(reads_removed_per_barcode) %>% as.integer()
   
-  filtered_frequency_table <- frequency_table %>%
+  filtered_frequency_table <- freq_table %>%
     mutate(frequency = frequency %>% magrittr::inset(subtraction_idxs,
                                            .[subtraction_idxs] - reads_removed_per_barcode)
     ) %>% 
     filter(frequency > 0) %>%
-    complete_frequency_table()
+    complete_freq_table()
   filtered_frequency_table
 }
 
@@ -141,7 +141,7 @@ sample_DNA <- function(length) {
   sample(Biostrings::DNA_BASES, length, replace = TRUE)
 }
 
-complete_frequency_table <- . %>%
+complete_freq_table <- . %>%
   arrange(desc(frequency)) %>% 
   mutate(cumulative_frequency = cumsum(frequency), 
          fraction = frequency / sum(frequency)) %>% 
@@ -253,7 +253,7 @@ create_expected_summary_res <- function(possible_barcode_combinations, expected_
   ) %>% magrittr::set_class("demultiplex_filter_summary")
 }
 
-test_frequency_table <- function(actual, expected, barcode_names) {
+test_freq_table <- function(actual, expected, barcode_names) {
     purrr::walk(c("frequency","cumulative_frequency",
                   "fraction","cumulative_fraction"), function(column) {
                     expect_equal(actual[[column]],

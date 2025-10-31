@@ -19,7 +19,7 @@ possible_barcode_combinations <- barcode_frame$barcode_reference %>%
   map(names) %>% do.call(function(...)
     expand.grid(..., stringsAsFactors = FALSE), .)
 
-preliminary_frequency_table <- create_preliminary_frequency_table(
+prelim_freq_table <- create_preliminary_freq_table(
   possible_barcode_combinations,
   n_unique_barcodes,
   mean_reads_per_artifact,
@@ -27,7 +27,7 @@ preliminary_frequency_table <- create_preliminary_frequency_table(
   rbinom_size
 )
 
-n_reads <- sum(preliminary_frequency_table$frequency)
+n_reads <- sum(prelim_freq_table$frequency)
 
 # Shows the order in which the reads appear when shuffled as
 # we want them to appear in random order
@@ -36,11 +36,11 @@ read_order <- sample.int(n_reads)
 # The barcode combination membership of each read
 # corresponding to the rows the the frequency table,
 # assuming no reads are discarded
-combination_membership <- rep(seq_len(n_unique_barcodes), times = preliminary_frequency_table$frequency) %>%
+combination_membership <- rep(seq_len(n_unique_barcodes), times = prelim_freq_table$frequency) %>%
   magrittr::extract(read_order)
 
 
-preliminary_assigned_barcodes <- preliminary_frequency_table[combination_membership, barcode_frame$name, drop =
+preliminary_assigned_barcodes <- prelim_freq_table[combination_membership, barcode_frame$name, drop =
                                                                FALSE] %>%
   as.matrix() %>%
   set_rownames(NULL)
@@ -69,7 +69,7 @@ removed_reads <- Reduce(`|`, mismatches_above_threshold)
 
 expected_n_removed <- removed_reads %>% sum()
 
-expected_filtered_frequency_table <- create_filtered_frequency_table(preliminary_frequency_table,
+expected_filtered_frequency_table <- create_filtered_freq_table(prelim_freq_table,
                                                                      combination_membership,
                                                                      removed_reads)
 
@@ -163,11 +163,11 @@ test_that("Filtering summary is correctly generated", {
   expect_equal(demultiplex_filter$summary_res, expected_summary_res)
 })
 
-frequency_table <- create_frequency_table(demultiplex_filter$demultiplex_res$assigned_barcodes)
+freq_table <- create_freq_table(demultiplex_filter$demultiplex_res$assigned_barcodes)
 
 
 test_that("Generated frequency table is correct", {
-  test_frequency_table(frequency_table,
+  test_freq_table(freq_table,
                        expected_filtered_frequency_table,
                        barcode_frame$name)
 })

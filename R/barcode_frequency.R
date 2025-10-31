@@ -27,7 +27,7 @@
 #' @example inst/examples/match_filter-examples.R
 #' @export
 #'
-create_frequency_table <- function(assigned_barcode) {
+create_freq_table <- function(assigned_barcode) {
   assigned_barcode %>%
     as.data.frame() %>%
     count(pick(everything()), name = "frequency", sort = TRUE) %>%
@@ -65,13 +65,13 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #'
 #' @description
 #' Diagnostic plots for determining the effect of the barcode cutoff.
-#' \code{frequency_plot()} shows a histogram or distribution plot of the
+#' \code{freq_plot()} shows a histogram or distribution plot of the
 #' number of reads for each barcode
 #' combination, whereas \code{knee_plot()} shows the cumulative fraction of reads
 #' ranked by the frequency of the barcode combinations in descending order.
 #'
-#' @param frequency_table The frequency table
-#'  from \code{\link{create_frequency_table}}
+#' @param freq_table The frequency table
+#'  from \code{\link{create_freq_table}}
 #'
 #' @param cutoff Optional scalar numeric, the
 #' x-coordinate for drawing a vertical dashed line
@@ -80,8 +80,8 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' the same cutoff on both type of plots,
 #' the cutoff values has to be transformed. In order to safely convert between
 #' the two types of cutoffs, use the functions
-#' \code{\link{bc_to_frequency_cutoff}}
-#' and \code{\link{frequency_to_bc_cutoff}}.
+#' \code{\link{bc_to_freq_cutoff}}
+#' and \code{\link{freq_to_bc_cutoff}}.
 #' @param type The type of frequency plot to make, either \code{"histogram"}
 #' or \code{"density"}
 #' @param log_scale_x Logical: Should a log scale be applied to the x-axis of the
@@ -91,7 +91,7 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' @param scale_by_reads Logical: Should the y-axis of the plot be scaled by the
 #' number of reads on the x-axis?
 #'
-#' @seealso [bc_to_frequency_cutoff()] [frequency_to_bc_cutoff()]
+#' @seealso [bc_to_freq_cutoff()] [freq_to_bc_cutoff()]
 #' 
 #' @importFrom rlang .data
 #'
@@ -100,14 +100,14 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #'
 #' @example inst/examples/frequency_plot-examples.R
 #' @export
-frequency_plot <- function(frequency_table,
+freq_plot <- function(freq_table,
                            cutoff = NULL,
                            type = "histogram",
                            log_scale_x = TRUE,
                            log_scale_y = FALSE,
                            scale_by_reads = FALSE
                            ) {
-  n_reads <- sum(frequency_table$frequency)
+  n_reads <- sum(freq_table$frequency)
   if (!scale_by_reads){
     plot_type <- switch (type,
                          histogram = \() geom_histogram(),
@@ -131,7 +131,7 @@ frequency_plot <- function(frequency_table,
   } else {
     ylab <- "Relative Frequency"
   }
-  p <- ggplot(frequency_table, aes(x = .data$frequency)) +
+  p <- ggplot(freq_table, aes(x = .data$frequency)) +
     plot_type() +
     labs(x = "Number of reads", y = ylab)
   if (log_scale_x) {
@@ -146,12 +146,12 @@ frequency_plot <- function(frequency_table,
   p
 }
 
-#' @rdname frequency_plot
+#' @rdname freq_plot
 #' @import dplyr
 #' @importFrom rlang .data
 #' @export
-knee_plot <- function(frequency_table, cutoff = NULL) {
-  augmented_frequency_table <- frequency_table %>%
+knee_plot <- function(freq_table, cutoff = NULL) {
+  augmented_frequency_table <- freq_table %>%
     select("cumulative_fraction") %>%
     mutate(index = seq_len(n())) %>%
     add_row(index = 0L, cumulative_fraction = 0)

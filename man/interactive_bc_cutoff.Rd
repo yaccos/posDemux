@@ -4,11 +4,11 @@
 \alias{interactive_bc_cutoff}
 \title{Interactive cutoff selection}
 \usage{
-interactive_bc_cutoff(frequency_table)
+interactive_bc_cutoff(freq_table)
 }
 \arguments{
-\item{frequency_table}{The frequency table
-from \code{\link{create_frequency_table}}}
+\item{freq_table}{The frequency table
+from \code{\link{create_freq_table}}}
 }
 \value{
 A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the
@@ -48,7 +48,7 @@ if (interactive()) {
     segment_lengths = segment_lengths
   )
   filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
-  freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
+  freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
   selection_app <- interactive_bc_cutoff(freq_table)
   selected_bc_cutoff <- runApp(selection_app)
 }

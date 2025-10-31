@@ -78,7 +78,7 @@ it is considered a variadic length segment}
 A list with three elements:
 \itemize{
 \item \code{freq_table}: The frequency table for all reads, akin to the output of
-\code{\link[=create_frequency_table]{create_frequency_table()}}
+\code{\link[=create_freq_table]{create_freq_table()}}
 \item \code{summary_res}: The summary result of match filtering of all reads
 per \code{\link[=create_summary_res]{create_summary_res()}}
 \item \code{state_final}: The final state object returned from \code{loader}
@@ -143,6 +143,6 @@ streaming_summary_res <- streaming_demultiplex(
 }
 \seealso{
 \code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}, \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}},
-\code{\link[=create_frequency_table]{create_frequency_table()}}, and \code{\link[=create_summary_res]{create_summary_res()}}
+\code{\link[=create_freq_table]{create_freq_table()}}, and \code{\link[=create_summary_res]{create_summary_res()}}
 for the underlying processing.
 }

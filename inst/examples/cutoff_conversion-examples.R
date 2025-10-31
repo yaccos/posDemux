@@ -18,12 +18,12 @@ demultiplex_res <- posDemux::combinatorial_demultiplex(reads, barcodes = barcode
                                                        segments = sequence_annotation,
                                                        segment_lengths = segment_lengths)
 filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
-freq_table <- create_frequency_table(filtered_res$demultiplex_res$assigned_barcodes)
+freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
 
 bc_cutoff <- c(100L, 204L, 50L, 655L)
-freq_cutoff <- bc_to_frequency_cutoff(freq_table, bc_cutoff)
+freq_cutoff <- bc_to_freq_cutoff(freq_table, bc_cutoff)
 # Note: The reconstructed barcode cutoff is not equal to the original due to ties
 # in the frequency table
-reconstructed_bc_cutoff <- frequency_to_bc_cutoff(freq_table, freq_cutoff)
+reconstructed_bc_cutoff <- freq_to_bc_cutoff(freq_table, freq_cutoff)
 # The frequency cutoff is still preserved through these conversions
-reconstruced_freq_cutoff <- bc_to_frequency_cutoff(freq_table, reconstructed_bc_cutoff)
+reconstruced_freq_cutoff <- bc_to_freq_cutoff(freq_table, reconstructed_bc_cutoff)

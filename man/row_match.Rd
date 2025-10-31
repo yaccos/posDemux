@@ -52,7 +52,7 @@ selected_rows <- row_match(barcode_table, selected_freq_table)
 selected_barcode_table <- barcode_table[selected_rows,]
 }
 \seealso{
-\code{\link[=create_frequency_table]{create_frequency_table()}} for how frequency tables are constructed,
+\code{\link[=create_freq_table]{create_freq_table()}} for how frequency tables are constructed,
 \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}} for more information on the matrix of assigned
 barcodes
 and \code{\link[dplyr:mutate-joins]{dplyr::inner_join()}} for a function with similar functionality.

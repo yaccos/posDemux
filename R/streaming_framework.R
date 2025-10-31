@@ -52,14 +52,14 @@
 #' @returns A list with three elements:
 #' \itemize{
 #' \item \code{freq_table}: The frequency table for all reads, akin to the output of
-#' [create_frequency_table()]
+#' [create_freq_table()]
 #' \item \code{summary_res}: The summary result of match filtering of all reads
 #' per [create_summary_res()]
 #' \item \code{state_final}: The final state object returned from \code{loader}
 #'
 #' }
 #' @seealso [filter_demultiplex_res()], [combinatorial_demultiplex()],
-#' [create_frequency_table()], and [create_summary_res()]
+#' [create_freq_table()], and [create_summary_res()]
 #' for the underlying processing.
 #' @inheritParams combinatorial_demultiplex
 #' @inheritParams filter_demultiplex_res

@@ -278,7 +278,7 @@ the remaining barcode combinations not covered all have a small number of reads.
 We first create a frequency table of the barcodes is question:
 
 ```{r}
-freq_table <- create_frequency_table(
+freq_table <- create_freq_table(
   filtered_res$demultiplex_res$assigned_barcodes
   )
 head(freq_table)
@@ -310,20 +310,20 @@ keeping approximately 500 barcodes is the optimal choice^[In case you wonder why
 
 ```{r}
 bc_cutoff <- 500L
-freq_cutoff <- bc_to_frequency_cutoff(freq_table, bc_cutoff)
+freq_cutoff <- bc_to_freq_cutoff(freq_table, bc_cutoff)
 freq_cutoff
 ```
 We can convert the cutoff the other way as well, but it is in general not an exact inverse as multiple barcodes can have the same frequency:
 
 ```{r}
-reconstrued_bc_cutoff <- frequency_to_bc_cutoff(freq_table, freq_cutoff)
+reconstrued_bc_cutoff <- freq_to_bc_cutoff(freq_table, freq_cutoff)
 reconstrued_bc_cutoff
 ```
 
 The cutoff can be illustrated by the Knee plot as in the interactive application:
 
 ```{r}
-knee_plot(frequency_table = freq_table, cutoff = bc_cutoff)
+knee_plot(freq_table = freq_table, cutoff = bc_cutoff)
 ```
 
 We can also illustrate this filtering by looking at the distribution of barcode frequencies:
@@ -331,7 +331,7 @@ We can also illustrate this filtering by looking at the distribution of barcode 
 ```{r}
 # Since the cutoff lines of the plot are provided by the literal x-coordinate,
 # we must use the frequency cutoff
-frequency_plot(freq_table, cutoff = freq_cutoff, type = "density",
+freq_plot(freq_table, cutoff = freq_cutoff, type = "density",
                log_scale_x = TRUE)
 ```
 
@@ -340,7 +340,7 @@ Often the frequency plot get easier to interpret when we scale the y-axis by the
 ```{r}
 # Since the cutoff lines of the plot are provided by the literal x-coordinate,
 # we must use the frequency cutoff
-frequency_plot(freq_table, cutoff = freq_cutoff, type = "density",
+freq_plot(freq_table, cutoff = freq_cutoff, type = "density",
                log_scale_x = TRUE, scale_by_reads = TRUE)
 ```
 

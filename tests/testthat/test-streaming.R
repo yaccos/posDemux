@@ -35,7 +35,7 @@ expected_filtered_res <- combinatorial_demultiplex(sequences = reads, barcodes =
 expected_summary <- expected_filtered_res$summary_res
 expected_assigned_barcodes <- expected_filtered_res$demultiplex_res$assigned_barcodes
 expected_UMI <- expected_filtered_res$demultiplex_res$payload$UMI
-expected_freq_table <- create_frequency_table(expected_assigned_barcodes)
+expected_freq_table <- create_freq_table(expected_assigned_barcodes)
 
 test_that("Demultiplex summary from streaming is correctly generated",
           {
@@ -45,7 +45,7 @@ test_that("Demultiplex summary from streaming is correctly generated",
 
 test_that("Frequency table is correctly generated from streaming",
           {
-            test_frequency_table(streaming_res$freq_table, expected_freq_table,
+            test_freq_table(streaming_res$freq_table, expected_freq_table,
                                  names(barcodes))
           }
           )
