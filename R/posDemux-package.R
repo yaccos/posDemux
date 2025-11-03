@@ -1,5 +1,7 @@
 #' @name posDemux
 #' 
+#' @keywords internal
+#' @aliases posDemux-package
 #' @title Utilities for segmented sequences with combinatorial barcoding
 #' @useDynLib posDemux, .registration = TRUE
 #' 

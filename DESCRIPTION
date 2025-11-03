@@ -4,12 +4,16 @@ Title: Positional combinatorial sequence demultiplexer
 Encoding: UTF-8
 Version: 0.99.1
 Date: 2025-11-03
-Authors@R: 
+Authors@R: c(
    person(given = "Jakob Peder",
    family = "Pettersen",
    role = c("aut","cre"),
    email = "jakobpeder.pettersen@gmail.com",
    comment = c(ORCID = "0000-0002-3485-1634")
+   ),
+   person("Centre for new antibacterial strategies (CANS)",
+   role = "fnd"
+   )
    )
 Description: Demultiplexing and filtering utilities intended for reads with
    combinatorial barcodes (i.e. PETRI-seq and SPLiT-seq). The demultiplexer algorithm
@@ -22,6 +26,8 @@ Imports: Biostrings, ggplot2, methods, assertthat, glue,
     magrittr, dplyr, rlang, ShortRead, readr, shiny, purrr
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
 biocViews: SequenceMatching, Sequencing, Software, RNASeq
+URL: https://github.com/yaccos/posDemux
+BugReports: https://github.com/yaccos/posDemux/issues
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 

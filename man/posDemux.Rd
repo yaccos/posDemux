@@ -2,6 +2,7 @@
 % Please edit documentation in R/posDemux-package.R
 \name{posDemux}
 \alias{posDemux}
+\alias{posDemux-package}
 \title{Utilities for segmented sequences with combinatorial barcoding}
 \description{
 Provides tools for handling reads with combinatorial barcodes, and
@@ -13,3 +14,4 @@ single-cell RNA-seq data with multiple barcoding
 \author{
 Jakob Peder Pettersen \href{mailto:jakobpeder.pettersen@gmail.com}{jakobpeder.pettersen@gmail.com}
 }
+\keyword{internal}
