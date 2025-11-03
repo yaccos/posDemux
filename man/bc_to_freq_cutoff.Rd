@@ -11,14 +11,14 @@ freq_to_bc_cutoff(freq_table, cutoff)
 }
 \arguments{
 \item{freq_table}{The frequency table
-from \code{\link{create_freq_table}}. In case the table is derived
+from \code{\link[=create_freq_table]{create_freq_table()}}. In case the table is derived
 from another source, it must be sorted in descending
 order of frequency.}
 
 \item{cutoff}{Integer vector, the cutoff values to be converted.}
 }
 \value{
-Integer, the converted cutoff values
+Integer, the converted cutoff values.
 }
 \description{
 There are at least two ways to specify the cutoff to use when

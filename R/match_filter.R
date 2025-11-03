@@ -1,27 +1,26 @@
 #' Filter demultiplexed reads
 #'
 #' @description
-#' Filters the demultiplexed reads from \code{\link{combinatorial_demultiplex}}
+#' Filters the demultiplexed reads from [combinatorial_demultiplex()]
 #' such that any read exceeding the number of allowed mismatches for any
 #' of the barcodes is removed. The function gives diagnostic information
 #' on the number of reads removed per barcode and the total number
 #' of reads removed.
 #'
-#' @param demultiplex_res Unprocessed output from
-#'  \code{\link{combinatorial_demultiplex}}.
+#' @param demultiplex_res Unprocessed output from [combinatorial_demultiplex()].
 #' @param allowed_mismatches Integer vector of length one or the same length
 #' as the number of barcode segments; the threshold Hamming distance. All reads
 #' having a number of mismatches above this number in any of the barcodes will
 #' be filtered away.
 #' @returns A list with the following elements:
 #' \itemize{
-#' \item \code{demultiplex_res}: The contents of \code{demultiplex_res} with
-#' the sequences filtered.
+#' \item \code{demultiplex_res}: The contents of the input argument 
+#' \code{demultiplex_res} with the sequences filtered.
 #' \item \code{retained}: Logical vector with the same length as
 #'  the number of reads in the input. \code{TRUE} if the corresponding read
 #'  is retained.
 #'  Useful for future filtering of paired-end reads.
-#' \item \code{summary_res}: Result of \code{\link{create_summary_res}} called
+#' \item \code{summary_res}: Result of [create_summary_res()] called
 #' on the results of filtering.
 #' }
 #' @details

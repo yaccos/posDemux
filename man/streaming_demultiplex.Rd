@@ -29,7 +29,7 @@ to be demultiplexed in the current chunk.
 \item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
 process terminates and the final results are returned.
 Notice that this termination happens before the sequences of the final
-call to \code{loader} are demultiplexed
+call to \code{loader} are demultiplexed.
 }}
 
 \item{archiver}{Function taking care of archiving the demultiplexed results.
@@ -38,7 +38,7 @@ Its arguments are:
 \item \code{state}: The state of the process returned by \code{loader}.
 \item \code{filtered_res}: The output from running
 \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}} and
-\link{filter_demultiplex_res} on the data expect that the
+\code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}} on the data expect that the
 field \code{summary_res} is missing.
 }
 Its output is a state object fed into the next call to \code{loader}.}
@@ -73,16 +73,16 @@ as \code{segments}, lengths of the segments provided in the same order as in
 \code{segments}.
 Up to one of the non-barcode segments can have its length
 set to \code{NA} which means
-it is considered a variadic length segment}
+it is considered a variadic length segment.}
 }
 \value{
 A list with three elements:
 \itemize{
 \item \code{freq_table}: The frequency table for all reads, akin to the output of
-\code{\link[=create_freq_table]{create_freq_table()}}
+\code{\link[=create_freq_table]{create_freq_table()}}.
 \item \code{summary_res}: The summary result of match filtering of all reads
-per \code{\link[=create_summary_res]{create_summary_res()}}
-\item \code{state_final}: The final state object returned from \code{loader}
+per \code{\link[=create_summary_res]{create_summary_res()}}.
+\item \code{state_final}: The final state object returned from \code{loader}.
 
 }
 }

@@ -3,7 +3,7 @@
 #' \code{create_summary_res()} is a helper function in order to create a summary of the demultiplexing
 #' and following match filtering. It is not designed to be invoked directly, but
 #' its results will be returned automatically from
-#' \code{\link{filter_demultiplex_res}}. This returned object has it own method
+#' [filter_demultiplex_res()]. This returned object has it own method
 #' for printing the result in a user-friendly manner.
 #' 
 #' 
@@ -16,14 +16,15 @@
 #'  the number of reads in the input to the demultiplexer.
 #'  \code{TRUE} if the corresponding read
 #'  is retained. Corresponds to the field \code{retained} of the output of
-#'  \code{\link{filter_demultiplex_res}}.
-#' @param assigned_barcodes Character matrix of the assigned barcodes.
-#' Corresponds to of the field \code{assigned_barcodes}
-#' of \code{\link{combinatorial_demultiplex}}.
+#'  [filter_demultiplex_res()].
+#' @param assigned_barcodes Character matrix of the assigned barcodes only
+#' including the onces within the mismatch threshold.
+#' Corresponds to of the field \code{demultiplex_res$assigned_barcodes}
+#' of [filter_demultiplex_res()].
 #' @param mismatches Integer matrix of the number of
 #'  mismatches of each assigned barcode.
 #' Corresponds to the field \code{mismatches} of
-#'  \code{\link{combinatorial_demultiplex}}.
+#' [combinatorial_demultiplex()].
 #'  
 #'  
 #' @return

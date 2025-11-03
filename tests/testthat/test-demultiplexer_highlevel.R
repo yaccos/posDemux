@@ -139,7 +139,6 @@ test_that("Filtered payload extraction is correct", {
                         demultiplex_filter$demultiplex_res$payload)
 })
 
-
 test_that("Barcode assignments are correct", {
   testthat::expect_true(
     all.equal(
@@ -161,6 +160,16 @@ expected_summary_res <- create_expected_summary_res(
 
 test_that("Filtering summary is correctly generated", {
   expect_equal(demultiplex_filter$summary_res, expected_summary_res)
+})
+
+test_that("Filtering summary created by create_summary_res() is correct", {
+  generated_summary_res <- create_summary_res(demultiplex_filter$retained,
+                                              demultiplex_res$barcodes,
+                                              demultiplex_filter$demultiplex_res$assigned_barcodes,
+                                              barcode_frame$n_allowed_mismatches,
+                                              demultiplex_res$mismatches
+  )
+  expect_equal(generated_summary_res, expected_summary_res)
 })
 
 freq_table <- create_freq_table(demultiplex_filter$demultiplex_res$assigned_barcodes)

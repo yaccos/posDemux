@@ -20,15 +20,16 @@ create_summary_res(
 the number of reads in the input to the demultiplexer.
 \code{TRUE} if the corresponding read
 is retained. Corresponds to the field \code{retained} of the output of
-\code{\link{filter_demultiplex_res}}.}
+\code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}.}
 
 \item{barcodes}{A list of
 \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects, the
 barcodes which were used for demultiplexing.}
 
-\item{assigned_barcodes}{Character matrix of the assigned barcodes.
-Corresponds to of the field \code{assigned_barcodes}
-of \code{\link{combinatorial_demultiplex}}.}
+\item{assigned_barcodes}{Character matrix of the assigned barcodes only
+including the onces within the mismatch threshold.
+Corresponds to of the field \code{demultiplex_res$assigned_barcodes}
+of \code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}.}
 
 \item{allowed_mismatches}{Integer vector of length one or the same length
 as the number of barcode segments; the threshold Hamming distance. All reads
@@ -38,7 +39,7 @@ be filtered away.}
 \item{mismatches}{Integer matrix of the number of
 mismatches of each assigned barcode.
 Corresponds to the field \code{mismatches} of
-\code{\link{combinatorial_demultiplex}}.}
+\code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}}.}
 
 \item{x}{An object of class \code{demultiplex_filter_summary} from
 \code{create_summary_res()}.}
@@ -86,7 +87,7 @@ The \code{print()} method returns its output invisibly.
 \code{create_summary_res()} is a helper function in order to create a summary of the demultiplexing
 and following match filtering. It is not designed to be invoked directly, but
 its results will be returned automatically from
-\code{\link{filter_demultiplex_res}}. This returned object has it own method
+\code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}. This returned object has it own method
 for printing the result in a user-friendly manner.
 }
 \details{
@@ -138,7 +139,7 @@ print(filtered_res$summary_res)
 alternative_summary_res <- create_summary_res(
   retained = filtered_res$retained,
   barcodes = barcodes,
-  assigned_barcodes = demultiplex_res$assigned_barcodes,
+  assigned_barcodes = filtered_res$demultiplex_res$assigned_barcodes,
   allowed_mismatches = 1L,
   mismatches = demultiplex_res$mismatches
   )

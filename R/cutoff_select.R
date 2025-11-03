@@ -11,7 +11,7 @@
 #' @import shiny
 #'
 #' @param freq_table The frequency table
-#' from \code{\link{create_freq_table}}.
+#' from [create_freq_table()].
 #' @return A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the
 #' last selected cutoff (invisibly) when it stops.
 #' 
@@ -119,7 +119,7 @@ interactive_bc_cutoff <- function(freq_table) {
 #' is used to find the corresponding barcode cutoff.
 #'
 #' @param freq_table The frequency table
-#' from \code{\link{create_freq_table}}. In case the table is derived
+#' from [create_freq_table()]. In case the table is derived
 #' from another source, it must be sorted in descending
 #' order of frequency.
 #' @param cutoff Integer vector, the cutoff values to be converted.
@@ -129,7 +129,7 @@ interactive_bc_cutoff <- function(freq_table) {
 #' is set to the maximum frequency in the table plus one. This feature
 #' makes sure that the cutoff line is visible in the frequency plot.
 #' 
-#' @returns Integer, the converted cutoff values
+#' @returns Integer, the converted cutoff values.
 #' @example inst/examples/cutoff_conversion-examples.R
 #' @export
 #'

@@ -18,10 +18,10 @@
 #' barcode assignment (e.g \code{bc3}, \code{bc2}, \code{bc1})
 #' and the last columns were the following:
 #' \itemize{
-#' \item \code{frequency}: The number of reads with the barcode combination
-#' \item \code{cumulative_frequency}: The cumulative frequency of the barcode combination counted from the top
-#' \item \code{fraction}: The fraction of reads with the barcode combination
-#' \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination counted from the top
+#' \item \code{frequency}: The number of reads with the barcode combination.
+#' \item \code{cumulative_frequency}: The cumulative frequency of the barcode combination counted from the top.
+#' \item \code{fraction}: The fraction of reads with the barcode combination.
+#' \item \code{cumulative_fraction}: The cumulative fraction of the barcode combination counted from the top.
 #' }
 #' @import ggplot2
 #' @importFrom rlang .data
@@ -72,7 +72,7 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' ranked by the frequency of the barcode combinations in descending order.
 #'
 #' @param freq_table The frequency table
-#'  from \code{\link{create_freq_table}}
+#'  from [create_freq_table()].
 #'
 #' @param cutoff Optional scalar numeric, the
 #' x-coordinate for drawing a vertical dashed line
@@ -80,9 +80,8 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' is interpreted literally, meaning that in order to correctly display
 #' the same cutoff on both type of plots,
 #' the cutoff value has to be transformed. In order to safely convert between
-#' the two types of cutoffs, use the functions
-#' \code{\link{bc_to_freq_cutoff}}
-#' and \code{\link{freq_to_bc_cutoff}}.
+#' the two types of cutoffs, use the functions [bc_to_freq_cutoff()]
+#' and [freq_to_bc_cutoff()].
 #' @param type The type of frequency plot to make, either \code{"histogram"}
 #' or \code{"density"}.
 #' @param log_scale_x Logical: Should a log scale be applied to the x-axis of the
@@ -97,7 +96,7 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' @importFrom rlang .data
 #'
 #' @returns A \code{\link[ggplot2]{ggplot}} object which can be displayed immediately or
-#' further modified
+#' further modified.
 #'
 #' @example inst/examples/freq_plot-examples.R
 #' @export

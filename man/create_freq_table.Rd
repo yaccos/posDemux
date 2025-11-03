@@ -19,10 +19,10 @@ The first columns specify the
 barcode assignment (e.g \code{bc3}, \code{bc2}, \code{bc1})
 and the last columns were the following:
 \itemize{
-\item \code{frequency}: The number of reads with the barcode combination
-\item \code{cumulative_frequency}: The cumulative frequency of the barcode combination counted from the top
-\item \code{fraction}: The fraction of reads with the barcode combination
-\item \code{cumulative_fraction}: The cumulative fraction of the barcode combination counted from the top
+\item \code{frequency}: The number of reads with the barcode combination.
+\item \code{cumulative_frequency}: The cumulative frequency of the barcode combination counted from the top.
+\item \code{fraction}: The fraction of reads with the barcode combination.
+\item \code{cumulative_fraction}: The cumulative fraction of the barcode combination counted from the top.
 }
 }
 \description{

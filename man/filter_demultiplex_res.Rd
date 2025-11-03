@@ -7,8 +7,7 @@
 filter_demultiplex_res(demultiplex_res, allowed_mismatches)
 }
 \arguments{
-\item{demultiplex_res}{Unprocessed output from
-\code{\link{combinatorial_demultiplex}}.}
+\item{demultiplex_res}{Unprocessed output from \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}}.}
 
 \item{allowed_mismatches}{Integer vector of length one or the same length
 as the number of barcode segments; the threshold Hamming distance. All reads
@@ -18,18 +17,18 @@ be filtered away.}
 \value{
 A list with the following elements:
 \itemize{
-\item \code{demultiplex_res}: The contents of \code{demultiplex_res} with
-the sequences filtered.
+\item \code{demultiplex_res}: The contents of the input argument
+\code{demultiplex_res} with the sequences filtered.
 \item \code{retained}: Logical vector with the same length as
 the number of reads in the input. \code{TRUE} if the corresponding read
 is retained.
 Useful for future filtering of paired-end reads.
-\item \code{summary_res}: Result of \code{\link{create_summary_res}} called
+\item \code{summary_res}: Result of \code{\link[=create_summary_res]{create_summary_res()}} called
 on the results of filtering.
 }
 }
 \description{
-Filters the demultiplexed reads from \code{\link{combinatorial_demultiplex}}
+Filters the demultiplexed reads from \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}}
 such that any read exceeding the number of allowed mismatches for any
 of the barcodes is removed. The function gives diagnostic information
 on the number of reads removed per barcode and the total number
@@ -68,7 +67,7 @@ print(filtered_res$summary_res)
 alternative_summary_res <- create_summary_res(
   retained = filtered_res$retained,
   barcodes = barcodes,
-  assigned_barcodes = demultiplex_res$assigned_barcodes,
+  assigned_barcodes = filtered_res$demultiplex_res$assigned_barcodes,
   allowed_mismatches = 1L,
   mismatches = demultiplex_res$mismatches
   )

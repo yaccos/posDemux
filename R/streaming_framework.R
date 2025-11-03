@@ -22,7 +22,7 @@
 #' \item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
 #' process terminates and the final results are returned.
 #' Notice that this termination happens before the sequences of the final
-#' call to \code{loader} are demultiplexed
+#' call to \code{loader} are demultiplexed.
 #' }
 #'
 #' @param archiver Function taking care of archiving the demultiplexed results.
@@ -31,7 +31,7 @@
 #' \item \code{state}: The state of the process returned by \code{loader}.
 #' \item \code{filtered_res}: The output from running
 #' [combinatorial_demultiplex()] and
-#' [filter_demultiplex_res] on the data expect that the
+#' [filter_demultiplex_res()] on the data expect that the
 #' field \code{summary_res} is missing.
 #' }
 #' Its output is a state object fed into the next call to \code{loader}.
@@ -52,10 +52,10 @@
 #' @returns A list with three elements:
 #' \itemize{
 #' \item \code{freq_table}: The frequency table for all reads, akin to the output of
-#' [create_freq_table()]
+#' [create_freq_table()].
 #' \item \code{summary_res}: The summary result of match filtering of all reads
-#' per [create_summary_res()]
-#' \item \code{state_final}: The final state object returned from \code{loader}
+#' per [create_summary_res()].
+#' \item \code{state_final}: The final state object returned from \code{loader}.
 #'
 #' }
 #' @seealso [filter_demultiplex_res()], [combinatorial_demultiplex()],

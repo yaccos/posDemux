@@ -18,7 +18,7 @@ knee_plot(freq_table, cutoff = NULL)
 }
 \arguments{
 \item{freq_table}{The frequency table
-from \code{\link{create_freq_table}}}
+from \code{\link[=create_freq_table]{create_freq_table()}}.}
 
 \item{cutoff}{Optional scalar numeric, the
 x-coordinate for drawing a vertical dashed line
@@ -26,9 +26,8 @@ in the plots in order to indicate the cutoff. Please note that this argument
 is interpreted literally, meaning that in order to correctly display
 the same cutoff on both type of plots,
 the cutoff value has to be transformed. In order to safely convert between
-the two types of cutoffs, use the functions
-\code{\link{bc_to_freq_cutoff}}
-and \code{\link{freq_to_bc_cutoff}}.}
+the two types of cutoffs, use the functions \code{\link[=bc_to_freq_cutoff]{bc_to_freq_cutoff()}}
+and \code{\link[=freq_to_bc_cutoff]{freq_to_bc_cutoff()}}.}
 
 \item{type}{The type of frequency plot to make, either \code{"histogram"}
 or \code{"density"}.}
@@ -44,7 +43,7 @@ number of reads on the x-axis?}
 }
 \value{
 A \code{\link[ggplot2]{ggplot}} object which can be displayed immediately or
-further modified
+further modified.
 }
 \description{
 Diagnostic plots for determining the effect of the barcode cutoff.

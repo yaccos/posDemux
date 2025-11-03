@@ -25,7 +25,7 @@ print(filtered_res$summary_res)
 alternative_summary_res <- create_summary_res(
   retained = filtered_res$retained,
   barcodes = barcodes,
-  assigned_barcodes = demultiplex_res$assigned_barcodes,
+  assigned_barcodes = filtered_res$demultiplex_res$assigned_barcodes,
   allowed_mismatches = 1L,
   mismatches = demultiplex_res$mismatches
   )

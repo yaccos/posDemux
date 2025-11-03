@@ -8,7 +8,7 @@ interactive_bc_cutoff(freq_table)
 }
 \arguments{
 \item{freq_table}{The frequency table
-from \code{\link{create_freq_table}}.}
+from \code{\link[=create_freq_table]{create_freq_table()}}.}
 }
 \value{
 A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the

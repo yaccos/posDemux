@@ -7,7 +7,7 @@
 combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
 }
 \arguments{
-\item{sequences}{A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences to be demultiplexed}
+\item{sequences}{A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences to be demultiplexed.}
 
 \item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
 appear in the sequences, the barcodes
@@ -34,14 +34,14 @@ as \code{segments}, lengths of the segments provided in the same order as in
 \code{segments}.
 Up to one of the non-barcode segments can have its length
 set to \code{NA} which means
-it is considered a variadic length segment}
+it is considered a variadic length segment.}
 }
 \value{
 A list with the following elements:
 \itemize{
 \item \code{assigned_barcodes}: A \code{character} matrix with
 the names of the assigned barcodes as elements. The rows correspond to the
-sequences and the columns to the barcode segments
+sequences and the columns to the barcode segments.
 \item \code{mismatches}: An \code{integer} matrix with the number of mismatches
 between the assigned barcodes and the sequences. The rows correspond to the
 sequences and the columns to the barcode segments.
