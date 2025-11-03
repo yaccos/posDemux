@@ -3,9 +3,6 @@
 #' @title Utilities for segmented sequences with combinatorial barcoding
 #' @useDynLib posDemux, .registration = TRUE
 #' 
-#' 
-#' @docType package
-#' 
 #' @description
 #' Provides tools for handling reads with combinatorial barcodes, and
 #' multiple adapter regions. This includes utilities for demultiplexing,
@@ -15,7 +12,10 @@
 #' 
 #' 
 #' @import assertthat
+#' @importFrom magrittr %>% set_names %<>% extract equals subtract add
 #' 
 #' @author Jakob Peder Pettersen <jakobpeder.pettersen@gmail.com>
 #' 
+# Making sure R CMD CHECK does not complain over the magrittr placeholder
+utils::globalVariables(c("."))
 "_PACKAGE"

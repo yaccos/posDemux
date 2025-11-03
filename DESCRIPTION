@@ -2,7 +2,7 @@ Package: posDemux
 Type: Package
 Title: Positional combinatorial sequence demultiplexer
 Encoding: UTF-8
-Version: 0.28
+Version: 0.99.1
 Date: 2025-11-03
 Authors@R: 
    person(given = "Jakob Peder",
@@ -17,7 +17,7 @@ Description: Demultiplexing and filtering utilities intended for reads with
    A Shiny application is provided to interactively select cutoffs for which barcode
    combinations to keep.
 License: AGPL (>= 3)
-Depends: R (>= 4.4.0)
+Depends: R (>= 4.5.0)
 Imports: Biostrings, ggplot2, methods, assertthat, glue,
     magrittr, dplyr, rlang, ShortRead, readr, shiny, purrr
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
