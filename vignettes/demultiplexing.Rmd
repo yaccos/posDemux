@@ -406,7 +406,7 @@ The `r Biocpkg("posDemux")` package `r Citep(bib[["posDemux"]])` was made possib
 
 This package was developed using `r BiocStyle::Biocpkg("biocthis")`.
 
-`R` session information.
+`R` session information:
 
 ```{r reproduce3, echo=FALSE}
 ## Session info
