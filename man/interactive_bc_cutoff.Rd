@@ -20,36 +20,29 @@ interactive Shiny application for
 determining cutoff from knee plot and barcode frequency plot. The user
 will select the appropriate number of barcode combinations
 (i.e. distinct cells) to keep for further analysis. Usually, this is done
-by aiming for the "knee" of the knee plot in order to keep most reads,
+by aiming for the 'knee' of the knee plot in order to keep most reads,
 while at the same time removing barcode combinations which are either
 artifacts or broken cells.
 }
 \examples{
 if (interactive()) {
-  library(purrr)
-  library(shiny)
-  library(Biostrings)
-  input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
-  reads <- readDNAStringSet(input_fastq, format = "fastq")
-  barcode_files <- system.file(
-    "extdata/PETRI-seq_barcodes",
-    c(bc1 = "bc1.fa", bc2 = "bc2.fa", bc3 = "bc3.fa"),
-    package = "posDemux"
-  )
-  names(barcode_files) <- paste0("bc", 1L:3L)
-  barcode_index <- map(barcode_files, readDNAStringSet)
-  barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
-  sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
-  segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
-  demultiplex_res <- posDemux::combinatorial_demultiplex(
-    reads,
-    barcodes = barcodes,
-    segments = sequence_annotation,
-    segment_lengths = segment_lengths
-  )
-  filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
-  freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
-  selection_app <- interactive_bc_cutoff(freq_table)
-  selected_bc_cutoff <- runApp(selection_app)
+    library(purrr)
+    library(shiny)
+    library(Biostrings)
+    input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
+    reads <- readDNAStringSet(input_fastq, format = "fastq")
+    barcode_files <- system.file("extdata/PETRI-seq_barcodes", c(bc1 = "bc1.fa", bc2 = "bc2.fa",
+        bc3 = "bc3.fa"), package = "posDemux")
+    names(barcode_files) <- paste0("bc", 1L:3L)
+    barcode_index <- map(barcode_files, readDNAStringSet)
+    barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
+    sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
+    segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
+    demultiplex_res <- posDemux::combinatorial_demultiplex(reads, barcodes = barcodes, segments = sequence_annotation,
+        segment_lengths = segment_lengths)
+    filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
+    freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
+    selection_app <- interactive_bc_cutoff(freq_table)
+    selected_bc_cutoff <- runApp(selection_app)
 }
 }

@@ -89,78 +89,79 @@
 #' @example inst/examples/match_filter-examples.R
 #' @export
 create_summary_res <- function(retained,
-                               barcodes,
-                               assigned_barcodes,
-                               allowed_mismatches,
-                               mismatches) {
-  allowed_mismatches <- validate_allowed_mismatches(allowed_mismatches, barcodes)
-  n_removed <- sum(!retained)
-  n_reads <- length(retained)
-  n_barcodes_per_set <- map_int(barcodes, length)
-  n_unique_barcodes <- assigned_barcodes %>%
-    unique(MARGIN = 1L) %>%
-    nrow()
-  n_barcode_combinations <- prod(n_barcodes_per_set)
-  n_estimated_features <- poisson_correct_n(
-    n_barcode_combinations,
-    n_unique_barcodes
-  )
-  n_barcodes_per_set <- map_int(barcodes, length)
-  observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
-  corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
-  expected_collisions <- poisson_estimate_collisions(
-    n_barcode_combinations,
-    corrected_collision_lambda
-  )
-  barcode_summary <- imap(barcodes, function(barcode_set, barcode_name) {
-    barcode_width <- width(barcode_set)[1L]
-    n_allowed_mismatches <- allowed_mismatches[barcode_name]
-    n_barcodes <- length(barcode_set)
-    this_mismatch_vector <- mismatches[, barcode_name,
-      drop =
-        TRUE
-    ]
-
-    mismatch_frame <- data.frame(
-      n_mismatches =
-        c(0L, seq_len(n_allowed_mismatches))
-    ) %>%
-      mutate(frequency = outer(this_mismatch_vector, .data$n_mismatches, equals) %>%
-        colSums())
-    this_removed <- sum(this_mismatch_vector > n_allowed_mismatches)
-    list(
-      width = barcode_width,
-      n_barcodes = n_barcodes,
-      n_allowed_mismatches = n_allowed_mismatches,
-      n_removed = this_removed,
-      mismatch_frame = mismatch_frame
+    barcodes,
+    assigned_barcodes,
+    allowed_mismatches,
+    mismatches) {
+    allowed_mismatches <- validate_allowed_mismatches(
+        allowed_mismatches,
+        barcodes
     )
-  })
+    n_removed <- sum(!retained)
+    n_reads <- length(retained)
+    n_barcodes_per_set <- map_int(barcodes, length)
+    n_unique_barcodes <- assigned_barcodes %>%
+        unique(MARGIN = 1L) %>%
+        nrow()
+    n_barcode_combinations <- prod(n_barcodes_per_set)
+    n_estimated_features <- poisson_correct_n(
+        n_barcode_combinations,
+        n_unique_barcodes
+    )
+    n_barcodes_per_set <- map_int(barcodes, length)
+    observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
+    corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
+    expected_collisions <- poisson_estimate_collisions(
+        n_barcode_combinations,
+        corrected_collision_lambda
+    )
+    barcode_summary <- imap(barcodes, function(barcode_set, barcode_name) {
+        barcode_width <- width(barcode_set)[1L]
+        n_allowed_mismatches <- allowed_mismatches[barcode_name]
+        n_barcodes <- length(barcode_set)
+        this_mismatch_vector <- mismatches[, barcode_name, drop = TRUE]
 
-  summary_res <- list(
-    n_reads = n_reads,
-    n_removed = n_removed,
-    n_barcode_sets = barcodes %>% length(),
-    n_barcode_combinations = n_barcode_combinations,
-    n_unique_barcodes = n_unique_barcodes,
-    n_estimated_features = n_estimated_features,
-    observed_collision_lambda = observed_collision_lambda,
-    corrected_collision_lambda = corrected_collision_lambda,
-    expected_collisions = expected_collisions,
-    barcode_summary = barcode_summary
-  )
+        mismatch_frame <- data.frame(
+            n_mismatches = c(0L, seq_len(n_allowed_mismatches))
+        ) %>%
+            mutate(
+                frequency = outer(
+                    this_mismatch_vector,
+                    .data$n_mismatches, equals
+                ) %>%
+                    colSums()
+            )
+        this_removed <- sum(this_mismatch_vector > n_allowed_mismatches)
+        list(
+            width = barcode_width, n_barcodes = n_barcodes,
+            n_allowed_mismatches = n_allowed_mismatches,
+            n_removed = this_removed, mismatch_frame = mismatch_frame
+        )
+    })
 
-  class(summary_res) <- "demultiplex_filter_summary"
-  summary_res
+    summary_res <- list(
+        n_reads = n_reads, n_removed = n_removed,
+        n_barcode_sets = barcodes %>% length(),
+        n_barcode_combinations = n_barcode_combinations,
+        n_unique_barcodes = n_unique_barcodes,
+        n_estimated_features = n_estimated_features,
+        observed_collision_lambda = observed_collision_lambda,
+        corrected_collision_lambda = corrected_collision_lambda,
+        expected_collisions = expected_collisions,
+        barcode_summary = barcode_summary
+    )
+
+    class(summary_res) <- "demultiplex_filter_summary"
+    summary_res
 }
 
 poisson_estimate_collisions <- function(N, lambda) {
-  N * (1 - exp(-lambda) - lambda * exp(-lambda))
+    N * (1 - exp(-lambda) - lambda * exp(-lambda))
 }
 
 # Estimates the true number of features taking barcode collisions into account
 poisson_correct_n <- function(N, n_obs) {
-  -N * log(1 - n_obs / N)
+    -N * log(1 - n_obs / N)
 }
 
 #' @param x An object of class \code{demultiplex_filter_summary} from
@@ -171,55 +172,60 @@ poisson_correct_n <- function(N, n_obs) {
 #' @rdname create_summary_res
 #' @export
 print.demultiplex_filter_summary <- function(x, ...) {
-  glue("Total number of reads: {x$n_reads}") %>%
-    cat("\n")
-  removed_percentage <- x$n_removed / x$n_reads * 100
-  glue(
-    "Number of reads failing to demultiplex: \\
-               {x$n_removed} ({removed_percentage %>% round(2L)}%)"
-  ) %>%
-    cat("\n")
-  glue("Observed number of unique barcode combinations: {x$n_unique_barcodes}") %>%
-    cat("\n")
-  glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>%
-    cat("\n")
-  glue("Estimated number of features: {x$n_estimated_features %>% round(1L)}") %>%
-    cat("\n")
-  glue("Observed feature to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>%
-    cat("\n")
-  glue("Corrected feature to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>%
-    cat("\n")
-  collision_percentage <- x$expected_collisions / x$n_unique_barcodes * 100
-  glue(
-    "Estimated number of observed barcode combinations
-    corresponding to more than one feature: \\
-    {x$expected_collisions %>% round(1L)} ({collision_percentage %>% round(2L)}%)"
-  ) %>%
-    cat("\n")
-  glue("Number of barcode sets: {x$n_barcode_sets}") %>% cat("\n")
-  iwalk(x$barcode_summary, function(res, barcode_name) {
-    cat(rep("-", 80L), "\n")
-    glue("Barcode set: {barcode_name}") %>% cat("\n")
-    glue("Barcode width: {res$width}") %>% cat("\n")
-    glue("Number of possible barcodes: \\
-                 {res$n_barcodes}") %>%
-      cat("\n")
-    glue("Number of allowed mismatches: {res$n_allowed_mismatches}") %>% cat("\n")
-    walk2(res$mismatch_frame$n_mismatches, res$mismatch_frame$frequency, function(mismatches, frequency) {
-      percentage <- frequency / x$n_reads * 100
-      glue(
-        "Number of reads with {mismatches} mismatches: \\
-                   {frequency} ({percentage %>% round(2L)}%)"
-      ) %>%
+    glue("Total number of reads: {x$n_reads}") %>%
         cat("\n")
+    removed_percentage <- x$n_removed / x$n_reads * 100
+    glue("Number of reads failing to demultiplex: \\
+    {x$n_removed} ({removed_percentage %>% round(2L)}%)") %>%
+        cat("\n")
+    glue("Observed number of unique barcode combinations:\\
+    {x$n_unique_barcodes}") %>%
+        cat("\n")
+    glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>%
+        cat("\n")
+    glue("Estimated number of features: {x$n_estimated_features %>% round(1L)}") %>%
+        cat("\n")
+    glue("Observed feature to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>%
+        cat("\n")
+    glue("Corrected feature to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>%
+        cat("\n")
+    collision_percentage <- x$expected_collisions / x$n_unique_barcodes * 100
+    glue("Estimated number of observed barcode combinations
+    corresponding to more than one feature: \\
+    {x$expected_collisions %>% round(1L)} ({collision_percentage %>% round(2L)}%)") %>%
+        cat("\n")
+    glue("Number of barcode sets: {x$n_barcode_sets}") %>%
+        cat("\n")
+    iwalk(x$barcode_summary, function(res, barcode_name) {
+        cat(rep("-", 80L), "\n")
+        glue("Barcode set: {barcode_name}") %>%
+            cat("\n")
+        glue("Barcode width: {res$width}") %>%
+            cat("\n")
+        glue("Number of possible barcodes: \\
+        {res$n_barcodes}") %>%
+            cat("\n")
+        glue("Number of allowed mismatches: {res$n_allowed_mismatches}") %>%
+            cat("\n")
+        walk2(
+            res$mismatch_frame$n_mismatches,
+            res$mismatch_frame$frequency,
+            function(mismatches, frequency) {
+                percentage <- frequency / x$n_reads * 100
+                glue(
+                    "Number of reads with {mismatches} mismatches: \\
+                    {frequency} ({percentage %>% round(2L)}%)"
+                ) %>%
+                    cat("\n")
+            }
+        )
+        percentage <- res$n_removed / x$n_reads * 100
+        glue(
+            "Number of reads above mismatch threshold: \\
+            {res$n_removed} ({percentage %>% round(2L)}%)"
+        ) %>%
+            cat("\n")
     })
-    percentage <- res$n_removed / x$n_reads * 100
-    glue(
-      "Number of reads above mismatch threshold: \\
-                 {res$n_removed} ({percentage %>% round(2L)}%)"
-    ) %>%
-      cat("\n")
-  })
-  cat(rep("-", 80L), "\n")
-  invisible(x)
+    cat(rep("-", 80L), "\n")
+    invisible(x)
 }

@@ -5,7 +5,7 @@
 #' determining cutoff from knee plot and barcode frequency plot. The user
 #' will select the appropriate number of barcode combinations
 #' (i.e. distinct cells) to keep for further analysis. Usually, this is done
-#' by aiming for the "knee" of the knee plot in order to keep most reads,
+#' by aiming for the 'knee' of the knee plot in order to keep most reads,
 #' while at the same time removing barcode combinations which are either
 #' artifacts or broken cells.
 #' @import shiny
@@ -19,94 +19,87 @@
 #'
 #' @export
 interactive_bc_cutoff <- function(freq_table) {
-  n_barcode_combinations <- freq_table %>% nrow()
-  n_reads <- freq_table %>%
-    pull("frequency") %>%
-    sum()
-  ui <- pageWithSidebar(
-    headerPanel("Barcode cutoff selector"),
-    sidebarPanel = sidebarPanel(
-      sliderInput("cutoff", "Number of barcodes combinations to keep",
-        min = 0L,
-        max = n_barcode_combinations,
-        step = 1L,
-        value = as.integer(n_barcode_combinations / 2L)
-      ),
-      glue("Total number of reads: {n_reads}") %>% h4(),
-      textOutput("reads_kept") %>% h4(),
-      textOutput("frequency_cutoff") %>% h4(),
-      radioButtons("freq_plot_type", "Type of frequency plot",
-        choices = c("Density" = "density", "Histogram" = "histogram"),
-        selected = "density"
-      ),
-      checkboxInput("log_scale_x", "Log scale on frequency plot x-axis"),
-      checkboxInput("log_scale_y", "Log scale on frequency plot y-axis"),
-      checkboxInput("scale_by_reads", "Scale y-axis in frequency plot by number of reads"),
-      actionButton("exit", "Confirm cutoff selection")
-    ),
-    mainPanel = mainPanel(
-      shiny::h4("Knee plot"),
-      plotOutput("knee_plot"),
-      shiny::h4("Barcode frequency plot"),
-      plotOutput("frequency_plot")
-    )
-  )
-
-  server <- function(input, output, session) {
-    output$knee_plot <- renderPlot(
-      knee_plot(freq_table, input$cutoff) +
-        theme(text = element_text(size = 18))
-    )
-
-    filtered_table <- reactive(
-      freq_table[seq_len(input$cutoff), ]
-    )
-
-    frequency_cutoff <- reactive(
-      bc_to_freq_cutoff(
-        freq_table,
-        input$cutoff
-      )
-    )
-
-
-    reads_kept <- reactive(
-      filtered_table() %>%
+    n_barcode_combinations <- freq_table %>%
+        nrow()
+    n_reads <- freq_table %>%
         pull("frequency") %>%
         sum()
+    ui <- pageWithSidebar(
+        headerPanel("Barcode cutoff selector"),
+        sidebarPanel = sidebarPanel(
+            sliderInput(
+                "cutoff",
+                "Number of barcodes combinations to keep",
+                min = 0L,
+                max = n_barcode_combinations,
+                step = 1L,
+                value = as.integer(n_barcode_combinations / 2L)
+            ),
+            glue("Total number of reads: {n_reads}") %>%
+                h4(),
+            textOutput("reads_kept") %>%
+                h4(),
+            textOutput("frequency_cutoff") %>%
+                h4(),
+            radioButtons(
+                "freq_plot_type",
+                "Type of frequency plot",
+                choices = c(Density = "density", Histogram = "histogram"),
+                selected = "density"
+            ),
+            checkboxInput("log_scale_x", "Log scale on frequency plot x-axis"),
+            checkboxInput("log_scale_y", "Log scale on frequency plot y-axis"),
+            checkboxInput(
+                "scale_by_reads",
+                "Scale y-axis in frequency plot by number of reads"
+            ),
+            actionButton("exit", "Confirm cutoff selection")
+        ),
+        mainPanel = mainPanel(
+            shiny::h4("Knee plot"),
+            plotOutput("knee_plot"),
+            shiny::h4("Barcode frequency plot"),
+            plotOutput("frequency_plot")
+        )
     )
 
-    percentage_kept <- reactive(
-      round(reads_kept() / n_reads * 100, 2)
-    )
+    server <- function(input, output, session) {
+        output$knee_plot <- renderPlot(knee_plot(freq_table, input$cutoff) +
+            theme(text = element_text(size = 18)))
+
+        filtered_table <- reactive(freq_table[seq_len(input$cutoff), ])
+
+        frequency_cutoff <- reactive(bc_to_freq_cutoff(freq_table, input$cutoff))
 
 
-    output$frequency_plot <- renderPlot(
-      freq_plot(freq_table,
-        cutoff = frequency_cutoff(),
-        type = input$freq_plot_type,
-        log_scale_x = input$log_scale_x,
-        log_scale_y = input$log_scale_y,
-        scale_by_reads = input$scale_by_reads
-      ) +
-        theme(text = element_text(size = 18))
-    )
-    output$frequency_cutoff <- renderPrint(
-      frequency_cutoff()
-    )
-    output$reads_kept <- renderText(
-      glue("Number of reads kept: {reads_kept()} \\
-              ({percentage_kept()}%)")
-    )
-    output$frequency_cutoff <- renderText(
-      glue("Number of reads in last barcode included: {frequency_cutoff()}")
-    )
-    observeEvent(
-      input$exit,
-      stopApp(input$cutoff)
-    )
-  }
-  shinyApp(ui, server)
+        reads_kept <- reactive(filtered_table() %>%
+            pull("frequency") %>%
+            sum())
+
+        percentage_kept <- reactive(round(reads_kept() / n_reads * 100, 2))
+
+
+        output$frequency_plot <- renderPlot(
+            freq_plot(
+                freq_table,
+                cutoff = frequency_cutoff(),
+                type = input$freq_plot_type,
+                log_scale_x = input$log_scale_x,
+                log_scale_y = input$log_scale_y,
+                scale_by_reads = input$scale_by_reads
+            ) + theme(text = element_text(size = 18))
+        )
+        output$frequency_cutoff <- renderPrint(frequency_cutoff())
+        output$reads_kept <- renderText(glue(
+            "Number of reads kept: {reads_kept()} \\
+            ({percentage_kept()}%)"
+        ))
+        output$frequency_cutoff <- renderText(glue(
+            "Number of reads in last barcode included: {frequency_cutoff()}"
+        ))
+        observeEvent(input$exit, stopApp(input$cutoff))
+    }
+    shinyApp(ui, server)
 }
 
 
@@ -138,16 +131,16 @@ interactive_bc_cutoff <- function(freq_table) {
 #' @export
 #'
 bc_to_freq_cutoff <- function(freq_table, cutoff) {
-  freq_table %>%
-    pull("frequency") %>%
-    c(max(.) + 1L, .) %>%
-    extract(cutoff + 1L)
+    freq_table %>%
+        pull("frequency") %>%
+        c(max(.) + 1L, .) %>%
+        extract(cutoff + 1L)
 }
 
 #' @rdname bc_to_freq_cutoff
 #' @export
 freq_to_bc_cutoff <- function(freq_table, cutoff) {
-  freq_table$frequency %>%
-    outer(cutoff, `>=`) %>%
-    colSums()
+    freq_table$frequency %>%
+        outer(cutoff, `>=`) %>%
+        colSums()
 }

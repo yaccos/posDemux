@@ -29,39 +29,43 @@
 #' @export
 #'
 create_freq_table <- function(assigned_barcodes) {
-  assigned_barcodes %>%
-    as.data.frame() %>%
-    count(pick(everything()), name = "frequency", sort = TRUE) %>%
-    mutate(
-      cumulative_frequency = cumsum(.data$frequency),
-      fraction = .data$frequency / sum(.data$frequency),
-      cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency)
-    )
+    assigned_barcodes %>%
+        as.data.frame() %>%
+        count(pick(everything()), name = "frequency", sort = TRUE) %>%
+        mutate(
+            cumulative_frequency = cumsum(.data$frequency),
+            fraction = .data$frequency / sum(.data$frequency),
+            cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency)
+        )
 }
 
 create_freq_table_from_encoding <- function(encoded_barcodes, mapping) {
-  frequency <- table(encoded_barcodes) %>% sort(decreasing = TRUE)
-  unique_encoded_barcodes <- names(frequency) %>% as.integer()
-  unique_barcode_table <- decode(unique_encoded_barcodes, mapping) %>%
-    mutate(
-      frequency = frequency %>% as.vector() %>% unname(),
-      cumulative_frequency = cumsum(.data$frequency),
-      fraction = .data$frequency / sum(.data$frequency),
-      cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency)
-    )
+    frequency <- table(encoded_barcodes) %>%
+        sort(decreasing = TRUE)
+    unique_encoded_barcodes <- names(frequency) %>%
+        as.integer()
+    unique_barcode_table <- decode(unique_encoded_barcodes, mapping) %>%
+        mutate(
+            frequency = frequency %>%
+                as.vector() %>%
+                unname(),
+            cumulative_frequency = cumsum(.data$frequency),
+            fraction = .data$frequency / sum(.data$frequency),
+            cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency)
+        )
 }
 
 create_freq_table_from_count_table <- function(count_table, mapping) {
-  # Materializes the Rcpp count table
-  count_res <- get_count_table(count_table)
-  decode(count_res$encoding, mapping) %>%
-    mutate(frequency = count_res$frequency) %>%
-    arrange(desc(.data$frequency)) %>%
-    mutate(
-      cumulative_frequency = cumsum(.data$frequency),
-      fraction = .data$frequency / sum(.data$frequency),
-      cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency)
-    )
+    # Materializes the Rcpp count table
+    count_res <- get_count_table(count_table)
+    decode(count_res$encoding, mapping) %>%
+        mutate(frequency = count_res$frequency) %>%
+        arrange(desc(.data$frequency)) %>%
+        mutate(
+            cumulative_frequency = cumsum(.data$frequency),
+            fraction = .data$frequency / sum(.data$frequency),
+            cumulative_fraction = .data$cumulative_frequency / sum(.data$frequency)
+        )
 }
 
 #' Diagnostic plots from demultiplexing
@@ -84,8 +88,8 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' the cutoff value has to be transformed. In order to safely convert between
 #' the two types of cutoffs, use the functions [bc_to_freq_cutoff()]
 #' and [freq_to_bc_cutoff()].
-#' @param type The type of frequency plot to make, either \code{"histogram"}
-#' or \code{"density"}.
+#' @param type The type of frequency plot to make, either \code{'histogram'}
+#' or \code{'density'}.
 #' @param log_scale_x Logical: Should a log scale be applied to the x-axis of the
 #' frequency plot?
 #' @param log_scale_y Logical: Should a log scale be applied to the y-axis of the
@@ -103,49 +107,56 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #' @example inst/examples/freq_plot-examples.R
 #' @export
 freq_plot <- function(freq_table,
-                      cutoff = NULL,
-                      type = "histogram",
-                      log_scale_x = TRUE,
-                      log_scale_y = FALSE,
-                      scale_by_reads = FALSE) {
-  n_reads <- sum(freq_table$frequency)
-  if (!scale_by_reads) {
-    plot_type <- switch(type,
-      histogram = \() geom_histogram(),
-      density = \() stat_density()
-    )
-  } else {
-    plot_type <- switch(type,
-      histogram = \() geom_histogram(aes(y = after_stat(.data$count * .data$x))),
-      density = \() stat_density(aes(y = after_stat(.data$count * .data$x / sum(.data$count))))
-    )
-  }
+    cutoff = NULL,
+    type = "histogram",
+    log_scale_x = TRUE,
+    log_scale_y = FALSE,
+    scale_by_reads = FALSE) {
+    n_reads <- sum(freq_table$frequency)
+    if (!scale_by_reads) {
+        plot_type <- switch(type,
+            histogram = \() geom_histogram(),
+            density = \()
+            stat_density()
+        )
+    } else {
+        plot_type <- switch(type,
+            histogram = \() geom_histogram(aes(y = after_stat(
+                .data$count *
+                    .data$x
+            ))),
+            density = \() stat_density(aes(y = after_stat(
+                .data$count *
+                    .data$x / sum(.data$count)
+            )))
+        )
+    }
 
-  if (is.null(plot_type)) {
-    stop("The type argument must either be 'histogram' or 'density'")
-  }
-  if (type == "histogram") {
-    ylab <- "Frequency"
-  } else if (log_scale_y) {
-    # This plot is special since the values closest to zero
-    # represent the most reads
-    ylab <- "log10(Relative Frequency)"
-  } else {
-    ylab <- "Relative Frequency"
-  }
-  p <- ggplot(freq_table, aes(x = .data$frequency)) +
-    plot_type() +
-    labs(x = "Number of reads", y = ylab)
-  if (log_scale_x) {
-    p <- p + scale_x_log10()
-  }
-  if (log_scale_y) {
-    p <- p + scale_y_log10()
-  }
-  if (!is.null(cutoff)) {
-    p <- p + geom_vline(xintercept = cutoff, linetype = "dashed")
-  }
-  p
+    if (is.null(plot_type)) {
+        stop("The type argument must either be 'histogram' or 'density'")
+    }
+    if (type == "histogram") {
+        ylab <- "Frequency"
+    } else if (log_scale_y) {
+        # This plot is special since the values closest to
+        # zero represent the most reads
+        ylab <- "log10(Relative Frequency)"
+    } else {
+        ylab <- "Relative Frequency"
+    }
+    p <- ggplot(freq_table, aes(x = .data$frequency)) +
+        plot_type() +
+        labs(x = "Number of reads", y = ylab)
+    if (log_scale_x) {
+        p <- p + scale_x_log10()
+    }
+    if (log_scale_y) {
+        p <- p + scale_y_log10()
+    }
+    if (!is.null(cutoff)) {
+        p <- p + geom_vline(xintercept = cutoff, linetype = "dashed")
+    }
+    p
 }
 
 #' @rdname freq_plot
@@ -153,20 +164,20 @@ freq_plot <- function(freq_table,
 #' @importFrom rlang .data
 #' @export
 knee_plot <- function(freq_table, cutoff = NULL) {
-  augmented_frequency_table <- freq_table %>%
-    select("cumulative_fraction") %>%
-    mutate(index = seq_len(n())) %>%
-    add_row(index = 0L, cumulative_fraction = 0)
-  p <- ggplot(
-    augmented_frequency_table,
-    aes(x = .data$index, y = .data$cumulative_fraction)
-  ) +
-    geom_line() +
-    labs(x = "Barcode (ordered largest to smallest)", y = "Cumulative fraction of reads") +
-    ylim(0, 1) +
-    xlim(0L, nrow(augmented_frequency_table))
-  if (!is.null(cutoff)) {
-    p <- p + geom_vline(xintercept = cutoff, linetype = "dashed")
-  }
-  p
+    augmented_frequency_table <- freq_table %>%
+        select("cumulative_fraction") %>%
+        mutate(index = seq_len(n())) %>%
+        add_row(index = 0L, cumulative_fraction = 0)
+    p <- ggplot(
+        augmented_frequency_table,
+        aes(x = .data$index, y = .data$cumulative_fraction)
+    ) +
+        geom_line() +
+        labs(x = "Barcode (ordered largest to smallest)", y = "Cumulative fraction of reads") +
+        ylim(0, 1) +
+        xlim(0L, nrow(augmented_frequency_table))
+    if (!is.null(cutoff)) {
+        p <- p + geom_vline(xintercept = cutoff, linetype = "dashed")
+    }
+    p
 }

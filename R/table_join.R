@@ -32,52 +32,48 @@
 #' @example inst/examples/row_match-examples.R
 #' @export
 row_match <- function(x, table) {
-  barcode_cols <- intersect(colnames(x), colnames(table))
-  table_df <- as.data.frame(table[, barcode_cols])
-  x_barcodes <- as.data.frame(x[, barcode_cols])
-  mapping <- get_mapping(table_df)
-  table_encoded <- encode(table_df, mapping)
-  x_encoded <- encode(x_barcodes, mapping)
-  x_encoded %in% table_encoded
+    barcode_cols <- intersect(colnames(x), colnames(table))
+    table_df <- as.data.frame(table[, barcode_cols])
+    x_barcodes <- as.data.frame(x[, barcode_cols])
+    mapping <- get_mapping(table_df)
+    table_encoded <- encode(table_df, mapping)
+    x_encoded <- encode(x_barcodes, mapping)
+    x_encoded %in% table_encoded
 }
 
 #' @importFrom utils head
 get_mapping <- function(table) {
-  # The order the barcodes appear in does not really matter
-  # as long as the same mapping object is used
-  unique_values <- map(table, unique)
-  n_unique_values <- map_int(unique_values, length)
-  assert_that(prod(n_unique_values) <= .Machine$integer.max,
-    msg = glue("Number of possible barcode combinations
-                       exceeds the maximum of {.Machine$integer.max}")
-  )
-  cumprod <- cumprod(n_unique_values)
-  shifted_cumprod <- c(1L, cumprod(n_unique_values) %>% head(-1L))
-  list(
-    unique = unique_values, n_unique = n_unique_values,
-    cumprod = cumprod,
-    shifted_cumprod = shifted_cumprod
-  )
+    # The order the barcodes appear in does not really matter as long as the same
+    # mapping object is used
+    unique_values <- map(table, unique)
+    n_unique_values <- map_int(unique_values, length)
+    assert_that(
+        prod(n_unique_values) <= .Machine$integer.max,
+        msg = glue("Number of possible barcode combinations
+        exceeds the maximum of {.Machine$integer.max}")
+    )
+    cumprod <- cumprod(n_unique_values)
+    shifted_cumprod <- c(1L, cumprod(n_unique_values) %>%
+        head(-1L))
+    list(unique = unique_values, n_unique = n_unique_values, cumprod = cumprod, shifted_cumprod = shifted_cumprod)
 }
 
 encode <- function(x, mapping) {
-  x %>%
-    map2(mapping$unique, \(x, table) match(x, table) - 1L) %>%
-    map2(mapping$shifted_cumprod, `*`) %>%
-    {
-      Reduce(`+`, ., simplify = TRUE)
-    }
+    x %>%
+        map2(mapping$unique, \(x, table) match(x, table) - 1L) %>%
+        map2(mapping$shifted_cumprod, `*`) %>%
+        {
+            Reduce(`+`, ., simplify = TRUE)
+        }
 }
 
 decode <- function(x_encoded, mapping) {
-  {
-    map2(
-      mapping$cumprod, mapping$shifted_cumprod,
-      \(modulus, dividend)  (x_encoded %% modulus) %/% dividend + 1L
-    )
-  } %>%
     {
-      map2(mapping$unique, ., `[`)
+        map2(mapping$cumprod, mapping$shifted_cumprod, \(modulus, dividend) (x_encoded %% modulus) %/% dividend +
+            1L)
     } %>%
-    as.data.frame()
+        {
+            map2(mapping$unique, ., `[`)
+        } %>%
+        as.data.frame()
 }

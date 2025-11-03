@@ -23,9 +23,9 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+    collapse = TRUE,
+    comment = "#>",
+    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
 
@@ -35,13 +35,13 @@ library("RefManageR")
 
 ## Write bibliography information
 bib_packages <- c(
-  R = citation(),
-  BiocStyle = citation("BiocStyle")[1],
-  knitr = citation("knitr")[1],
-  RefManageR = citation("RefManageR")[1],
-  rmarkdown = citation("rmarkdown")[1],
-  sessioninfo = citation("sessioninfo")[1],
-  testthat = citation("testthat")[1]
+    R = citation(),
+    BiocStyle = citation("BiocStyle")[1],
+    knitr = citation("knitr")[1],
+    RefManageR = citation("RefManageR")[1],
+    rmarkdown = citation("rmarkdown")[1],
+    sessioninfo = citation("sessioninfo")[1],
+    testthat = citation("testthat")[1]
 )
 
 bib <- ReadBib("../inst/REFERENCES.bib")
@@ -52,8 +52,8 @@ bib <- ReadBib("../inst/REFERENCES.bib")
 
 
 BibOptions(
-  check.entries = FALSE, style = "markdown", cite.style = "numeric",
-  bib.style = "numeric"
+    check.entries = FALSE, style = "markdown", cite.style = "numeric",
+    bib.style = "numeric"
 )
 ```
 
@@ -94,7 +94,7 @@ This package is hosted on [Bioconductor](http://bioconductor.org) repository for
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 
 BiocManager::install("posDemux")
@@ -107,7 +107,7 @@ If you want to obtain the development version of the package, it is available on
 
 ```{r "github_install", eval = FALSE}
 if (!requireNamespace("devtools", quietly = TRUE)) {
-  install.packages("devtools")
+    install.packages("devtools")
 }
 
 devtools::install("yaccos/posDemux")
@@ -173,12 +173,12 @@ and synthetically generated reads are provided. We load the barcodes:
 
 ```{r}
 barcode_files <- system.file("extdata/PETRI-seq_barcodes",
-  c(
-    bc1 = "bc1.fa",
-    bc2 = "bc2.fa",
-    bc3 = "bc3.fa"
-  ),
-  package = "posDemux"
+    c(
+        bc1 = "bc1.fa",
+        bc2 = "bc2.fa",
+        bc3 = "bc3.fa"
+    ),
+    package = "posDemux"
 )
 names(barcode_files) <- paste0("bc", 1L:3L)
 barcode_index <- map(barcode_files, readDNAStringSet)
@@ -189,8 +189,8 @@ barcode_index <- map(barcode_files, readDNAStringSet)
 
 ```{r}
 input_fastq <- system.file("extdata",
-  "PETRI-seq_forward_reads.fq.gz",
-  package = "posDemux"
+    "PETRI-seq_forward_reads.fq.gz",
+    package = "posDemux"
 )
 reads <- readDNAStringSet(input_fastq, format = "fastq")
 ```
@@ -210,10 +210,10 @@ We are now ready to run the demultiplexer:
 
 ```{r}
 demultiplex_res <- combinatorial_demultiplex(
-  reads,
-  barcodes = barcodes,
-  segments = sequence_annotation,
-  segment_lengths = segment_lengths
+    reads,
+    barcodes = barcodes,
+    segments = sequence_annotation,
+    segment_lengths = segment_lengths
 )
 ```
 
@@ -247,8 +247,8 @@ In our example, the smallest Hamming distance between two different barcodes is 
 
 ```{r}
 filtered_res <- filter_demultiplex_res(
-  demultiplex_res,
-  allowed_mismatches = 1L
+    demultiplex_res,
+    allowed_mismatches = 1L
 )
 ```
 
@@ -284,7 +284,7 @@ We first create a frequency table of the barcodes is question:
 
 ```{r}
 freq_table <- create_freq_table(
-  filtered_res$demultiplex_res$assigned_barcodes
+    filtered_res$demultiplex_res$assigned_barcodes
 )
 head(freq_table)
 ```
@@ -322,8 +322,8 @@ We can convert the cutoff the other way as well, but it is in general not an exa
 
 ```{r}
 reconstrued_bc_cutoff <- freq_to_bc_cutoff(
-  freq_table,
-  freq_cutoff
+    freq_table,
+    freq_cutoff
 )
 reconstrued_bc_cutoff
 ```
@@ -340,8 +340,8 @@ We can also illustrate this filtering by looking at the distribution of barcode 
 # Since the cutoff lines of the plot are provided by the literal x-coordinate,
 # we must use the frequency cutoff
 freq_plot(freq_table,
-  cutoff = freq_cutoff, type = "density",
-  log_scale_x = TRUE
+    cutoff = freq_cutoff, type = "density",
+    log_scale_x = TRUE
 )
 ```
 
@@ -351,8 +351,8 @@ Often the frequency plot gets easier to interpret when we scale the y-axis by th
 # Since the cutoff lines of the plot are provided by the literal x-coordinate,
 # we must use the frequency cutoff
 freq_plot(freq_table,
-  cutoff = freq_cutoff, type = "density",
-  log_scale_x = TRUE, scale_by_reads = TRUE
+    cutoff = freq_cutoff, type = "density",
+    log_scale_x = TRUE, scale_by_reads = TRUE
 )
 ```
 
@@ -388,12 +388,12 @@ With all of this done, we can make a data frame containing the UMI, read identif
 
 ```{r}
 res_table <- as.data.frame(selected_assigned_barcodes) %>%
-  dplyr::mutate(
-    read = rownames(selected_assigned_barcodes),
-    UMI = selected_assigned_UMI
-  ) %>%
-  # Ensures the columns appears in the desired order
-  dplyr::select(read, UMI, bc3, bc2, bc1)
+    dplyr::mutate(
+        read = rownames(selected_assigned_barcodes),
+        UMI = selected_assigned_UMI
+    ) %>%
+    # Ensures the columns appears in the desired order
+    dplyr::select(read, UMI, bc3, bc2, bc1)
 head(res_table)
 ```
 
@@ -402,8 +402,8 @@ Finally, we can write the table to file. The following is the suggested way for 
 ```{r}
 file <- tempfile(pattern = "barcode_table", fileext = ".txt")
 write.table(res_table, file,
-  row.names = FALSE,
-  col.names = TRUE, sep = "\t", eol = "\n", quote = FALSE
+    row.names = FALSE,
+    col.names = TRUE, sep = "\t", eol = "\n", quote = FALSE
 )
 ```
 

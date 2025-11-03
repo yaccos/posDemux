@@ -2,17 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 create_count_table <- function() {
-  .Call(`_posDemux_create_count_table`)
+    .Call(`_posDemux_create_count_table`)
 }
 
 add_table_entries <- function(table, chunk) {
-  invisible(.Call(`_posDemux_add_table_entries`, table, chunk))
+    invisible(.Call(`_posDemux_add_table_entries`, table, chunk))
 }
 
 get_count_table <- function(table) {
-  .Call(`_posDemux_get_count_table`, table)
+    .Call(`_posDemux_get_count_table`, table)
 }
 
 hamming_match <- function(segment, segment_names, barcode, barcode_names, width) {
-  .Call(`_posDemux_hamming_match`, segment, segment_names, barcode, barcode_names, width)
+    .Call(`_posDemux_hamming_match`, segment, segment_names, barcode, barcode_names, width)
 }
+
