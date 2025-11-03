@@ -14,7 +14,7 @@
 #' be filtered away.
 #' @returns A list with the following elements:
 #' \itemize{
-#' \item \code{demultiplex_res}: The contents of the input argument 
+#' \item \code{demultiplex_res}: The contents of the input argument
 #' \code{demultiplex_res} with the sequences filtered.
 #' \item \code{retained}: Logical vector with the same length as
 #'  the number of reads in the input. \code{TRUE} if the corresponding read
@@ -39,12 +39,14 @@ filter_demultiplex_res <- function(demultiplex_res, allowed_mismatches) {
   raw_filter_res <- filter_sequences(demultiplex_res, allowed_mismatches)
   retained <- raw_filter_res$retained
   res <- raw_filter_res$demultiplex_res
-  summary_res <- create_summary_res(retained,
-                                    barcodes,
-                                    res$assigned_barcodes,
-                                    allowed_mismatches,
-                                    mismatches)
-  
+  summary_res <- create_summary_res(
+    retained,
+    barcodes,
+    res$assigned_barcodes,
+    allowed_mismatches,
+    mismatches
+  )
+
   list(
     demultiplex_res = res,
     retained = retained,

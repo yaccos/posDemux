@@ -4,12 +4,15 @@ library(Biostrings)
 # the FASTQ file into FASTA
 
 input_fastq <- system.file("extdata",
-                           "PETRI-seq_forward_reads.fq.gz",
-                           package = "posDemux")
+  "PETRI-seq_forward_reads.fq.gz",
+  package = "posDemux"
+)
 
 output_fasta <- "inst/extdata/PETRI-seq_forward_reads.fa.gz"
 
-stringset <- readDNAStringSet(filepath = input_fastq,format = "fastq")
+stringset <- readDNAStringSet(filepath = input_fastq, format = "fastq")
 
-writeXStringSet(stringset, filepath = output_fasta, compress = TRUE,
-                format = "fasta")
+writeXStringSet(stringset,
+  filepath = output_fasta, compress = TRUE,
+  format = "fasta"
+)

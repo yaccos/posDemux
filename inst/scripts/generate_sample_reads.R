@@ -8,9 +8,10 @@ library(dplyr)
 library(magrittr)
 sample_DNA_sequences <- function(n, length) {
   vapply(seq_len(n),
-         \(n) sample(Biostrings::DNA_BASES, length, replace = TRUE) |>
-           paste0(collapse = ""),
-         FUN.VALUE = character(1L))
+    \(n) sample(Biostrings::DNA_BASES, length, replace = TRUE) |>
+      paste0(collapse = ""),
+    FUN.VALUE = character(1L)
+  )
 }
 n_cells <- 500L
 n_barcodes_artifacts <- 500L
@@ -61,16 +62,21 @@ concatenate_and_shuffle <- function(barcode_frame) {
 }
 
 generate_cell_sequences <- function(n_cells) {
-  cell_barcode_frame <- map(barcode_index,
-                            \(barcode) sample(barcode |> names(), n_cells, replace = TRUE)) |> as_tibble()
-  cell_barcode_frame$n_umis <- rnbinom(n_cells, mu = mean_umis_per_cell_barcode, size =
-                                         cell_rbinom_size) |> as.integer()
-  cell_barcode_frame$umi <- map(cell_barcode_frame$n_umis, \(n_umis)
-                                {
-                                  umi <- sample_DNA_sequences(n_umis, segment_lengths[[1L]])
-                                  reads_per_umi <- rnbinom(n_umis, mu = mean_reads_per_umi, size =
-                                                             cell_rbinom_size) |> as.integer()
-                                  rep(umi, times = reads_per_umi)
+  cell_barcode_frame <- map(
+    barcode_index,
+    \(barcode) sample(barcode |> names(), n_cells, replace = TRUE)
+  ) |> as_tibble()
+  cell_barcode_frame$n_umis <- rnbinom(n_cells,
+    mu = mean_umis_per_cell_barcode, size =
+      cell_rbinom_size
+  ) |> as.integer()
+  cell_barcode_frame$umi <- map(cell_barcode_frame$n_umis, \(n_umis)                                {
+    umi <- sample_DNA_sequences(n_umis, segment_lengths[[1L]])
+    reads_per_umi <- rnbinom(n_umis,
+      mu = mean_reads_per_umi, size =
+        cell_rbinom_size
+    ) |> as.integer()
+    rep(umi, times = reads_per_umi)
   })
   cell_barcode_frame |>
     select(!n_umis) |>
@@ -78,18 +84,21 @@ generate_cell_sequences <- function(n_cells) {
 }
 
 generate_artifact_sequences <- function(n_artifacts) {
-  artifact_barcode_frame <- map(barcode_index,
-                                \(barcode) sample(barcode |> names(), n_artifacts, replace = TRUE)) |> as_tibble()
-  artifact_barcode_frame$n_reads <- rnbinom(n_artifacts, mu = mean_reads_per_artifact_barcode, size =
-                                              artifact_rbinom_size) |> as.integer()
-  artifact_barcode_frame$umi <- map(artifact_barcode_frame$n_reads, \(n_reads)
-                                    {
-                                      umi <- sample_DNA_sequences(n_reads, segment_lengths[[1L]])
-                                      umi
+  artifact_barcode_frame <- map(
+    barcode_index,
+    \(barcode) sample(barcode |> names(), n_artifacts, replace = TRUE)
+  ) |> as_tibble()
+  artifact_barcode_frame$n_reads <- rnbinom(n_artifacts,
+    mu = mean_reads_per_artifact_barcode, size =
+      artifact_rbinom_size
+  ) |> as.integer()
+  artifact_barcode_frame$umi <- map(artifact_barcode_frame$n_reads, \(n_reads)                                    {
+    umi <- sample_DNA_sequences(n_reads, segment_lengths[[1L]])
+    umi
   })
   artifact_barcode_frame |>
     select(!n_reads) |>
-  concatenate_and_shuffle()
+    concatenate_and_shuffle()
 }
 
 # Sequences without barcodes
@@ -103,23 +112,31 @@ artifact_sequences <- generate_artifact_sequences(n_barcodes_artifacts)
 combined_sequences <- c(junk_sequences, cell_sequences, artifact_sequences) |>
   sample()
 
-names(combined_sequences) <- paste0("seq_",seq_along(combined_sequences))
+names(combined_sequences) <- paste0("seq_", seq_along(combined_sequences))
 
 # In order to make compliant, albeit not realistic PhreadQualities
 Q_scores <- sample(15:40,
-                   size = seq_length * length(combined_sequences),
-                   replace = TRUE)
-Phread_encoding <- character() %>% PhredQuality() %>% encoding()
+  size = seq_length * length(combined_sequences),
+  replace = TRUE
+)
+Phread_encoding <- character() %>%
+  PhredQuality() %>%
+  encoding()
 
 seq_quality <- match(Q_scores, Phread_encoding) %>%
-  {extract(names(Phread_encoding),.)} %>%
-  matrix(ncol=length(combined_sequences)) %>% 
-  apply(2L, paste, collapse="") %>% 
+  {
+    extract(names(Phread_encoding), .)
+  } %>%
+  matrix(ncol = length(combined_sequences)) %>%
+  apply(2L, paste, collapse = "") %>%
   PhredQuality()
 
-quality_combined_sequences <- QualityScaledDNAStringSet(combined_sequences,
-                                                        seq_quality)
+quality_combined_sequences <- QualityScaledDNAStringSet(
+  combined_sequences,
+  seq_quality
+)
 
 writeQualityScaledXStringSet(quality_combined_sequences,
-                "inst/extdata/PETRI-seq_forward_reads.fq.gz",
-                compress = TRUE)
+  "inst/extdata/PETRI-seq_forward_reads.fq.gz",
+  compress = TRUE
+)

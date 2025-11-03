@@ -45,7 +45,7 @@
 #' Usually, it will be useful to have a progress tracker of how many reads
 #' are demultiplexed. The framework itself does not implement this, so
 #' it is typically implemented into the archiver or loader.
-#' 
+#'
 #' For technical reasons, it is not possible to do streaming when the number of
 #' possible barcode combinations exceeds \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
 #'
@@ -83,11 +83,14 @@ streaming_demultiplex <- function(state_init,
     sequences <- loader_res$sequences
     demultiplex_res <- combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
     filtered_res <- filter_sequences(demultiplex_res, allowed_mismatches)
-    summary <- summary_update(summary,
-                              filtered_res$retained,
-                              demultiplex_res$mismatches)
+    summary <- summary_update(
+      summary,
+      filtered_res$retained,
+      demultiplex_res$mismatches
+    )
     this_barcode_encoding <- as.data.frame(filtered_res$demultiplex_res$assigned_barcodes,
-                                           row.names = FALSE) %>% encode(barcode_mapping)
+      row.names = FALSE
+    ) %>% encode(barcode_mapping)
     add_table_entries(count_table, this_barcode_encoding)
     state <- archiver(state, filtered_res)
     loader_res <- loader(state)
@@ -112,9 +115,11 @@ summary_init <- function(barcodes, allowed_mismatches) {
     barcode_width <- width(barcode_set)[1L]
     n_allowed_mismatches <- allowed_mismatches[barcode_name]
     n_barcodes <- length(barcode_set)
-    mismatch_frame <- data.frame(n_mismatches =
-                                   c(0L, seq_len(n_allowed_mismatches)),
-                                 frequency = 0L)
+    mismatch_frame <- data.frame(
+      n_mismatches =
+        c(0L, seq_len(n_allowed_mismatches)),
+      frequency = 0L
+    )
     list(
       width = barcode_width,
       n_barcodes = n_barcodes,
@@ -123,7 +128,7 @@ summary_init <- function(barcodes, allowed_mismatches) {
       mismatch_frame = mismatch_frame
     )
   })
-  
+
   list(
     n_reads = n_reads,
     n_removed = n_removed,
@@ -162,8 +167,10 @@ summary_finalize <- function(filter_summary, n_unique_barcodes) {
     n_estimated_features <- poisson_correct_n(n_barcode_combinations, n_unique_barcodes)
     observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
     corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
-    expected_collisions <- poisson_estimate_collisions(n_barcode_combinations,
-                                                       corrected_collision_lambda)
+    expected_collisions <- poisson_estimate_collisions(
+      n_barcode_combinations,
+      corrected_collision_lambda
+    )
   })
   # This should usually be unnecessary since the fields are referenced
   # by names and not position,

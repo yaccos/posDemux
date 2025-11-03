@@ -1,15 +1,20 @@
 library(purrr)
 library(Biostrings)
 input_fastq <- system.file("extdata",
-                           "PETRI-seq_forward_reads.fq.gz",
-                           package = "posDemux")
-output_barcode_table <- tempfile(pattern = "barcode_table",
-                                 fileext = ".txt")
+  "PETRI-seq_forward_reads.fq.gz",
+  package = "posDemux"
+)
+output_barcode_table <- tempfile(
+  pattern = "barcode_table",
+  fileext = ".txt"
+)
 
-callbacks <- streaming_callbacks(input_file = input_fastq,
-                                         output_table_file = output_barcode_table,
-                                         chunk_size = 1e+4,
-                                         verbose = TRUE)
+callbacks <- streaming_callbacks(
+  input_file = input_fastq,
+  output_table_file = output_barcode_table,
+  chunk_size = 1e+4,
+  verbose = TRUE
+)
 barcode_files <- system.file(
   "extdata/PETRI-seq_barcodes",
   c(bc1 = "bc1.fa", bc2 = "bc2.fa", bc3 = "bc3.fa"),

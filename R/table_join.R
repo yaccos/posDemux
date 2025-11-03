@@ -3,9 +3,9 @@
 #' @description
 #' This function extends the functionality of \code{\link[base]{%in%}} for
 #' finding which rows in the first argument exist in the second.
-#' 
-#' 
-#' @param x A matrix or data frame which rows to be matched. 
+#'
+#'
+#' @param x A matrix or data frame which rows to be matched.
 #' Typically, this will be a matrix of assigned barcodes for each read.
 #' @param table A matrix or data frame with the rows to be matched against. Typically,
 #' this will be the top portion of a frequency table.
@@ -13,28 +13,28 @@
 #' [combinatorial_demultiplex()] for more information on the matrix of assigned
 #'  barcodes,
 #'  and [dplyr::inner_join()] for a function with similar functionality.
-#'  
+#'
 #' @details
 #' As this function is intended to be used for data frames containing more than
 #' just the barcodes, the intersection of the column names is used for matching.
 #' As opposed to [base::match()], this function is implemented more efficiently
 #' by converting each row into a numeric encoding before matching.
-#' 
+#'
 #' For technical reasons, it is not permitted for the product of the number of the
 #' unique values of the columns in \code{table} to
 #' exceed \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
-#' 
-#' 
+#'
+#'
 #'
 #' @returns Logical vector, for each row in \code{x}, is the same row found
 #' in \code{table}?
-#' 
+#'
 #' @example inst/examples/row_match-examples.R
 #' @export
 row_match <- function(x, table) {
   barcode_cols <- intersect(colnames(x), colnames(table))
   table_df <- as.data.frame(table[, barcode_cols])
-  x_barcodes <- as.data.frame(x[,barcode_cols])
+  x_barcodes <- as.data.frame(x[, barcode_cols])
   mapping <- get_mapping(table_df)
   table_encoded <- encode(table_df, mapping)
   x_encoded <- encode(x_barcodes, mapping)
@@ -48,25 +48,36 @@ get_mapping <- function(table) {
   unique_values <- map(table, unique)
   n_unique_values <- map_int(unique_values, length)
   assert_that(prod(n_unique_values) <= .Machine$integer.max,
-              msg=glue("Number of possible barcode combinations
-                       exceeds the maximum of {.Machine$integer.max}"))
+    msg = glue("Number of possible barcode combinations
+                       exceeds the maximum of {.Machine$integer.max}")
+  )
   cumprod <- cumprod(n_unique_values)
   shifted_cumprod <- c(1L, cumprod(n_unique_values) %>% head(-1L))
-  list(unique = unique_values, n_unique = n_unique_values, 
-       cumprod = cumprod,
-       shifted_cumprod =  shifted_cumprod)
+  list(
+    unique = unique_values, n_unique = n_unique_values,
+    cumprod = cumprod,
+    shifted_cumprod = shifted_cumprod
+  )
 }
 
 encode <- function(x, mapping) {
-   x %>% 
+  x %>%
     map2(mapping$unique, \(x, table) match(x, table) - 1L) %>%
-    map2(mapping$shifted_cumprod, `*`) %>% 
-    {Reduce(`+`, ., simplify = TRUE)}
+    map2(mapping$shifted_cumprod, `*`) %>%
+    {
+      Reduce(`+`, ., simplify = TRUE)
+    }
 }
 
 decode <- function(x_encoded, mapping) {
-    {map2(mapping$cumprod, mapping$shifted_cumprod,
-        \(modulus, dividend)  (x_encoded %% modulus) %/% dividend + 1L)} %>% 
-    {map2(mapping$unique, ., `[`)} %>% 
+  {
+    map2(
+      mapping$cumprod, mapping$shifted_cumprod,
+      \(modulus, dividend)  (x_encoded %% modulus) %/% dividend + 1L
+    )
+  } %>%
+    {
+      map2(mapping$unique, ., `[`)
+    } %>%
     as.data.frame()
 }

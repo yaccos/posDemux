@@ -4,7 +4,12 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of posDemux is to ...
+The goal of posDemux is to provide tools for tools for handling reads with
+combinatorial barcodes, and multiple adapter regions.
+This includes utilities for demultiplexing,
+sequence segmenting and filtering.
+The package is intended to work with single-cell RNA-seq data
+with multiple barcoding (e.g. SPLiT-seq and PETRI-seq).
 
 ## Installation
 

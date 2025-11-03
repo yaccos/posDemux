@@ -12,7 +12,7 @@ freq_table <- data.frame(
 
 freq_cutoff <- 100L
 
-selected_freq_table <- freq_table[freq_table$frequency >= freq_cutoff,]
+selected_freq_table <- freq_table[freq_table$frequency >= freq_cutoff, ]
 
 selected_rows <- row_match(barcode_table, selected_freq_table)
-selected_barcode_table <- barcode_table[selected_rows,]
+selected_barcode_table <- barcode_table[selected_rows, ]

@@ -16,8 +16,10 @@ barcode_frame <- create_barcode_frame(
 
 
 possible_barcode_combinations <- barcode_frame$barcode_reference %>%
-  map(names) %>% do.call(function(...)
-    expand.grid(..., stringsAsFactors = FALSE), .)
+  map(names) %>%
+  do.call(function(...) {
+    expand.grid(..., stringsAsFactors = FALSE)
+  }, .)
 
 prelim_freq_table <- create_preliminary_freq_table(
   possible_barcode_combinations,
@@ -40,8 +42,10 @@ combination_membership <- rep(seq_len(n_unique_barcodes), times = prelim_freq_ta
   magrittr::extract(read_order)
 
 
-preliminary_assigned_barcodes <- prelim_freq_table[combination_membership, barcode_frame$name, drop =
-                                                               FALSE] %>%
+preliminary_assigned_barcodes <- prelim_freq_table[combination_membership, barcode_frame$name,
+  drop =
+    FALSE
+] %>%
   as.matrix() %>%
   set_rownames(NULL)
 
@@ -57,9 +61,11 @@ preliminary_bc_stringset <- map2(barcode_frame$name, barcode_frame$barcode_refer
 
 mutation_count <- get_mutation_count(mutation_p, n_reads)
 
-mutated_bc_stringset <- map2(mutation_count,
-                             preliminary_bc_stringset,
-                             mutate_barcode_stringset)
+mutated_bc_stringset <- map2(
+  mutation_count,
+  preliminary_bc_stringset,
+  mutate_barcode_stringset
+)
 
 mismatches_above_threshold <- map2(mutated_bc_stringset, barcode_frame$n_allowed_mismatches, function(stringset, allowed_mismatches) {
   stringset$mismatches > allowed_mismatches
@@ -69,27 +75,33 @@ removed_reads <- Reduce(`|`, mismatches_above_threshold)
 
 expected_n_removed <- removed_reads %>% sum()
 
-expected_filtered_frequency_table <- create_filtered_freq_table(prelim_freq_table,
-                                                                     combination_membership,
-                                                                     removed_reads)
+expected_filtered_frequency_table <- create_filtered_freq_table(
+  prelim_freq_table,
+  combination_membership,
+  removed_reads
+)
 
 test_plot_generation(expected_filtered_frequency_table)
 
 adapter_frame <- create_adapter_frame(segment_map, segment_length)
-payload_frame <- create_payload_frame(segment_map,
-                                      segment_length,
-                                      n_reads,
-                                      mean_reads_per_cell,
-                                      rbinom_size)
-sequences <- combine_segments(barcode_frame,
-                              mutated_bc_stringset,
-                              adapter_frame,
-                              payload_frame)
+payload_frame <- create_payload_frame(
+  segment_map,
+  segment_length,
+  n_reads,
+  mean_reads_per_cell,
+  rbinom_size
+)
+sequences <- combine_segments(
+  barcode_frame,
+  mutated_bc_stringset,
+  adapter_frame,
+  payload_frame
+)
 sequence_names <- names(sequences)
 
 expected_payload <- payload_frame$sequence %>% map(. %>%
-                                                     DNAStringSet() %>%
-                                                     `names<-`(sequence_names))
+  DNAStringSet() %>%
+  `names<-`(sequence_names))
 
 names(expected_payload) <- which(segment_map == "P") %>% names()
 
@@ -125,8 +137,10 @@ test_that("All barcodes mismatches are recorded correctly", {
   testthat::expect_true(all.equal(demultiplex_res$mismatches, expected_mismatches))
 })
 
-demultiplex_filter <- filter_demultiplex_res(demultiplex_res = demultiplex_res,
-                                             allowed_mismatches = barcode_frame$n_allowed_mismatches)
+demultiplex_filter <- filter_demultiplex_res(
+  demultiplex_res = demultiplex_res,
+  allowed_mismatches = barcode_frame$n_allowed_mismatches
+)
 
 expected_assigned_barcodes <- preliminary_assigned_barcodes[!removed_reads, ]
 
@@ -135,8 +149,10 @@ test_that("The correct reads are filtered", {
 })
 
 test_that("Filtered payload extraction is correct", {
-  compare_sequence_list(expected_filtered_payload,
-                        demultiplex_filter$demultiplex_res$payload)
+  compare_sequence_list(
+    expected_filtered_payload,
+    demultiplex_filter$demultiplex_res$payload
+  )
 })
 
 test_that("Barcode assignments are correct", {
@@ -163,11 +179,12 @@ test_that("Filtering summary is correctly generated", {
 })
 
 test_that("Filtering summary created by create_summary_res() is correct", {
-  generated_summary_res <- create_summary_res(demultiplex_filter$retained,
-                                              demultiplex_res$barcodes,
-                                              demultiplex_filter$demultiplex_res$assigned_barcodes,
-                                              barcode_frame$n_allowed_mismatches,
-                                              demultiplex_res$mismatches
+  generated_summary_res <- create_summary_res(
+    demultiplex_filter$retained,
+    demultiplex_res$barcodes,
+    demultiplex_filter$demultiplex_res$assigned_barcodes,
+    barcode_frame$n_allowed_mismatches,
+    demultiplex_res$mismatches
   )
   expect_equal(generated_summary_res, expected_summary_res)
 })
@@ -176,7 +193,9 @@ freq_table <- create_freq_table(demultiplex_filter$demultiplex_res$assigned_barc
 
 
 test_that("Generated frequency table is correct", {
-  test_freq_table(freq_table,
-                       expected_filtered_frequency_table,
-                       barcode_frame$name)
+  test_freq_table(
+    freq_table,
+    expected_filtered_frequency_table,
+    barcode_frame$name
+  )
 })

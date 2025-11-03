@@ -23,9 +23,9 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>",
-    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+  collapse = TRUE,
+  comment = "#>",
+  crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
 
@@ -35,13 +35,13 @@ library("RefManageR")
 
 ## Write bibliography information
 bib_packages <- c(
-    R = citation(),
-    BiocStyle = citation("BiocStyle")[1],
-    knitr = citation("knitr")[1],
-    RefManageR = citation("RefManageR")[1],
-    rmarkdown = citation("rmarkdown")[1],
-    sessioninfo = citation("sessioninfo")[1],
-    testthat = citation("testthat")[1]
+  R = citation(),
+  BiocStyle = citation("BiocStyle")[1],
+  knitr = citation("knitr")[1],
+  RefManageR = citation("RefManageR")[1],
+  rmarkdown = citation("rmarkdown")[1],
+  sessioninfo = citation("sessioninfo")[1],
+  testthat = citation("testthat")[1]
 )
 
 bib <- ReadBib("../inst/REFERENCES.bib")
@@ -51,9 +51,10 @@ bib <- ReadBib("../inst/REFERENCES.bib")
 # }
 
 
-BibOptions(check.entries = FALSE, style = "markdown", cite.style = "numeric",
-           bib.style = "numeric")
-
+BibOptions(
+  check.entries = FALSE, style = "markdown", cite.style = "numeric",
+  bib.style = "numeric"
+)
 ```
 
 # Why streaming?
@@ -78,7 +79,7 @@ For communicating between the loader and archiver, a user-defined state object i
 
 
 ```{r structure, echo=FALSE, out.width="100%", fig.cap="Components of the streaming API"}
-     knitr::include_graphics("streaming_structure.svg")
+knitr::include_graphics("streaming_structure.svg")
 ```
 
 
@@ -109,14 +110,19 @@ As said, `streaming_callbacks()` is a function factory, we must specify the file
 ```{r}
 library(posDemux)
 input_fastq <- system.file("extdata",
-                             "PETRI-seq_forward_reads.fq.gz",
-                             package = "posDemux")
-output_barcode_table <- tempfile(pattern = "barcode_table",
-                                 fileext = ".txt")
-default_callbacks <- streaming_callbacks(input_file = input_fastq,
-                    output_table_file = output_barcode_table,
-                    chunk_size = 1e+4,
-                    verbose = TRUE)
+  "PETRI-seq_forward_reads.fq.gz",
+  package = "posDemux"
+)
+output_barcode_table <- tempfile(
+  pattern = "barcode_table",
+  fileext = ".txt"
+)
+default_callbacks <- streaming_callbacks(
+  input_file = input_fastq,
+  output_table_file = output_barcode_table,
+  chunk_size = 1e+4,
+  verbose = TRUE
+)
 ```
 
 ## Running the demultiplexing
@@ -182,7 +188,7 @@ We start begin this example by subsetting the frequency table. In order not to r
 ```{r}
 freq_table <- streaming_summary_res$freq_table
 bc_cutoff <- 500L
-selected_freq_table <- freq_table[seq_len(bc_cutoff),]
+selected_freq_table <- freq_table[seq_len(bc_cutoff), ]
 ```
 
 ## Writing to database
@@ -193,8 +199,10 @@ We typically want to create a copy of the barcode table including only those rea
 suppressPackageStartupMessages({
   library(DBI)
 })
-output_database_path <- tempfile(pattern = "selected_barcode_table",
-                                 fileext = ".sqlite")
+output_database_path <- tempfile(
+  pattern = "selected_barcode_table",
+  fileext = ".sqlite"
+)
 output_db <- dbConnect(RSQLite::SQLite(), output_database_path)
 ```
 
@@ -214,9 +222,10 @@ read_table_chunkwise(
 ) %>%
   # For use within a pipeline, it is more convenient to use inner_join() than
   # posDemux::row_match() and it achieves the save result
-  inner_join(selected_freq_table)  %>%
+  inner_join(selected_freq_table) %>%
   mutate(celltag = do.call(paste, c(
-    barcodes %>% names() %>% all_of() %>% across(), sep = "_"
+    barcodes %>% names() %>% all_of() %>% across(),
+    sep = "_"
   ))) %>%
   select(read, UMI, celltag) %>%
   write_chunkwise(dbplyr::src_dbi(output_db), "selected_barcodes")
@@ -225,7 +234,7 @@ read_table_chunkwise(
 Finally, we make a index on the barcodes such that lookups are fast and close the database connection:
 
 ```{r}
-dbExecute(output_db, "CREATE INDEX idx ON selected_barcodes(read)") %>% 
+dbExecute(output_db, "CREATE INDEX idx ON selected_barcodes(read)") %>%
   invisible()
 dbDisconnect(output_db)
 ```
@@ -249,7 +258,7 @@ For progress printouts, we want the state object of the streaming to contain the
 ```{r}
 custom_state_init <- list(
   total_reads = 0L, demultiplexed_reads = 0L, output_table_initialized = FALSE
-  )
+)
 ```
 
 
@@ -265,7 +274,8 @@ We decide to hard-code the loader to parse $10^4$ reads for each chunk.
 
 ```{r}
 input_fasta <- system.file("extdata", "PETRI-seq_forward_reads.fa.gz",
-                           package = "posDemux")
+  package = "posDemux"
+)
 
 loader <- function(state) {
   n_reads_per_chunk <- 1e4
@@ -293,9 +303,11 @@ loader <- function(state) {
     return(final_res)
   }
   state$total_reads <- state$total_reads + n_reads_in_chunk
-  list(state = state,
-       sequences = chunk,
-       should_terminate = FALSE)
+  list(
+    state = state,
+    sequences = chunk,
+    should_terminate = FALSE
+  )
 }
 ```
 
@@ -308,10 +320,12 @@ its next chunk.
 
 ```{r}
 output_umi_file <- tempfile(pattern = "umi.fa", fileext = ".txt")
-custom_output_table <- tempfile(pattern = "barcode_table_custom",
-                                fileext = ".txt")
+custom_output_table <- tempfile(
+  pattern = "barcode_table_custom",
+  fileext = ".txt"
+)
 archiver <- function(state, filtered_res) {
-  barcode_matrix  <- filtered_res$demultiplex_res$assigned_barcodes
+  barcode_matrix <- filtered_res$demultiplex_res$assigned_barcodes
   barcode_names <- colnames(barcode_matrix)
   read_names <- rownames(barcode_matrix)
   # If the table has no rows, we may risk getting a NULL value
@@ -321,7 +335,7 @@ archiver <- function(state, filtered_res) {
   barcode_table <- as.data.frame(barcode_matrix)
   read_name_table <- data.frame(read = read_names)
   umis <- filtered_res$demultiplex_res$payload$UMI
-  
+
   chunk_table <- cbind(read_name_table, barcode_table)
   if (!state$output_table_initialized) {
     append <- FALSE
@@ -329,7 +343,7 @@ archiver <- function(state, filtered_res) {
   } else {
     append <- TRUE
   }
-  
+
   Biostrings::writeXStringSet(umis, filepath = output_umi_file, append = TRUE)
   readr::write_tsv(
     x = chunk_table,
@@ -340,8 +354,10 @@ archiver <- function(state, filtered_res) {
   )
   state <- within(state, {
     demultiplexed_reads <- demultiplexed_reads + nrow(barcode_matrix)
-    paste0("Processed {total_reads} reads,", " ",
-      "successfully demultiplexed {demultiplexed_reads} reads so far...") %>% 
+    paste0(
+      "Processed {total_reads} reads,", " ",
+      "successfully demultiplexed {demultiplexed_reads} reads so far..."
+    ) %>%
       glue::glue() %>%
       message()
   })

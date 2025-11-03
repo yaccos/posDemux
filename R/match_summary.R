@@ -5,8 +5,8 @@
 #' its results will be returned automatically from
 #' [filter_demultiplex_res()]. This returned object has it own method
 #' for printing the result in a user-friendly manner.
-#' 
-#' 
+#'
+#'
 #' @inheritParams filter_demultiplex_res
 #' @inheritParams combinatorial_demultiplex
 #' @param barcodes A list of
@@ -25,8 +25,8 @@
 #'  mismatches of each assigned barcode.
 #' Corresponds to the field \code{mismatches} of
 #' [combinatorial_demultiplex()].
-#'  
-#'  
+#'
+#'
 #' @return
 #' \code{create_summary_res()} returns a list of S3 class \code{demultiplex_filter_summary}
 #' providing diagnostics for the filtering process. It contains the
@@ -39,7 +39,7 @@
 #' of barcode combinations.
 #' \item \code{n_unique_barcodes}: The number of observed unique barcode combinations
 #' (i.e. features which may be cells) detected after filtering mismatches.
-#' \item \code{n_estimated_features}: The estimated number of features having a 
+#' \item \code{n_estimated_features}: The estimated number of features having a
 #' detected combination of barcodes.
 #' This number will always be greater or equal than \code{n_unique_barcodes} due
 #' to barcode collisions.
@@ -63,7 +63,7 @@
 #' }
 #' }
 #' The \code{print()} method returns its output invisibly.
-#' 
+#'
 #' @details
 #'  Following a uniform distribution of barcodes, the expected number
 #'  of barcode collisions
@@ -72,7 +72,7 @@
 #'  \deqn{N\left(1-e^{-\lambda}-\lambda e^{-\lambda}\right),}
 #'  where \eqn{N} is the number of possible barcode combinations
 #'  and \eqn{\lambda} is in this summary referred to as the collision lambda:
-#'  \deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features. 
+#'  \deqn{\lambda=\frac{n}{N},} where \eqn{n} is the number of features.
 #'  However, \eqn{n} is unknown as we cannot know how many features
 #'  there were originally due to potential collisions.
 #'  Utilizing the fact that the expected observed number of barcodes is given by
@@ -80,12 +80,12 @@
 #'  we can correct the estimate for \eqn{\lambda} from the known value
 #'  of the observed barcode combinations, and thus estimate the number
 #'  of features and barcode collisions.
-#'  
+#'
 #'  While each unique feature can be conceptually thought of as single cell with its transcripts,
 #'  realistic datasets have many features with relatively small numbers of reads which
 #'  are artifacts and unlikely to correspond to true cells.
-#'  
-#' 
+#'
+#'
 #' @example inst/examples/match_filter-examples.R
 #' @export
 create_summary_res <- function(retained,
@@ -101,25 +101,33 @@ create_summary_res <- function(retained,
     unique(MARGIN = 1L) %>%
     nrow()
   n_barcode_combinations <- prod(n_barcodes_per_set)
-  n_estimated_features <- poisson_correct_n(n_barcode_combinations,
-                                         n_unique_barcodes)
+  n_estimated_features <- poisson_correct_n(
+    n_barcode_combinations,
+    n_unique_barcodes
+  )
   n_barcodes_per_set <- map_int(barcodes, length)
   observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
   corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
-  expected_collisions <- poisson_estimate_collisions(n_barcode_combinations,
-                                                     corrected_collision_lambda)
+  expected_collisions <- poisson_estimate_collisions(
+    n_barcode_combinations,
+    corrected_collision_lambda
+  )
   barcode_summary <- imap(barcodes, function(barcode_set, barcode_name) {
     barcode_width <- width(barcode_set)[1L]
     n_allowed_mismatches <- allowed_mismatches[barcode_name]
     n_barcodes <- length(barcode_set)
-    this_mismatch_vector <- mismatches[, barcode_name, drop =
-                                         TRUE]
-    
-    mismatch_frame <- data.frame(n_mismatches =
-                                   c(0L, seq_len(n_allowed_mismatches))) %>%
+    this_mismatch_vector <- mismatches[, barcode_name,
+      drop =
+        TRUE
+    ]
+
+    mismatch_frame <- data.frame(
+      n_mismatches =
+        c(0L, seq_len(n_allowed_mismatches))
+    ) %>%
       mutate(frequency = outer(this_mismatch_vector, .data$n_mismatches, equals) %>%
-               colSums())
-    this_removed <-  sum(this_mismatch_vector > n_allowed_mismatches)
+        colSums())
+    this_removed <- sum(this_mismatch_vector > n_allowed_mismatches)
     list(
       width = barcode_width,
       n_barcodes = n_barcodes,
@@ -128,7 +136,7 @@ create_summary_res <- function(retained,
       mismatch_frame = mismatch_frame
     )
   })
-  
+
   summary_res <- list(
     n_reads = n_reads,
     n_removed = n_removed,
@@ -141,7 +149,7 @@ create_summary_res <- function(retained,
     expected_collisions = expected_collisions,
     barcode_summary = barcode_summary
   )
-  
+
   class(summary_res) <- "demultiplex_filter_summary"
   summary_res
 }
@@ -152,10 +160,10 @@ poisson_estimate_collisions <- function(N, lambda) {
 
 # Estimates the true number of features taking barcode collisions into account
 poisson_correct_n <- function(N, n_obs) {
-  -N*log(1 - n_obs/ N)
+  -N * log(1 - n_obs / N)
 }
 
-#' @param x An object of class \code{demultiplex_filter_summary} from 
+#' @param x An object of class \code{demultiplex_filter_summary} from
 #' \code{create_summary_res()}.
 #' @param ... Ignored
 #' @importFrom purrr map_int walk2
@@ -177,9 +185,9 @@ print.demultiplex_filter_summary <- function(x, ...) {
     cat("\n")
   glue("Estimated number of features: {x$n_estimated_features %>% round(1L)}") %>%
     cat("\n")
-  glue("Observed feature to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>% 
+  glue("Observed feature to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>%
     cat("\n")
-  glue("Corrected feature to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>% 
+  glue("Corrected feature to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>%
     cat("\n")
   collision_percentage <- x$expected_collisions / x$n_unique_barcodes * 100
   glue(

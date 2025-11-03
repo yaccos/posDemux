@@ -2,7 +2,7 @@ library(magrittr)
 test_that("Initialization of count table works", {
   table_handle <- posDemux:::create_count_table()
   empty_pair <- posDemux:::get_count_table(table_handle)
-  expected_res <- list(encoding= integer(), frequency = integer())
+  expected_res <- list(encoding = integer(), frequency = integer())
   expect_equal(empty_pair, expected_res)
 })
 
@@ -11,10 +11,11 @@ n_chunks <- 10L
 
 encodings <- c(52L, 1052L, 97L, 201L, 2L, 13L)
 frequencies <- c(10L, 15L, 17L, 281L, 4L, 820L)
-observed_encodings <- rep(encodings, times=frequencies) %>% sample()
-chunk_assignments <- sample(rep(seq_len(n_chunks), length.out=length(observed_encodings)),
-                            size = length(observed_encodings),
-                            replace = TRUE)
+observed_encodings <- rep(encodings, times = frequencies) %>% sample()
+chunk_assignments <- sample(rep(seq_len(n_chunks), length.out = length(observed_encodings)),
+  size = length(observed_encodings),
+  replace = TRUE
+)
 
 growth_chunks <- split(observed_encodings, chunk_assignments)
 
