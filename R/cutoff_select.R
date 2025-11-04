@@ -12,7 +12,8 @@
 #'
 #' @param freq_table The frequency table
 #' from [create_freq_table()].
-#' @return A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches when printed and returns the
+#' @return A \code{\link[shiny:shinyApp]{shiny.appobj}} which launches
+#' when printed and returns the
 #' last selected cutoff (invisibly) when it stops.
 #'
 #' @example inst/examples/interactive_bc_cutoff-examples.R
@@ -103,16 +104,20 @@ interactive_bc_cutoff <- function(freq_table) {
 }
 
 
+
+
 #' Convert between cutoff types
 #'
 #' @description There are at least two ways to specify the cutoff to use when
 #' selecting barcode combinations (cells) for further analysis. One way is
 #' to specify the number of barcode combinations to keep, effectively
 #' keeping a given number of barcode combinations with the highest frequencies.
-#' The other way is to specify the frequency cutoff directly without regard to the number
+#' The other way is to specify the frequency cutoff directly
+#' without regard to the number
 #' of barcode combination to keep. In the former case,
-#' \code{bc_to_freq_cutoff()} is used to find the corresponding frequency cutoff,
-#'  whereas in the latter case \code{freq_to_bc_cutoff()}
+#' \code{bc_to_freq_cutoff()} is used to find
+#' the corresponding frequency cutoff,
+#' whereas in the latter case \code{freq_to_bc_cutoff()}
 #' is used to find the corresponding barcode cutoff.
 #'
 #' @param freq_table The frequency table
