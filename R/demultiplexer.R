@@ -83,11 +83,8 @@
 #'
 #'
 #' @export
-combinatorial_demultiplex <- function(
-    sequences,
-    barcodes,
-    segments,
-    segment_lengths
+combinatorial_demultiplex <- function(sequences, barcodes,
+    segments, segment_lengths
 ) {
     assert_that(
         is(sequences, "XStringSet"),
@@ -111,22 +108,7 @@ combinatorial_demultiplex <- function(
         )
     )
 
-
-    iwalk(barcodes, function(barcode, name) {
-        assert_that(
-            is(barcode, "XStringSet"),
-            msg = glue(
-                "The barcodes of segment {name} must be an XStringSet object"
-            )
-        )
-        assert_that(!is.null(names(barcode)),
-            msg = glue("The barcodes of segment {name} are not named")
-        )
-        assert_that(
-            length(unique(width(barcode))) <= 1L,
-            msg = paste("The barcodes of segment {name} have variable length")
-        )
-    })
+    iwalk(barcodes, validate_barcode)
 
     element_NA_idx <- which(is.na(segment_lengths))
 
@@ -154,6 +136,23 @@ combinatorial_demultiplex <- function(
     }
     results$barcodes <- barcodes
     results
+}
+
+validate_barcode <- function(barcode, name) {
+    assert_that(
+        is(barcode, "XStringSet"),
+        msg = glue(
+            "The barcodes of segment {name} must be an XStringSet object"
+        )
+    )
+    assert_that(
+        !is.null(names(barcode)),
+        msg = glue("The barcodes of segment {name} are not named")
+    )
+    assert_that(
+        length(unique(width(barcode))) <= 1L,
+        msg = paste("The barcodes of segment {name} have variable length")
+    )
 }
 
 MAX_BARCODE_LEN <- 127L
@@ -257,20 +256,7 @@ extract_and_demultiplex <- function(
     barcodes,
     segments, segment_lengths
 ) {
-    barcode_widths <- imap_int(barcodes, function(barcode, name) {
-        widths <- width(barcode)
-        unique_widths <- unique(widths)
-        assert_that(
-            length(unique_widths) <= 1L,
-            msg = glue("Barcode set {name} has variable length")
-        )
-        assert_that(
-            unique_widths <= MAX_BARCODE_LEN,
-            msg = glue("Barcode set {name} has width \\
-            longer than the limit of {MAX_BARCODE_LEN} nucleotides")
-        )
-        unique_widths
-    })
+    barcode_widths <- imap_int(barcodes, extract_barcode_width)
     n_barcodes <- length(barcodes)
     n_segments <- length(segments)
     segment_ends <- cumsum(segment_lengths)
@@ -282,23 +268,19 @@ extract_and_demultiplex <- function(
             isTRUE(),
         msg = "Barcodes lengths do not match their provided segments lengths"
     )
+    
+    extract_sequence <- function(width, idx) {
+        subseq(sequences, end = segment_ends[idx], width = width)
+    }
+    
     barcode_segments_sequences <- map2(
-        barcode_widths, barcode_segment_idxs,
-        function(width, idx) {
-            subseq(sequences, end = segment_ends[idx], width = width)
-        }
-    )
+        barcode_widths, barcode_segment_idxs, extract_sequence)
 
     payload_segment_idxs <- which(segments == "P")
     payload_widths <- segment_lengths[payload_segment_idxs]
 
     payload_sequences <- map2(
-        payload_segment_idxs, payload_widths,
-        function(idx, width) {
-            subseq(sequences, end = segment_ends[idx], width = width)
-        }
-    )
-
+        payload_widths, payload_segment_idxs, extract_sequence)
 
     barcode_results <- pmap(
         list(barcodes, barcode_segments_sequences, barcode_widths),
@@ -317,4 +299,19 @@ extract_and_demultiplex <- function(
         assigned_barcodes = assigned_barcodes,
         mismatches = mismatches, payload = payload_sequences
     )
+}
+
+extract_barcode_width <- function(barcode, name) {
+    widths <- width(barcode)
+    unique_widths <- unique(widths)
+    assert_that(
+        length(unique_widths) <= 1L,
+        msg = glue("Barcode set {name} has variable length")
+    )
+    assert_that(
+        unique_widths <= MAX_BARCODE_LEN,
+        msg = glue("Barcode set {name} has width \\
+            longer than the limit of {MAX_BARCODE_LEN} nucleotides")
+    )
+    unique_widths
 }

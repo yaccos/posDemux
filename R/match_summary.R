@@ -126,30 +126,14 @@ create_summary_res <- function(retained,
         n_barcode_combinations,
         corrected_collision_lambda
     )
-    barcode_summary <- imap(barcodes, function(barcode_set, barcode_name) {
-        barcode_width <- width(barcode_set)[1L]
-        n_allowed_mismatches <- allowed_mismatches[barcode_name]
-        n_barcodes <- length(barcode_set)
-        this_mismatch_vector <- mismatches[, barcode_name, drop = TRUE]
-
-        mismatch_frame <- data.frame(
-            n_mismatches = c(0L, seq_len(n_allowed_mismatches))
-        ) %>%
-            mutate(
-                frequency = outer(
-                    this_mismatch_vector,
-                    .data$n_mismatches, equals
-                ) %>%
-                    colSums()
-            )
-        this_removed <- sum(this_mismatch_vector > n_allowed_mismatches)
-        list(
-            width = barcode_width, n_barcodes = n_barcodes,
-            n_allowed_mismatches = n_allowed_mismatches,
-            n_removed = this_removed, mismatch_frame = mismatch_frame
-        )
-    })
-
+    barcode_summary <- imap(
+        barcodes,
+        function(barcode_set, barcode_name) {
+            get_barcode_summary(
+                barcode_set,
+                barcode_name, allowed_mismatches[barcode_name])
+        }
+    )
     summary_res <- list(
         n_reads = n_reads, n_removed = n_removed,
         n_barcode_sets = barcodes %>% length(),
@@ -164,6 +148,31 @@ create_summary_res <- function(retained,
 
     class(summary_res) <- "demultiplex_filter_summary"
     summary_res
+}
+
+get_barcode_summary <- function(barcode_set,
+    barcode_name, n_allowed_mismatches
+    ) {
+    barcode_width <- width(barcode_set)[1L]
+    n_barcodes <- length(barcode_set)
+    this_mismatch_vector <- mismatches[, barcode_name, drop = TRUE]
+    
+    mismatch_frame <- data.frame(
+        n_mismatches = c(0L, seq_len(n_allowed_mismatches))
+    ) %>%
+        mutate(
+            frequency = outer(
+                this_mismatch_vector,
+                .data$n_mismatches, equals
+            ) %>%
+                colSums()
+        )
+    this_removed <- sum(this_mismatch_vector > n_allowed_mismatches)
+    list(
+        width = barcode_width, n_barcodes = n_barcodes,
+        n_allowed_mismatches = n_allowed_mismatches,
+        n_removed = this_removed, mismatch_frame = mismatch_frame
+    )
 }
 
 poisson_estimate_collisions <- function(N, lambda) {
