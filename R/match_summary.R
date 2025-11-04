@@ -1,6 +1,7 @@
 #' Create a summary of match filtering
 #' @description
-#' \code{create_summary_res()} is a helper function in order to create a summary of the demultiplexing
+#' \code{create_summary_res()} is a helper function in order
+#' to create a summary of the demultiplexing
 #' and following match filtering. It is not designed to be invoked directly, but
 #' its results will be returned automatically from
 #' [filter_demultiplex_res()]. This returned object has it own method
@@ -28,16 +29,20 @@
 #'
 #'
 #' @return
-#' \code{create_summary_res()} returns a list of S3 class \code{demultiplex_filter_summary}
+#' \code{create_summary_res()} returns a list of
+#' S3 class \code{demultiplex_filter_summary}
 #' providing diagnostics for the filtering process. It contains the
 #' the following fields:
 #' \itemize{
-#' \item \code{n_reads}: The total number of reads in the dataset before filtering.
-#' \item \code{n_removed}: The number of reads removed because demultiplexing failed.
+#' \item \code{n_reads}: The total number of reads
+#' in the dataset before filtering.
+#' \item \code{n_removed}: The number of reads removed
+#' because demultiplexing failed.
 #' \item \code{n_barcode_sets}: The number of barcode sets.
 #' \item \code{n_barcode_combinations}: The possible number
 #' of barcode combinations.
-#' \item \code{n_unique_barcodes}: The number of observed unique barcode combinations
+#' \item \code{n_unique_barcodes}: The number of observed
+#' unique barcode combinations
 #' (i.e. features which may be cells) detected after filtering mismatches.
 #' \item \code{n_estimated_features}: The estimated number of features having a
 #' detected combination of barcodes.
@@ -45,18 +50,22 @@
 #' to barcode collisions.
 #' \item \code{observed_collision_lambda}: The ratio of observed barcode
 #'  combinations divided by the total number of possible barcode combinations.
-#' \item \code{corrected_collision_lambda}: The ratio of estimated number of features
+#' \item \code{corrected_collision_lambda}: The ratio of
+#' estimated number of features
 #' to the total number of possible barcode combinations.
 #' \item \code{expected_collisions}: The statistically expected number
 #' of barcode collisions or more precicely the expected number of
 #' observed barcodes which correspond to two or more features.
-#' \item \code{barcode_summary}: A list containing a summary for each barcode set.
+#' \item \code{barcode_summary}: A list containing a summary 
+#' for each barcode set.
 #' Each element contains the following:
 #' \itemize{
 #' \item \code{width}: The width (number of nucleotides) of the barcode set.
 #' \item \code{n_barcodes}: Number of query barcodes.
-#' \item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set.
-#' \item \code{n_removed}: Number of reads having too many mismatches for this barcode set.
+#' \item \code{n_allowed_mismatches}: Number of allowed mismatches
+#' for the barcode set.
+#' \item \code{n_removed}: Number of reads having too many mismatches
+#' for this barcode set.
 #' \item \code{mismatch_frame}: A \code{data.frame} with the two columns,
 #' \code{n_mismatches} and \code{frequency} showing the number of reads for each
 #' of the allowed number of mismatches for the given barcode set.
@@ -81,8 +90,10 @@
 #'  of the observed barcode combinations, and thus estimate the number
 #'  of features and barcode collisions.
 #'
-#'  While each unique feature can be conceptually thought of as single cell with its transcripts,
-#'  realistic datasets have many features with relatively small numbers of reads which
+#'  While each unique feature can be conceptually
+#'  thought of as single cell with its transcripts,
+#'  realistic datasets have many features with relatively
+#'  small numbers of reads which
 #'  are artifacts and unlikely to correspond to true cells.
 #'
 #'
@@ -181,18 +192,23 @@ print.demultiplex_filter_summary <- function(x, ...) {
     glue("Observed number of unique barcode combinations:\\
     {x$n_unique_barcodes}") %>%
         cat("\n")
-    glue("Number of possible barcode combinations: {x$n_barcode_combinations}") %>%
+    glue("Number of possible barcode combinations: \\
+        {x$n_barcode_combinations}") %>%
         cat("\n")
-    glue("Estimated number of features: {x$n_estimated_features %>% round(1L)}") %>%
+    glue("Estimated number of features: \\
+        {x$n_estimated_features %>% round(1L)}") %>%
         cat("\n")
-    glue("Observed feature to barcode ratio: {x$observed_collision_lambda %>% signif(4L)}") %>%
+    glue("Observed feature to barcode ratio: \\
+        {x$observed_collision_lambda %>% signif(4L)}") %>%
         cat("\n")
-    glue("Corrected feature to barcode ratio: {x$corrected_collision_lambda %>% signif(4L)}") %>%
+    glue("Corrected feature to barcode ratio: \\
+        {x$corrected_collision_lambda %>% signif(4L)}") %>%
         cat("\n")
     collision_percentage <- x$expected_collisions / x$n_unique_barcodes * 100
     glue("Estimated number of observed barcode combinations
-    corresponding to more than one feature: \\
-    {x$expected_collisions %>% round(1L)} ({collision_percentage %>% round(2L)}%)") %>%
+        corresponding to more than one feature: \\
+        {x$expected_collisions %>% round(1L)} \\
+        ({collision_percentage %>% round(2L)}%)") %>%
         cat("\n")
     glue("Number of barcode sets: {x$n_barcode_sets}") %>%
         cat("\n")

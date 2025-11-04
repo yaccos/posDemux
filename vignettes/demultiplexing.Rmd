@@ -25,7 +25,8 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+    crop = NULL # Related to
+    # https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
 
@@ -61,36 +62,84 @@ BibOptions(
 
 ## When and why to use this package
 
-This package is aimed at single-cell RNA-seq approaches such as SPLiT-seq `r Citep(bib[c("Rosenberg2018","Kuijpers2024")])`, BacDrop `r Citep(bib[c("Ma2023")])`, and PETRI-seq `r Citep(bib[c("Blattman2020","Blattman2024")])`. Here, each cell to be sequenced is defined by its own unique combination of multiple DNA barcodes. We do assume that the individual barcodes come from a predefined whitelist, but that the combination of barcodes is random and that every possible combination of barcodes is valid. In order to identify from which cell each read is coming from, we must extract the barcodes, compare them with the reference barcodes, and find the best match.
+This package is aimed at single-cell RNA-seq approaches
+such as SPLiT-seq `r Citep(bib[c("Rosenberg2018","Kuijpers2024")])`,
+BacDrop `r Citep(bib[c("Ma2023")])`,
+and PETRI-seq `r Citep(bib[c("Blattman2020","Blattman2024")])`.
+Here, each cell to be sequenced is defined by its own unique combination of
+multiple DNA barcodes.
+We do assume that the individual barcodes come from a predefined whitelist,
+but that the combination of barcodes is random
+and that every possible combination of barcodes is valid.
+In order to identify from which cell each read is coming from,
+we must extract the barcodes, compare them with the reference barcodes,
+and find the best match.
 
 ## Required knowledge
 
-`r Biocpkg("posDemux")` uses the `r Biocpkg("Biostrings")` package for handling sequencing data and hence a basic understanding of `Biostrings` is necessary to use this package. Also important to note is the fact that while `posDemux` does provide utilities for demultiplexing scRNA-seq data, it is designed to be part of a greater workflow. In particular, the package does not include essential components of a scRNA-seq workflow like quality control, alignment, feature counting and UMI deduplication, neither does it provide any utilities for tertiary analysis once the gene count matrix is constructed. Hence, the user should be familiar with the other components of such workflows `r Citep(bib["Kuijpers2024"])` and know how the functionality of this package plays a part therein.
+`r Biocpkg("posDemux")` uses the `r Biocpkg("Biostrings")` package 
+for handling sequencing data and hence a basic understanding of `Biostrings`
+is necessary to use this package.
+Also important to note is the fact that while `posDemux` does provide
+utilities for demultiplexing scRNA-seq data,
+it is designed to be part of a greater workflow.
+In particular, the package does not include essential components of
+a scRNA-seq workflow like quality control, alignment,
+feature counting and UMI deduplication,
+neither does it provide any utilities for tertiary analysis
+once the gene count matrix is constructed.
+Hence, the user should be familiar with the other components of such
+workflows `r Citep(bib["Kuijpers2024"])`
+and know how the functionality of this package plays a part therein.
 
-If you are asking yourself the question "Where do I start using Bioconductor?" you might be interested in [this blog post](https://lcolladotor.github.io/2014/10/16/where-do-i-start-using-bioconductor/).
+If you are asking yourself the question "Where do I start using Bioconductor?"
+you might be interested in
+[this blog post](https://lcolladotor.github.io/2014/10/16/where-do-i-start-using-bioconductor/).
 
 ## Limitations
 
-Since this is a positional demultiplexer, the position of all segments and barcodes must be known in advance and be the same for all reads. Hence, the package is not suited in cases where segments occur at variable positions among the reads. Furthermore, in the cases where the segments are at fixed positions among the reads, but the segment lengths are unknown, it may require some trial and error to obtain the correct segmentation.
+Since this is a positional demultiplexer,
+the position of all segments and barcodes must be known in advance and
+be the same for all reads.
+Hence, the package is not suited in cases where segments occur at variable
+positions among the reads.
+Furthermore, in the cases where the segments are at
+fixed positions among the reads, but the segment lengths are unknown,
+it may require some trial and error to obtain the correct segmentation.
 
-The demultiplexer is written with Illumina sequencing in mind. It assumes that substitution sequencing errors may occur, but has no safeguard against indel sequencing errors. Hence, indel errors will result in erroneous segmentation and failure to assign the correct barcode. For sequencing platforms where indel errors are common, such as Nanopore sequencing, this package may therefore not be suitable.
+The demultiplexer is written with Illumina sequencing in mind.
+It assumes that substitution sequencing errors may occur,
+but has no safeguard against indel sequencing errors.
+Hence, indel errors will result in erroneous segmentation 
+and failure to assign the correct barcode.
+For sequencing platforms where indel errors are common,
+such as Nanopore sequencing, this package may therefore not be suitable.
 
-This package does not by itself support combining barcodes on both reverse and forward reads, but this limitation can be circumvented by either artificially merging reads or manipulating the result structures from the demultiplexer.
+This package does not by itself support combining barcodes on both reverse
+and forward reads, but this limitation can be circumvented
+by either artificially merging reads
+or manipulating the result structures from the demultiplexer.
 
 ## Ways to interact with this package
 
 This vignette describes the basic usage of the package where the FASTQ files
 are read into `R` before the demultiplexing begins. For large datasets or 
 memory-limited systems, reading all sequences into memory at once is too taxing.
-For this reason, `posDemux` has a streaming API where only parts of the input file
-is read at a time. For brevity, this functionality is explained in its own vignette (`vignette("streaming")`)
-We believe that most end-users won't interact with this package directly, but rather
-in the form of a custom-made bioinformatic pipeline. Also, we think that most developers of
-bioinformatics pipelines would prefer the streaming API. Still, we think those developing with this package should have an understanding of its low-level API as to understand what it does under the hood. 
+For this reason, `posDemux` has a
+streaming API where only parts of the input file
+is read at a time. For brevity, this functionality is explained in its
+own vignette (`vignette("streaming")`).
+We believe that most end-users won't interact with this package directly,
+but rather in the form of a custom-made bioinformatic pipeline.
+Also, we think that most developers of
+bioinformatics pipelines would prefer the streaming API.
+Still, we think those developing with this package should have an
+understanding of its low-level API as to understand what it does under the hood.
 
 ## Install `posDemux`
 
-This package is hosted on [Bioconductor](http://bioconductor.org) repository for `R` packages. In order to install it from a fresh `R` install, run:
+This package is hosted on [Bioconductor](http://bioconductor.org) repository
+for `R` packages. In order to install it from a fresh `R` install, run:
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -103,7 +152,8 @@ BiocManager::install("posDemux")
 BiocManager::valid()
 ```
 
-If you want to obtain the development version of the package, it is available on [GitHub](https://github.com/yaccos/posDemux):
+If you want to obtain the development version of the package, it is available on
+[GitHub](https://github.com/yaccos/posDemux):
 
 ```{r "github_install", eval = FALSE}
 if (!requireNamespace("devtools", quietly = TRUE)) {
@@ -120,11 +170,27 @@ considerable speedup to the demultiplexer.
 
 ## Asking for help
 
-As package developers, we try to explain clearly how to use our packages and in which order to use the functions. But `R` and `Bioconductor` have a steep learning curve so it is critical to learn where to ask for help. The blog post quoted above mentions some but we would like to highlight the [Bioconductor support site](https://support.bioconductor.org/) as the main resource for getting help: Remember to use the `posDemux` tag and check [the older posts](https://support.bioconductor.org/tag/posDemux/). Other alternatives are available such as creating GitHub issues and tweeting. However, please note that if you want to receive help you should adhere to the [posting guidelines](http://www.bioconductor.org/help/support/posting-guide/). It is particularly critical that you provide a small reproducible example and your session information so package developers can track down the source of the error.
+As package developers, we try to explain clearly how to use our packages
+and in which order to use the functions.
+But `R` and `Bioconductor` have a steep learning curve so it is critical to
+learn where to ask for help. The blog post quoted above mentions some
+but we would like to highlight
+the [Bioconductor support site](https://support.bioconductor.org/) as
+the main resource for getting help:
+Remember to use the `posDemux` tag and check 
+[the older posts](https://support.bioconductor.org/tag/posDemux/).
+Other alternatives are available such as creating GitHub issues and tweeting.
+However, please note that if you want to receive help you should adhere to the
+[posting guidelines](http://www.bioconductor.org/help/support/posting-guide/).
+It is particularly critical that you provide a small reproducible example
+and your session information
+so package developers can track down the source of the error.
 
 ## Citing `posDemux`
 
-We hope that `r Biocpkg("posDemux")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
+We hope that `r Biocpkg("posDemux")` will be useful for your research.
+Please use the following information
+to cite the package and the overall approach. Thank you!
 
 ```{r "citation"}
 ## Citation info
@@ -135,7 +201,13 @@ citation("posDemux")
 
 ## Quick overview of the method
 
-The PETRI-seq method is a method for single-cell RNA-sequencing of bacteria `r Citep(bib[c("Blattman2020","Blattman2024")])`. It uses paired-end Illumina sequencing where the forward read contains the cell barcodes and the transcript UMI, whereas the reverse read contain the cDNA to be aligned to the genome. Hence, `posDemux` will only be applied to the forward reads. We start by loading the `posDemux` itself and some helper packages:
+The PETRI-seq method is a method for single-cell RNA-sequencing of bacteria
+`r Citep(bib[c("Blattman2020","Blattman2024")])`.
+It uses paired-end Illumina sequencing where the forward read contains
+the cell barcodes and the transcript UMI, whereas the reverse read contain
+the cDNA to be aligned to the genome.
+Hence, `posDemux` will only be applied to the forward reads.
+We start by loading the `posDemux` itself and some helper packages:
 
 ```{r "start", message=FALSE}
 library(posDemux)
@@ -146,7 +218,8 @@ library(magrittr)
 
 ## Sequence annotation
 
-For PETRI-seq, the forward read consists of the following segments in the following order (from 5' to 3'):
+For PETRI-seq, the forward read consists of the following segments in
+the following order (from 5' to 3'):
 
 -   UMI: 7 nucletides
 -   Barcode 3(`bc3`) : 7 nucleotides
@@ -156,7 +229,10 @@ For PETRI-seq, the forward read consists of the following segments in the follow
 -   Barcode 1(`bc1`): 7 nucleotides
 -   The rest of the read is ignored
 
-Hence, we consider the first segment, the UMI, as a payload (denoted as `P` in the sequence annotation) to be kept. The three barcodes (denoted as `B`) are used for demultiplexing. Finally, the linkers and the read past Barcode 1 (denoted as `A`) are ignored.
+Hence, we consider the first segment, the UMI,
+as a payload (denoted as `P` in the sequence annotation) to be kept.
+The three barcodes (denoted as `B`) are used for demultiplexing.
+Finally, the linkers and the read past Barcode 1 (denoted as `A`) are ignored.
 
 We specify it with as:
 
@@ -195,12 +271,16 @@ input_fastq <- system.file("extdata",
 reads <- readDNAStringSet(input_fastq, format = "fastq")
 ```
 
-`posDemux` accepts both `DNAStringSet` and `QualityScaledDNAStringSet` as input where the latter contain the quality scores of the reads. However, the quality score is ignored by the demultiplexer and the only reason to pass a `QualityScaledDNAStringSet` is when it is desirable to retain the quality scores in the payload.
+`posDemux` accepts both `DNAStringSet` and `QualityScaledDNAStringSet` as
+input where the latter contain the quality scores of the reads.
+However, the quality score is ignored by the demultiplexer and the only
+reason to pass a `QualityScaledDNAStringSet` is when
+it is desirable to retain the quality scores in the payload.
 
 ## Running the demultiplexer
 
-Before we run the demultiplexer, we must ensure that the barcodes index is arranged
-in the correct order:
+Before we run the demultiplexer,
+we must ensure that the barcodes index is arranged in the correct order:
 
 ```{r barcode_reorder}
 barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
@@ -238,12 +318,30 @@ demultiplex_res$payload$UMI
 
 `posDemux` handles two types reads filtering:
 
-- Retaining only the reads being matched with a barcode combination after error correction.
-- Removing barcode combinations which have few reads as these are usually artifacts and are not assumed to cover the transcripts of an entire cell.
+- Retaining only the reads being matched with a barcode combination after
+error correction.
+- Removing barcode combinations which have few reads as these are
+usually artifacts and are not assumed to cover the transcripts of
+an entire cell.
 
-This subsection consider the first type of filtering. During demultiplexing, the barcode with the smallest Hamming distance to the read is chosen and the number of mismatches is recorded. If there are multiple barcodes being equal in distance to the query, one of these barcodes is chosen. When there are no mismatches for any of the barcode sets, we obviously want to keep this read. When one or more barcode has mismatches, `posDemux` allows for error correction. In that case, we will keep the read if the number of mismatches to each of its barcodes is below a certain threshold.
+This subsection consider the first type of filtering. 
+During demultiplexing,the barcode with the smallest Hamming distance
+to the read is chosen and the number of mismatches is recorded.
+If there are multiple barcodes being equal in distance to the query,
+one of these barcodes is chosen.
+When there are no mismatches for any of the barcode sets,
+we obviously want to keep this read.
+When one or more barcode has mismatches, `posDemux` allows for error correction.
+In that case, we will keep the read if the number of mismatches
+to each of its barcodes is below a certain threshold.
 
-In our example, the smallest Hamming distance between two different barcodes is 3 for all barcode sets. Given $n$, the number of barcode sequencing errors which can be reliably corrected in a barcode set, the minimum distance required between two distinct barcodes needs to be at least $2n+1$. This means that in our case, we can correct for exactly one sequencing error:
+In our example, the smallest Hamming distance between two different barcodes
+is $3$ for all barcode sets.
+Given $n$, the number of barcode sequencing errors which can be
+reliably corrected in a barcode set,
+the minimum distance required between
+two distinct barcodes needs to be at least $2n+1$. This means that in our case,
+we can correct for exactly one sequencing error:
 
 ```{r filter_res}
 filtered_res <- filter_demultiplex_res(
@@ -258,7 +356,8 @@ We will now inspect the summary of the demultiplexing and filtering:
 filtered_res$summary_res
 ```
 
-Now, the results in `filtered_res$demultiplex_res` only shows the reads either without mismatches or where error correction could be applied:
+Now, the results in `filtered_res$demultiplex_res` only shows the reads either
+without mismatches or where error correction could be applied:
 
 ```{r filtered_tables}
 head(filtered_res$demultiplex_res$assigned_barcodes)
@@ -275,10 +374,15 @@ head(filtered_res$retained)
 ## Filtering by barcode frequency
 
 Now as we have conducted the filtering based on barcode mismatches, we proceed
-with the second kind of filtering. It utilizes the Knee method `r Citep(bib[c("Macosko2015","Blattman2020")])` where the barcode combinations
-are arranged in descending order on frequency and the most abundant ones are selected.
-The cutoff is set such that we achieve a saturation where most reads are covered, yet
-the remaining barcode combinations not covered all have a small number of reads.
+with the second kind of filtering.
+It utilizes the Knee method `r Citep(bib[c("Macosko2015","Blattman2020")])`
+where the barcode combinations
+are arranged in descending order on frequency
+and the most abundant ones are selected.
+The cutoff is set such that we achieve
+a saturation where most reads are covered,
+yet the remaining barcode combinations
+not covered all have a small number of reads.
 
 We first create a frequency table of the barcodes is question:
 
@@ -289,7 +393,8 @@ freq_table <- create_freq_table(
 head(freq_table)
 ```
 
-This package contains an interaction Shiny application for selecting the number of barcodes.
+This package contains an interaction Shiny application
+for selecting the number of barcodes.
 It can be run by:
 
 ```{r shiny_app, eval=FALSE}
@@ -311,14 +416,22 @@ If you are working on a headless system, you may consider:
 - Copy the frequency table onto your local machine and run the application there
 
 If you run the application, you will see that
-keeping approximately 500 barcodes is the optimal choice^[In case you wonder why the best choice is keeping half the barcodes: Remember that the data is synthetic, so making half of the barcode combinations artifacts with low numbers of reads, was a design decision.]. We can also calculate the frequency of the least abundant barcode combination being included. 
+keeping approximately 500 barcodes is the optimal
+choice^[In case you wonder why the best choice is keeping half the barcodes:
+Remember that the data is synthetic,
+so making half of the barcode combinations artifacts with low numbers of reads,
+was a design decision.].
+We can also calculate the frequency of the least abundant
+barcode combination being included. 
 
 ```{r cutoff_convert}
 bc_cutoff <- 500L
 freq_cutoff <- bc_to_freq_cutoff(freq_table, bc_cutoff)
 freq_cutoff
 ```
-We can convert the cutoff the other way as well, but it is in general not an exact inverse as multiple barcodes can have the same frequency:
+We can convert the cutoff the other way as well,
+but it is in general not an exact inverse as
+multiple barcodes can have the same frequency:
 
 ```{r cutoff_reconstruct}
 reconstrued_bc_cutoff <- freq_to_bc_cutoff(
@@ -328,13 +441,15 @@ reconstrued_bc_cutoff <- freq_to_bc_cutoff(
 reconstrued_bc_cutoff
 ```
 
-The cutoff can be illustrated by the Knee plot as in the interactive application:
+The cutoff can be illustrated by
+the Knee plot as in the interactive application:
 
 ```{r knee_plot}
 knee_plot(freq_table = freq_table, cutoff = bc_cutoff)
 ```
 
-We can also illustrate this filtering by looking at the distribution of barcode frequencies:
+We can also illustrate this filtering
+by looking at the distribution of barcode frequencies:
 
 ```{r freq_plot}
 # Since the cutoff lines of the plot are provided by the literal x-coordinate,
@@ -345,7 +460,10 @@ freq_plot(freq_table,
 )
 ```
 
-Often the frequency plot gets easier to interpret when we scale the y-axis by the number of reads, hence creating a mass plot of where the reads are distributed based on their respective barcodes:
+Often the frequency plot gets easier to interpret when we scale
+the y-axis by the number of reads,
+hence creating a mass plot of where the reads
+are distributed based on their respective barcodes:
 
 ```{r mass_plot}
 # Since the cutoff lines of the plot are provided by the literal x-coordinate,
@@ -377,14 +495,16 @@ read_in_selection <- row_match(assigned_barcodes, selected_freq_table)
 selected_assigned_barcodes <- assigned_barcodes[read_in_selection, ]
 ```
 
-We continue with the UMIs which we convert to a character vector (remember that the payload and assigned barcodes are aligned in order):
+We continue with the UMIs which we convert to a character vector
+(remember that the payload and assigned barcodes are aligned in order):
 
 ```{r extract_umis}
 assigned_UMI <- filtered_res$demultiplex_res$payload$UMI %>% as.character()
 selected_assigned_UMI <- assigned_UMI[read_in_selection]
 ```
 
-With all of this done, we can make a data frame containing the UMI, read identifier, and barcode assignments:
+With all of this done, we can make a data frame containing the UMI,
+read identifier, and barcode assignments:
 
 ```{r combined_frame}
 res_table <- as.data.frame(selected_assigned_barcodes) %>%
@@ -397,7 +517,8 @@ res_table <- as.data.frame(selected_assigned_barcodes) %>%
 head(res_table)
 ```
 
-Finally, we can write the table to file. The following is the suggested way for achieving the desired formatting:
+Finally, we can write the table to file.
+The following is the suggested way for achieving the desired formatting:
 
 ```{r write_to_file}
 file <- tempfile(pattern = "barcode_table", fileext = ".txt")
@@ -409,7 +530,8 @@ write.table(res_table, file,
 
 # Reproducibility
 
-The `r Biocpkg("posDemux")` package `r Citep(bib[["posDemux"]])` was made possible thanks to:
+The `r Biocpkg("posDemux")` package `r Citep(bib[["posDemux"]])` 
+was made possible thanks to:
 
 -   R `r Citep(bib[["R"]])`
 -   `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])`
@@ -432,11 +554,15 @@ session_info()
 
 # Bibliography
 
-This vignette was generated using `r Biocpkg("BiocStyle")` `r Citep(bib[["BiocStyle"]])` with `r CRANpkg("knitr")` `r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")` `r Citep(bib[["rmarkdown"]])` running behind the scenes.
+This vignette was generated using `r Biocpkg("BiocStyle")`
+`r Citep(bib[["BiocStyle"]])` with `r CRANpkg("knitr")`
+`r Citep(bib[["knitr"]])` and `r CRANpkg("rmarkdown")`
+`r Citep(bib[["rmarkdown"]])` running behind the scenes.
 
 Citations made with `r CRANpkg("RefManageR")` `r Citep(bib[["RefManageR"]])`.
 
-```{r vignetteBiblio, results = "asis", echo = FALSE, warning = FALSE, message = FALSE}
+```{r biblio, results = "asis", echo = FALSE, warning = FALSE, message = FALSE}
 ## Print bibliography
 PrintBibliography(bib, .opts = list(hyperlink = "to.doc", style = "html"))
 ```
+

@@ -70,7 +70,9 @@ interactive_bc_cutoff <- function(freq_table) {
 
         filtered_table <- reactive(freq_table[seq_len(input$cutoff), ])
 
-        frequency_cutoff <- reactive(bc_to_freq_cutoff(freq_table, input$cutoff))
+        frequency_cutoff <- reactive(
+            bc_to_freq_cutoff(freq_table, input$cutoff)
+            )
 
 
         reads_kept <- reactive(filtered_table() %>%

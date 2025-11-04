@@ -50,21 +50,36 @@ log_progress <- function(msg) {
 #'
 #' @example inst/examples/streaming-examples.R
 #' @export
-streaming_callbacks <- function(input_file, output_table_file, chunk_size = 1e+06, verbose = TRUE,
+streaming_callbacks <- function(input_file, output_table_file,
+                                chunk_size = 1e+06, verbose = TRUE,
                                 min_width = NULL) {
     res <- list()
-    res$state_init <- list(total_reads = 0L, demultiplexed_reads = 0L, output_table_initialized = FALSE)
+    res$state_init <- list(
+        total_reads = 0L, demultiplexed_reads = 0L,
+        output_table_initialized = FALSE
+    )
+    
+    res$loader <- default_loader(input_file, chunk_size, verbose, min_width)
 
-    res$loader <- function(state) {
+    res$archiver <- default_archiver(output_table_file, verbose)
+    res
+}
+
+default_loader <- function(input_file, chunk_size, verbose, min_width){
+    function(state) {
         if (!state$output_table_initialized) {
             if (verbose) {
                 log_progress("Initializing FASTQ stream and output table")
             }
-            state$istream <- ShortRead::FastqStreamer(input_file, n = chunk_size)
+            state$istream <- ShortRead::FastqStreamer(
+                input_file,
+                n = chunk_size
+            )
         }
         raw_chunk <- ShortRead::yield(state$istream)
         chunk <- ShortRead::sread(raw_chunk)
-        # For pair-end reads, we usually don't want what is trailing after the space in
+        # For pair-end reads, we usually don't want what is
+        # trailing after the space in
         # order to have the same identifiers to both forward and reverse reads
         names(chunk) <- ShortRead::id(raw_chunk) %>%
             {
@@ -72,12 +87,17 @@ streaming_callbacks <- function(input_file, output_table_file, chunk_size = 1e+0
             }
         n_reads_in_chunk <- length(chunk)
         if (n_reads_in_chunk == 0L && state$output_table_initialized) {
-            # The case when the initial chunk is empty is given special treatment since
-            # we want to create the table regardless No more reads to process, make the
-            # outer framework return Clean up resources
+            # The case when the initial chunk is empty is given special
+            # treatment since
+            # we want to create the table regardless No more reads to process,
+            # make the outer framework return.
+            #  Clean up resources
             close(state$istream)
             state$istream <- NULL
-            final_res <- list(state = state, sequences = NULL, should_terminate = TRUE)
+            final_res <- list(
+                state = state, sequences = NULL,
+                should_terminate = TRUE
+            )
             if (verbose) {
                 log_progress("Done demultiplexing")
             }
@@ -92,8 +112,10 @@ streaming_callbacks <- function(input_file, output_table_file, chunk_size = 1e+0
         state$total_reads <- state$total_reads + n_reads_in_chunk
         list(state = state, sequences = chunk, should_terminate = FALSE)
     }
+}
 
-    res$archiver <- function(state, filtered_res) {
+default_archiver <- function(output_table_file, verbose) {
+    function(state, filtered_res) {
         barcode_matrix <- filtered_res$demultiplex_res$assigned_barcodes
         barcode_names <- colnames(barcode_matrix)
         read_names <- rownames(barcode_matrix)
@@ -103,11 +125,11 @@ streaming_callbacks <- function(input_file, output_table_file, chunk_size = 1e+0
         }
         barcode_table <- as.data.frame(barcode_matrix)
         read_name_table <- data.frame(read = read_names)
-        payload_table <- purrr::map(filtered_res$demultiplex_res$payload, as.character) %>%
-            {
-                rlang::exec(data.frame, !!!.)
-            }
-
+        payload_table <- purrr::map(
+            filtered_res$demultiplex_res$payload,
+            as.character
+        ) %>% {rlang::exec(data.frame, !!!.)}
+        
         chunk_table <- cbind(read_name_table, payload_table, barcode_table)
         if (!state$output_table_initialized) {
             append <- FALSE
@@ -116,17 +138,19 @@ streaming_callbacks <- function(input_file, output_table_file, chunk_size = 1e+0
             append <- TRUE
         }
         readr::write_tsv(
-            x = chunk_table, file = output_table_file, append = append, col_names = !append,
-            eol = "\n"
+            x = chunk_table, file = output_table_file,
+            append = append, col_names = !append, eol = "\n"
         )
         state <- within(state, {
             demultiplexed_reads <- demultiplexed_reads + nrow(barcode_matrix)
             if (verbose) {
-                glue("Processed {total_reads} reads, successfully demultiplexed {demultiplexed_reads} reads so far...") %>%
-                    log_progress()
+                glue(
+                "Processed {total_reads} reads, successfully demultiplexed \\
+                {demultiplexed_reads} reads so far..."
+                ) %>%
+                log_progress()
             }
         })
         state
     }
-    res
 }

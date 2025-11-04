@@ -25,7 +25,8 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+    crop = NULL # Related to 
+    # https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
 
@@ -59,33 +60,84 @@ BibOptions(
 
 # Why streaming?
 
-Given that sequence files can consist of gigabytes of data, storing everything in memory at once can prove to be too much for the computer. Fortunately, for demultiplexing of barcodes, we can demultiplex the barcodes independently of each other. In theory, we could read the entries from a FASTQ file one by one, and for each of them call the demultiplexer and output the barcode assignment to a file. However, due to overhead in file operations and the `R` interpreter, the most efficient option is to process the files in chunks of a predetermined size. If you have not read the main package vignette yet (`vignette("demultiplexing")`), please do so before proceeding.
+Given that sequence files can consist of gigabytes of data,
+storing everything in memory at once can prove to be too much for the computer.
+Fortunately, for demultiplexing of barcodes, we can demultiplex the barcodes
+independently of each other.
+In theory, we could read the entries from a FASTQ file one by one,
+and for each of them call the demultiplexer
+and output the barcode assignment to a file.
+However, due to overhead in file operations and the `R` interpreter,
+the most efficient option is to process the files in chunks
+of a predetermined size.
+If you have not read the main package vignette
+yet (`vignette("demultiplexing")`), please do so before proceeding.
 
 ## Which chunk size to use?
 
-The chunk size should be large enough for the constant overhead of initiating a file read and interpreting the required `R` instructions to be neglectable. Still, the chunk size should be small enough to only make a modest memory footprint. In practice, with modern computers having gigabytes of RAM, we find a chunk size of  $10^6$ reads to be a reasonable choice. The example datasets used in this vignette are far too small to require streaming (including a dataset of realistic size would make the package exceed the maximum package size), so for purely demonstrational purposes, we choose a chunk size of $10^4$ reads.
+The chunk size should be large enough for the constant overhead of initiating a
+file read and interpreting the required `R` instructions to be neglectable.
+Still, the chunk size should be small enough to only make a
+modest memory footprint. In practice, with modern computers
+having gigabytes of RAM, we find a chunk size of  $2\cdot10^5$ reads to be a
+reasonable choice.
+The example datasets used in this vignette are far too small
+to require streaming
+(including a dataset of realistic size would make
+the package exceed the maximum package size),
+so for purely demonstrational purposes, we choose a chunk size of $10^4$ reads.
 
 ## Overview of the streaming API
 
 The streaming API of `posDemux` is focused around two user-supplied functions:
 
-* The loader: This function is responsible for grabbing a chunk of the input file
-of the sequences and returning a `XStringSet` object of the sequences. Also, this function determines when to terminate the streaming, typically done when there are no sequences left.
-* The archiver: This function is responsible for writing the results of the demultiplexer of a chunk to file, typically in the form of a barcode table.
+* The loader: This function is responsible for
+grabbing a chunk of the input file
+of the sequences and returning a `XStringSet` object of the sequences.
+Also, this function determines when to terminate the streaming,
+typically done when there are no sequences left.
+* The archiver: This function is responsible for writing the results of
+the demultiplexer of a chunk to file, typically in the form of a barcode table.
 
-Once the loader and archiver are specified and combined with the demultiplexer, they can generate the barcode table chunk by chunk. However, we still want to generate the summary statistics and frequency table as if all the reads were demultiplexed simultaneously. If the chunks are demultiplexed independently, `create_summary_res()` and `create_freq_table()` don't work as intended. That is where the core function of the streaming API; `streaming_demultiplex()` comes into play. It accepts the loader and the archiver as callback functions, communicates with the demultiplexer, and does the bookkeeping to construct the summary statistics and frequency table. Hence, for each chunk, the loader provides the sequences to demultiplex, the streaming logic feeds these reads into the demultiplexer, updates is record of observed barcodes and provides the results to the archiver which writes to the barcode table. This process is illustrated in Figure \@ref(fig:structure).
+Once the loader and archiver are specified and combined with the demultiplexer,
+they can generate the barcode table chunk by chunk.
+However, we still want to generate the summary statistics and frequency table
+as if all the reads were demultiplexed simultaneously.
+If the chunks are demultiplexed independently,
+`create_summary_res()` and `create_freq_table()` don't work as intended.
+That is where the core function of the streaming API;
+`streaming_demultiplex()` comes into play.
+It accepts the loader and the archiver as callback functions,
+communicates with the demultiplexer,
+and does the bookkeeping to construct
+the summary statistics and frequency table.
+Hence, for each chunk, the loader provides the sequences to demultiplex,
+the streaming logic feeds these reads into the demultiplexer,
+updates is record of observed barcodes
+and provides the results to the archiver which writes to the barcode table.
+This process is illustrated in Figure \@ref(fig:structure).
 
-For communicating between the loader and archiver, a user-defined state object is passed through `streaming_demultiplex()`. The initial value of this object is provided to `streaming_demultiplex()` as the argument `state_init`.
+For communicating between the loader and archiver, a user-defined state object
+is passed through `streaming_demultiplex()`.
+The initial value of this object is provided to `streaming_demultiplex()`
+as the argument `state_init`.
 
 
-```{r structure, echo=FALSE, out.width="100%", fig.cap="Components of the streaming API"}
+```{r structure, echo = FALSE, out.width = "100%", fig.cap = "Components of the streaming API"}
 knitr::include_graphics("streaming_structure.svg")
 ```
 
 
 # Streaming using default callbacks
 
-Although the option of specifying the loader and archiver gives great flexibility, it does so at the cost of convenience as the loader and archiver can be challenging to write. For this reason, `posDemux` provides a default set of streaming callbacks available through `streaming_callbacks()`. Actually, this is a function factory, which returns a list of the following elements:
+Although the option of specifying the loader and
+archiver gives great flexibility,
+it does so at the cost of convenience as the loader and archiver can
+be challenging to write.
+For this reason, `posDemux` provides a default set of
+streaming callbacks available through `streaming_callbacks()`.
+Actually, this is a function factory,
+which returns a list of the following elements:
 
 * `state_init`: The initial state to provide to `streaming_demultiplex()`
 * `loader`: Loader function
@@ -96,15 +148,28 @@ Although the option of specifying the loader and archiver gives great flexibilit
 The callbacks are designed to be useful for a typical use case where:
 
 * The reads are contained as a single FASTQ file on disk.
-* The barcode table contains columns with the read names (`read`), sequences of all payloads (eg.`UMI`) and the barcode assignments (eg. `BC3`, `BC2`, `BC1`).
-* Read names with spaces are truncated by the loader such that only the part of the read name before the space is kept. This is done because the information preceding the space is typically enough to ambiguously identify the read, while the information after the space usually contains irrelevant auxiliary information.
-* Progress of how many reads have been processed can optionally be displayed by the archiver for each chunk.
+* The barcode table contains columns with the read names (`read`),
+sequences of all payloads (eg.`UMI`)
+and the barcode assignments (eg. `BC3`, `BC2`, `BC1`).
+* Read names with spaces are truncated by the loader such that only the part
+of the read name before the space is kept. This is done because the information
+preceding the space is typically enough to ambiguously identify the read,
+while the information 
+after the space usually contains irrelevant auxiliary information.
+* Progress of how many reads have been processed can optionally be displayed
+by the archiver for each chunk.
 
-If this does not fill your needs, please refer to the section [Streaming using custom callbacks].
+If this does not fill your needs,
+please refer to the section [Streaming using custom callbacks].
 
 ## Obtaining the callbacks
 
-As said, `streaming_callbacks()` is a function factory, we must specify the file path to the FASTQ input file, and the barcode table output file for it to generate useful callbacks. In addition, the chunk size is regulated through the callbacks. We use the same dataset as in the main package vignette (`vignette("demultiplexing")`) and obtain the callbacks as follows:
+As said, `streaming_callbacks()` is a function factory,
+we must specify the file path to the FASTQ input file,
+and the barcode table output file for it to generate useful callbacks.
+In addition, the chunk size is regulated through the callbacks.
+We use the same dataset as in the main package
+vignette (`vignette("demultiplexing")`) and obtain the callbacks as follows:
 
 
 ```{r default_callbacks}
@@ -127,7 +192,8 @@ default_callbacks <- streaming_callbacks(
 
 ## Running the demultiplexing
 
-With the callbacks in place, we specify the barcodes, and the segments and feed them into the streaming framework:
+With the callbacks in place, we specify the barcodes, and the segments
+and feed them into the streaming framework:
 
 ```{r run_streaming}
 suppressPackageStartupMessages({
@@ -157,7 +223,8 @@ streaming_summary_res <- streaming_demultiplex(
 
 ## Displaying the result from streaming
 
-From the return value of `streaming_demultiplex()`, we obtain the frequency table
+From the return value of `streaming_demultiplex()`,
+we obtain the frequency table
 
 ```{r streaming_freq_table}
 head(streaming_summary_res$freq_table)
@@ -323,8 +390,11 @@ The loader is a function which accepts the state as its sole parameter
 and outputs a list with three fields:
 
 * `state`: To be passed into the archiver.
-* `sequences`: The sequences in the chunk as a `Biostrings::DNAStringSet` object.
-* `should_terminate`: A logical flag to signal to the streaming framework that it should terminate. Note that this also means the loader is in charge of the termination criterion.
+* `sequences`: The sequences in the chunk as
+a `Biostrings::DNAStringSet` object.
+* `should_terminate`: A logical flag to signal to the streaming framework
+that it should terminate.
+Note that this also means the loader is in charge of the termination criterion.
 
 We decide to hard-code the loader to parse $10^4$ reads for each chunk.
 
