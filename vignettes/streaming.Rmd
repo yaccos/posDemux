@@ -107,7 +107,7 @@ If this does not fill your needs, please refer to the section [Streaming using c
 As said, `streaming_callbacks()` is a function factory, we must specify the file path to the FASTQ input file, and the barcode table output file for it to generate useful callbacks. In addition, the chunk size is regulated through the callbacks. We use the same dataset as in the main package vignette (`vignette("demultiplexing")`) and obtain the callbacks as follows:
 
 
-```{r}
+```{r default_callbacks}
 library(posDemux)
 input_fastq <- system.file("extdata",
     "PETRI-seq_forward_reads.fq.gz",
@@ -129,7 +129,7 @@ default_callbacks <- streaming_callbacks(
 
 With the callbacks in place, we specify the barcodes, and the segments and feed them into the streaming framework:
 
-```{r}
+```{r run_streaming}
 suppressPackageStartupMessages({
     library(purrr)
     library(Biostrings)
@@ -159,13 +159,13 @@ streaming_summary_res <- streaming_demultiplex(
 
 From the return value of `streaming_demultiplex()`, we obtain the frequency table
 
-```{r}
+```{r streaming_freq_table}
 head(streaming_summary_res$freq_table)
 ```
 
 and summary printout:
 
-```{r}
+```{r streaming_summary_res}
 streaming_summary_res$summary_res
 ```
 
@@ -200,7 +200,7 @@ In order not to repeat ourselves,
 we refer to the main package vignette (`vignette("demultiplexing")`)
 for the considerations behind this process.
 
-```{r}
+```{r freq_table_extract}
 freq_table <- streaming_summary_res$freq_table
 bc_cutoff <- 500L
 selected_freq_table <- freq_table[seq_len(bc_cutoff), ]
@@ -223,7 +223,7 @@ Dumping the data into a SQLite database which later can be queried.
 For simplicity, we paste all the barcode designations together in one column.
 We begin by setting up the database:
 
-```{r}
+```{r database_setup}
 suppressPackageStartupMessages({
     library(DBI)
 })
@@ -237,7 +237,7 @@ output_db <- dbConnect(RSQLite::SQLite(), output_database_path)
 For doing the streaming of the barcode table and combining it
 with outputting to the database, we use the `chunked` package:
 
-```{r}
+```{r database_write}
 chunk_size <- 1e4
 suppressPackageStartupMessages({
     library(chunked)
@@ -265,7 +265,7 @@ read_table_chunkwise(
 Finally, we make a index on the barcodes such that lookups are fast
 and close the database connection:
 
-```{r}
+```{r database_close}
 dbExecute(output_db, "CREATE INDEX idx ON selected_barcodes(read)") %>%
     invisible()
 dbDisconnect(output_db)
@@ -310,7 +310,7 @@ so it must know whether it is working at its first chunk.
 This gives rise to the logical flag `output_table_initialized`.
 We thus initialize the state as follows:
 
-```{r}
+```{r state_init}
 custom_state_init <- list(
     total_reads = 0L, demultiplexed_reads = 0L, output_table_initialized = FALSE
 )
@@ -328,7 +328,7 @@ and outputs a list with three fields:
 
 We decide to hard-code the loader to parse $10^4$ reads for each chunk.
 
-```{r}
+```{r loader}
 input_fasta <- system.file("extdata", "PETRI-seq_forward_reads.fa.gz",
     package = "posDemux"
 )
@@ -374,7 +374,7 @@ the results from `filter_demultiplex_res()` of the chunk as its second argument.
 Its return value is the state to provide to the loader when it continues with
 its next chunk.
 
-```{r}
+```{r archiver}
 output_umi_file <- tempfile(pattern = "umi.fa", fileext = ".txt")
 custom_output_table <- tempfile(
     pattern = "barcode_table_custom",
@@ -426,7 +426,7 @@ archiver <- function(state, filtered_res) {
 With the initial state and the callbacks being defined,
 we are now ready to put them to use:
 
-```{r}
+```{r combining_custom_callbacks}
 custom_summary_res <- streaming_demultiplex(
     state_init = custom_state_init,
     loader = loader,
@@ -443,13 +443,13 @@ custom_summary_res <- streaming_demultiplex(
 We finally load the files we wrote to in order to verify that they contain what
 we desire. We load the barcode table:
 
-```{r}
+```{r verify_barcode_table}
 readr::read_tsv(custom_output_table)
 ```
 
 and the UMI sequences:
 
-```{r}
+```{r verify_umi}
 Biostrings::readDNAStringSet(output_umi_file, format = "fasta")
 ```
 
