@@ -17,10 +17,11 @@
 #' Its return value is a list with the following fields:
 #' \itemize{
 #' \item \code{state}: The state to be passed into \code{archiver}.
-#' \item \code{sequences}: A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
+#' \item \code{sequences}: A 
+#' \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
 #' to be demultiplexed in the current chunk.
-#' \item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
-#' process terminates and the final results are returned.
+#' \item \code{should_terminate}: A scalar logical. If \code{TRUE},
+#' the demultiplexing process terminates and the final results are returned.
 #' Notice that this termination happens before the sequences of the final
 #' call to \code{loader} are demultiplexed.
 #' }
@@ -51,7 +52,8 @@
 #'
 #' @returns A list with three elements:
 #' \itemize{
-#' \item \code{freq_table}: The frequency table for all reads, akin to the output of
+#' \item \code{freq_table}: The frequency table for all reads,
+#' akin to the output of
 #' [create_freq_table()].
 #' \item \code{summary_res}: The summary result of match filtering of all reads
 #' per [create_summary_res()].
@@ -72,7 +74,8 @@ streaming_demultiplex <- function(state_init,
     allowed_mismatches,
     segments,
     segment_lengths) {
-    allowed_mismatches <- validate_allowed_mismatches(allowed_mismatches, barcodes)
+    allowed_mismatches <- validate_allowed_mismatches(
+        allowed_mismatches, barcodes)
     summary <- summary_init(barcodes, allowed_mismatches)
     loader_res <- loader(state_init)
     count_table <- create_count_table()
@@ -81,10 +84,14 @@ streaming_demultiplex <- function(state_init,
     while (!loader_res$should_terminate) {
         state <- loader_res$state
         sequences <- loader_res$sequences
-        demultiplex_res <- combinatorial_demultiplex(sequences, barcodes, segments, segment_lengths)
-        filtered_res <- filter_sequences(demultiplex_res, allowed_mismatches)
-        summary <- summary_update(summary, filtered_res$retained, demultiplex_res$mismatches)
-        this_barcode_encoding <- as.data.frame(filtered_res$demultiplex_res$assigned_barcodes,
+        demultiplex_res <- combinatorial_demultiplex(
+            sequences, barcodes, segments, segment_lengths)
+        filtered_res <- filter_sequences(
+            demultiplex_res, allowed_mismatches)
+        summary <- summary_update(
+            summary, filtered_res$retained, demultiplex_res$mismatches)
+        this_barcode_encoding <- as.data.frame(
+            filtered_res$demultiplex_res$assigned_barcodes,
             row.names = FALSE
         ) %>%
             encode(barcode_mapping)
@@ -92,10 +99,14 @@ streaming_demultiplex <- function(state_init,
         state <- archiver(state, filtered_res)
         loader_res <- loader(state)
     }
-    freq_table <- create_freq_table_from_count_table(count_table, barcode_mapping)
+    freq_table <- create_freq_table_from_count_table(
+        count_table,
+        barcode_mapping)
     n_unique_barcodes <- nrow(freq_table)
     final_summary <- summary_finalize(summary, n_unique_barcodes)
-    list(summary_res = final_summary, freq_table = freq_table, state_final = loader_res$state)
+    list(
+        summary_res = final_summary, freq_table = freq_table,
+        state_final = loader_res$state)
 }
 
 summary_init <- function(barcodes, allowed_mismatches) {
@@ -113,13 +124,16 @@ summary_init <- function(barcodes, allowed_mismatches) {
             frequency = 0L
         )
         list(
-            width = barcode_width, n_barcodes = n_barcodes, n_allowed_mismatches = n_allowed_mismatches,
+            width = barcode_width, n_barcodes = n_barcodes,
+            n_allowed_mismatches = n_allowed_mismatches,
             n_removed = 0L, mismatch_frame = mismatch_frame
         )
     })
 
-    list(n_reads = n_reads, n_removed = n_removed, n_barcode_sets = barcodes %>%
-        length(), n_barcode_combinations = n_barcode_combinations, barcode_summary = barcode_summary)
+    list(n_reads = n_reads, n_removed = n_removed,
+        n_barcode_sets = barcodes %>% length(),
+        n_barcode_combinations = n_barcode_combinations,
+        barcode_summary = barcode_summary)
 }
 
 
@@ -127,35 +141,47 @@ summary_update <- function(filter_summary, retained, mismatches) {
     within(filter_summary, {
         n_reads <- n_reads + length(retained)
         n_removed <- n_removed + sum(!retained)
-        barcode_summary <- imap(barcode_summary, function(barcode_summary, barcode_name) {
-            this_mismatch_vector <- mismatches[, barcode_name, drop = TRUE]
-            within(barcode_summary, {
-                n_removed <- n_removed + sum(this_mismatch_vector > n_allowed_mismatches)
-                mismatch_frame <- within(mismatch_frame, {
-                    # Yes, this is nested 5 levels deep, but currently I not know of any
-                    # solution more aesthetic
-                    frequency <- frequency + outer(this_mismatch_vector, n_mismatches, equals) %>%
-                        colSums()
+        barcode_summary <- imap(barcode_summary, 
+            function(barcode_summary, barcode_name) {
+                this_mismatch_vector <- mismatches[, barcode_name, drop = TRUE]
+                within(barcode_summary, {
+                    n_removed <- n_removed +
+                        sum(this_mismatch_vector > n_allowed_mismatches)
+                    mismatch_frame <- within(mismatch_frame, {
+                        # Yes, this is nested 5 levels deep, but currently 
+                        # I not know of any
+                        # solution more aesthetic
+                        frequency <- frequency +
+                            outer(
+                                this_mismatch_vector, n_mismatches, equals
+                                ) %>%
+                            colSums()
+                    })
                 })
             })
-        })
     })
 }
 
 summary_finalize <- function(filter_summary, n_unique_barcodes) {
     filter_summary <- within(filter_summary, {
         n_unique_barcodes <- n_unique_barcodes
-        n_estimated_features <- poisson_correct_n(n_barcode_combinations, n_unique_barcodes)
+        n_estimated_features <- poisson_correct_n(
+            n_barcode_combinations, n_unique_barcodes)
         observed_collision_lambda <- n_unique_barcodes / n_barcode_combinations
-        corrected_collision_lambda <- n_estimated_features / n_barcode_combinations
-        expected_collisions <- poisson_estimate_collisions(n_barcode_combinations, corrected_collision_lambda)
+        corrected_collision_lambda <- n_estimated_features /
+            n_barcode_combinations
+        expected_collisions <- poisson_estimate_collisions(
+            n_barcode_combinations, corrected_collision_lambda)
     })
-    # This should usually be unnecessary since the fields are referenced by names and
-    # not position, but since the tests also see if the fields come in the right order,
+    # This should usually be unnecessary since the fields
+    # are referenced by names and
+    # not position, but since the tests also see
+    # if the fields come in the right order,
     # we must specify it here
     summary_field_order <- c(
         "n_reads", "n_removed", "n_barcode_sets", "n_barcode_combinations",
-        "n_unique_barcodes", "n_estimated_features", "observed_collision_lambda", "corrected_collision_lambda",
+        "n_unique_barcodes", "n_estimated_features",
+        "observed_collision_lambda", "corrected_collision_lambda",
         "expected_collisions", "barcode_summary"
     )
     filter_summary <- filter_summary[summary_field_order]

@@ -7,8 +7,8 @@
 #'
 #' @param x A matrix or data frame which rows to be matched.
 #' Typically, this will be a matrix of assigned barcodes for each read.
-#' @param table A matrix or data frame with the rows to be matched against. Typically,
-#' this will be the top portion of a frequency table.
+#' @param table A matrix or data frame with the rows to be matched against.
+#' Typically, this will be the top portion of a frequency table.
 #' @seealso [create_freq_table()] for how frequency tables are constructed,
 #' [combinatorial_demultiplex()] for more information on the matrix of assigned
 #'  barcodes,
@@ -20,7 +20,8 @@
 #' As opposed to [base::match()], this function is implemented more efficiently
 #' by converting each row into a numeric encoding before matching.
 #'
-#' For technical reasons, it is not permitted for the product of the number of the
+#' For technical reasons,
+#' it is not permitted for the product of the number of the
 #' unique values of the columns in \code{table} to
 #' exceed \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
 #'
@@ -43,8 +44,8 @@ row_match <- function(x, table) {
 
 #' @importFrom utils head
 get_mapping <- function(table) {
-    # The order the barcodes appear in does not really matter as long as the same
-    # mapping object is used
+    # The order the barcodes appear in does not
+    # really matter as long as the same mapping object is used
     unique_values <- map(table, unique)
     n_unique_values <- map_int(unique_values, length)
     assert_that(
@@ -55,7 +56,9 @@ get_mapping <- function(table) {
     cumprod <- cumprod(n_unique_values)
     shifted_cumprod <- c(1L, cumprod(n_unique_values) %>%
         head(-1L))
-    list(unique = unique_values, n_unique = n_unique_values, cumprod = cumprod, shifted_cumprod = shifted_cumprod)
+    list(
+        unique = unique_values, n_unique = n_unique_values,
+        cumprod = cumprod, shifted_cumprod = shifted_cumprod)
 }
 
 encode <- function(x, mapping) {
@@ -69,8 +72,8 @@ encode <- function(x, mapping) {
 
 decode <- function(x_encoded, mapping) {
     {
-        map2(mapping$cumprod, mapping$shifted_cumprod, \(modulus, dividend) (x_encoded %% modulus) %/% dividend +
-            1L)
+        map2(mapping$cumprod, mapping$shifted_cumprod,
+            \(modulus, dividend) (x_encoded %% modulus) %/% dividend + 1L)
     } %>%
         {
             map2(mapping$unique, ., `[`)

@@ -20,11 +20,14 @@ log_progress <- function(msg) {
 #' barcode table will be written.
 #' @param chunk_size Integer, the number of reads to process in each chunk.
 #' @param verbose Logical scalar: Should the progress be displayed?
-#' @param min_width Optional integer scalar: Minimum width of the sequences to keep.
+#' @param min_width Optional integer scalar:
+#' Minimum width of the sequences to keep.
 #' For reads which are shorter than this, a warning it emitted and the
 #' reads are removed and ignored and thus not appear in any statistics.
-#' The data loader is **not** supposed to be used as a length filter, so this option
-#' is more like an escape hatch for being able to deal with sequences which have not been
+#' The data loader is **not** supposed to be used as a length filter,
+#' so this option
+#' is more like an escape hatch for being able to deal
+#' with sequences which have not been
 #' properly filtered beforehand.
 #'
 #'

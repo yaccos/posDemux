@@ -1,6 +1,7 @@
 get_tables <- function() {
     # Code extracted from vignette
-    input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
+    input_fastq <- system.file(
+        "extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
     reads <- Biostrings::readDNAStringSet(input_fastq, format = "fastq")
     barcode_files <- system.file("extdata/PETRI-seq_barcodes", c(
         bc1 = "bc1.fa", bc2 = "bc2.fa",
@@ -15,9 +16,13 @@ get_tables <- function() {
         barcodes = barcodes, segments = sequence_annotation,
         segment_lengths = segment_lengths
     )
-    filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
-    freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
+    filtered_res <- filter_demultiplex_res(
+        demultiplex_res, allowed_mismatches = 1L)
+    freq_table <- create_freq_table(
+        filtered_res$demultiplex_res$assigned_barcodes)
     bc_cutoff <- 500L
     selected_freq_table <- freq_table[seq_len(bc_cutoff), ]
-    list(x = filtered_res$demultiplex_res$assigned_barcodes, table = selected_freq_table)
+    list(
+        x = filtered_res$demultiplex_res$assigned_barcodes,
+        table = selected_freq_table)
 }
