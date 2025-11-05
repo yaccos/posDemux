@@ -20,12 +20,21 @@
 #'
 #' @export
 interactive_bc_cutoff <- function(freq_table) {
+    n_reads <- freq_table %>%
+        pull("frequency") %>%
+        sum()
+    ui <- cutoff_select_ui(freq_table, n_reads)
+    server <- cutoff_select_server(freq_table, n_reads)
+    shinyApp(ui, server)
+}
+
+cutoff_select_ui <- function(freq_table, n_reads) {
     n_barcode_combinations <- freq_table %>%
         nrow()
     n_reads <- freq_table %>%
         pull("frequency") %>%
         sum()
-    ui <- pageWithSidebar(
+    pageWithSidebar(
         headerPanel("Barcode cutoff selector"),
         sidebarPanel = sidebarPanel(
             sliderInput(
@@ -63,46 +72,47 @@ interactive_bc_cutoff <- function(freq_table) {
             plotOutput("frequency_plot")
         )
     )
+}
 
-    server <- function(input, output, session) {
-        output$knee_plot <- renderPlot(knee_plot(freq_table, input$cutoff) +
-            theme(text = element_text(size = 18)))
-
-        filtered_table <- reactive(freq_table[seq_len(input$cutoff), ])
-
-        frequency_cutoff <- reactive(
-            bc_to_freq_cutoff(freq_table, input$cutoff)
-            )
-
-
-        reads_kept <- reactive(filtered_table() %>%
-            pull("frequency") %>%
-            sum())
-
-        percentage_kept <- reactive(round(reads_kept() / n_reads * 100, 2))
-
-
-        output$frequency_plot <- renderPlot(
-            freq_plot(
-                freq_table,
-                cutoff = frequency_cutoff(),
-                type = input$freq_plot_type,
-                log_scale_x = input$log_scale_x,
-                log_scale_y = input$log_scale_y,
-                scale_by_reads = input$scale_by_reads
-            ) + theme(text = element_text(size = 18))
+cutoff_select_server <- function(freq_table, n_reads) {
+    function(input, output, session) {
+    output$knee_plot <- renderPlot(
+        knee_plot(freq_table, input$cutoff) + 
+            theme(text = element_text(size = 18))
         )
-        output$frequency_cutoff <- renderPrint(frequency_cutoff())
-        output$reads_kept <- renderText(glue(
-            "Number of reads kept: {reads_kept()} \\
+    
+    filtered_table <- reactive(freq_table[seq_len(input$cutoff), ])
+    
+    frequency_cutoff <- reactive(
+        bc_to_freq_cutoff(freq_table, input$cutoff)
+    )
+    reads_kept <- reactive(
+        filtered_table() %>% pull("frequency") %>% sum()
+    )
+    
+    percentage_kept <- reactive(round(reads_kept() / n_reads * 100, 2))
+    
+    
+    output$frequency_plot <- renderPlot(
+        freq_plot(
+            freq_table,
+            cutoff = frequency_cutoff(),
+            type = input$freq_plot_type,
+            log_scale_x = input$log_scale_x,
+            log_scale_y = input$log_scale_y,
+            scale_by_reads = input$scale_by_reads
+        ) + theme(text = element_text(size = 18))
+    )
+    output$frequency_cutoff <- renderPrint(frequency_cutoff())
+    output$reads_kept <- renderText(glue(
+        "Number of reads kept: {reads_kept()} \\
             ({percentage_kept()}%)"
-        ))
-        output$frequency_cutoff <- renderText(glue(
-            "Number of reads in last barcode included: {frequency_cutoff()}"
-        ))
-        observeEvent(input$exit, stopApp(input$cutoff))
+    ))
+    output$frequency_cutoff <- renderText(glue(
+        "Number of reads in last barcode included: {frequency_cutoff()}"
+    ))
+    observeEvent(input$exit, stopApp(input$cutoff))
     }
-    shinyApp(ui, server)
 }
 
 

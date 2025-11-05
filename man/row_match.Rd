@@ -10,8 +10,8 @@ row_match(x, table)
 \item{x}{A matrix or data frame which rows to be matched.
 Typically, this will be a matrix of assigned barcodes for each read.}
 
-\item{table}{A matrix or data frame with the rows to be matched against. Typically,
-this will be the top portion of a frequency table.}
+\item{table}{A matrix or data frame with the rows to be matched against.
+Typically, this will be the top portion of a frequency table.}
 }
 \value{
 Logical vector, for each row in \code{x}, is the same row found
@@ -27,16 +27,23 @@ just the barcodes, the intersection of the column names is used for matching.
 As opposed to \code{\link[base:match]{base::match()}}, this function is implemented more efficiently
 by converting each row into a numeric encoding before matching.
 
-For technical reasons, it is not permitted for the product of the number of the
+For technical reasons,
+it is not permitted for the product of the number of the
 unique values of the columns in \code{table} to
 exceed \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
 }
 \examples{
-barcode_table <- data.frame(read = c("seq_1", "seq_2", "seq_3", "seq_4"), bc1 = c("A", "B",
-    "C", "B"), bc2 = c("A", "C", "A", "A"))
+barcode_table <- data.frame(
+    read = c("seq_1", "seq_2", "seq_3", "seq_4"),
+    bc1 = c("A", "B", "C", "B"),
+    bc2 = c("A", "C", "A", "A")
+    )
 
-freq_table <- data.frame(bc1 = c("B", "B", "C", "A"), bc2 = c("A", "C", "A", "A"), frequency = c(200L,
-    100L, 50L, 10L))
+freq_table <- data.frame(
+    bc1 = c("B", "B", "C", "A"),
+    bc2 = c("A", "C", "A", "A"),
+    frequency = c(200L, 100L, 50L, 10L)
+    )
 
 freq_cutoff <- 100L
 

@@ -316,8 +316,8 @@ read_table_chunkwise(
     sep = "\t",
     chunk_size = chunk_size
 ) %>%
-    # For use within a pipeline, it is more convenient to use inner_join() than
-    # posDemux::row_match() and it achieves the save result
+    # For use within a pipeline, it is more convenient to use inner_join() 
+    # than posDemux::row_match() and it achieves the save result
     inner_join(selected_freq_table) %>%
     mutate(
         celltag = do.call(
@@ -379,7 +379,8 @@ We thus initialize the state as follows:
 
 ```{r state_init}
 custom_state_init <- list(
-    total_reads = 0L, demultiplexed_reads = 0L, output_table_initialized = FALSE
+    total_reads = 0L, demultiplexed_reads = 0L,
+    output_table_initialized = FALSE
 )
 ```
 
@@ -470,7 +471,10 @@ archiver <- function(state, filtered_res) {
         append <- TRUE
     }
 
-    Biostrings::writeXStringSet(umis, filepath = output_umi_file, append = TRUE)
+    Biostrings::writeXStringSet(
+        umis,
+        filepath = output_umi_file, append = TRUE
+    )
     readr::write_tsv(
         x = chunk_table,
         file = custom_output_table,
@@ -514,7 +518,7 @@ We finally load the files we wrote to in order to verify that they contain what
 we desire. We load the barcode table:
 
 ```{r verify_barcode_table}
-readr::read_tsv(custom_output_table)
+readr::read_tsv(custom_output_table, show_col_types = FALSE)
 ```
 
 and the UMI sequences:

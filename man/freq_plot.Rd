@@ -32,39 +32,44 @@ and \code{\link[=freq_to_bc_cutoff]{freq_to_bc_cutoff()}}.}
 \item{type}{The type of frequency plot to make, either \code{'histogram'}
 or \code{'density'}.}
 
-\item{log_scale_x}{Logical: Should a log scale be applied to the x-axis of the
-frequency plot?}
+\item{log_scale_x}{Logical: Should a log scale be applied
+to the x-axis of the frequency plot?}
 
-\item{log_scale_y}{Logical: Should a log scale be applied to the y-axis of the
-frequency plot?}
+\item{log_scale_y}{Logical: Should a log scale be applied
+to the y-axis of the frequency plot?}
 
 \item{scale_by_reads}{Logical: Should the y-axis of the plot be scaled by the
 number of reads on the x-axis?}
 }
 \value{
-A \code{\link[ggplot2]{ggplot}} object which can be displayed immediately or
-further modified.
+A \code{\link[ggplot2]{ggplot}} object which can be
+displayed immediately or further modified.
 }
 \description{
 Diagnostic plots for determining the effect of the barcode cutoff.
 \code{freq_plot()} shows a histogram or distribution plot of the
-number of reads for each barcode
-combination, whereas \code{knee_plot()} shows the cumulative fraction of reads
+number of reads for each barcode combination,
+whereas \code{knee_plot()} shows the cumulative fraction of reads
 ranked by the frequency of the barcode combinations in descending order.
 }
 \examples{
 library(purrr)
 library(Biostrings)
-input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
+input_fastq <- system.file(
+    "extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
 reads <- readDNAStringSet(input_fastq, format = "fastq")
-barcode_files <- system.file("extdata/PETRI-seq_barcodes", c(bc1 = "bc1.fa", bc2 = "bc2.fa",
-    bc3 = "bc3.fa"), package = "posDemux")
+barcode_files <- system.file(
+    "extdata/PETRI-seq_barcodes", 
+    c(bc1 = "bc1.fa", bc2 = "bc2.fa", bc3 = "bc3.fa"),
+    package = "posDemux"
+    )
 names(barcode_files) <- paste0("bc", 1L:3L)
 barcode_index <- map(barcode_files, readDNAStringSet)
 barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
 sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
 segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
-demultiplex_res <- posDemux::combinatorial_demultiplex(reads, barcodes = barcodes, segments = sequence_annotation,
+demultiplex_res <- posDemux::combinatorial_demultiplex(
+    reads, barcodes = barcodes, segments = sequence_annotation,
     segment_lengths = segment_lengths)
 filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
 freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
@@ -76,13 +81,15 @@ knee_plot(freq_table, cutoff = bc_cutoff)
 # Note that we must convert the cutoff when constructing the frequency plot
 freq_cutoff <- bc_to_freq_cutoff(freq_table, bc_cutoff)
 
-# This is the most basic type of frequency plot which can be made, but it is a bit hard
-# to interpret whether a selected cutoff is sensible
-freq_plot(freq_table, cutoff = freq_cutoff, type = "histogram", log_scale_x = FALSE, log_scale_y = FALSE,
-    scale_by_reads = FALSE)
+# This is the most basic type of frequency plot which can be made,
+# but it is a bit hard to interpret whether a selected cutoff is sensible
+freq_plot(
+    freq_table, cutoff = freq_cutoff, type = "histogram",
+    log_scale_x = FALSE, log_scale_y = FALSE, scale_by_reads = FALSE)
 
 # For most practical purposes, this is the most informative version
-freq_plot(freq_table, cutoff = freq_cutoff, type = "density", log_scale_x = TRUE, log_scale_y = FALSE,
+freq_plot(freq_table, cutoff = freq_cutoff, type = "density",
+    log_scale_x = TRUE, log_scale_y = FALSE,
     scale_by_reads = TRUE)
 }
 \seealso{

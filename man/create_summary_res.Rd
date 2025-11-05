@@ -47,16 +47,20 @@ Corresponds to the field \code{mismatches} of
 \item{...}{Ignored}
 }
 \value{
-\code{create_summary_res()} returns a list of S3 class \code{demultiplex_filter_summary}
+\code{create_summary_res()} returns a list of
+S3 class \code{demultiplex_filter_summary}
 providing diagnostics for the filtering process. It contains the
 the following fields:
 \itemize{
-\item \code{n_reads}: The total number of reads in the dataset before filtering.
-\item \code{n_removed}: The number of reads removed because demultiplexing failed.
+\item \code{n_reads}: The total number of reads
+in the dataset before filtering.
+\item \code{n_removed}: The number of reads removed
+because demultiplexing failed.
 \item \code{n_barcode_sets}: The number of barcode sets.
 \item \code{n_barcode_combinations}: The possible number
 of barcode combinations.
-\item \code{n_unique_barcodes}: The number of observed unique barcode combinations
+\item \code{n_unique_barcodes}: The number of observed
+unique barcode combinations
 (i.e. features which may be cells) detected after filtering mismatches.
 \item \code{n_estimated_features}: The estimated number of features having a
 detected combination of barcodes.
@@ -64,18 +68,22 @@ This number will always be greater or equal than \code{n_unique_barcodes} due
 to barcode collisions.
 \item \code{observed_collision_lambda}: The ratio of observed barcode
 combinations divided by the total number of possible barcode combinations.
-\item \code{corrected_collision_lambda}: The ratio of estimated number of features
+\item \code{corrected_collision_lambda}: The ratio of
+estimated number of features
 to the total number of possible barcode combinations.
 \item \code{expected_collisions}: The statistically expected number
 of barcode collisions or more precicely the expected number of
 observed barcodes which correspond to two or more features.
-\item \code{barcode_summary}: A list containing a summary for each barcode set.
+\item \code{barcode_summary}: A list containing a summary
+for each barcode set.
 Each element contains the following:
 \itemize{
 \item \code{width}: The width (number of nucleotides) of the barcode set.
 \item \code{n_barcodes}: Number of query barcodes.
-\item \code{n_allowed_mismatches}: Number of allowed mismatches for the barcode set.
-\item \code{n_removed}: Number of reads having too many mismatches for this barcode set.
+\item \code{n_allowed_mismatches}: Number of allowed mismatches
+for the barcode set.
+\item \code{n_removed}: Number of reads having too many mismatches
+for this barcode set.
 \item \code{mismatch_frame}: A \code{data.frame} with the two columns,
 \code{n_mismatches} and \code{frequency} showing the number of reads for each
 of the allowed number of mismatches for the given barcode set.
@@ -84,7 +92,8 @@ of the allowed number of mismatches for the given barcode set.
 The \code{print()} method returns its output invisibly.
 }
 \description{
-\code{create_summary_res()} is a helper function in order to create a summary of the demultiplexing
+\code{create_summary_res()} is a helper function in order
+to create a summary of the demultiplexing
 and following match filtering. It is not designed to be invoked directly, but
 its results will be returned automatically from
 \code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}. This returned object has it own method
@@ -107,30 +116,39 @@ we can correct the estimate for \eqn{\lambda} from the known value
 of the observed barcode combinations, and thus estimate the number
 of features and barcode collisions.
 
-While each unique feature can be conceptually thought of as single cell with its transcripts,
-realistic datasets have many features with relatively small numbers of reads which
+While each unique feature can be conceptually
+thought of as single cell with its transcripts,
+realistic datasets have many features with relatively
+small numbers of reads which
 are artifacts and unlikely to correspond to true cells.
 }
 \examples{
 library(purrr)
 library(Biostrings)
-input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
+input_fastq <- system.file(
+    "extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
 reads <- readDNAStringSet(input_fastq, format = "fastq")
-barcode_files <- system.file("extdata/PETRI-seq_barcodes", c(bc1 = "bc1.fa", bc2 = "bc2.fa",
-    bc3 = "bc3.fa"), package = "posDemux")
+barcode_files <- system.file(
+    "extdata/PETRI-seq_barcodes",
+    c(bc1 = "bc1.fa", bc2 = "bc2.fa", bc3 = "bc3.fa"), package = "posDemux"
+    )
 names(barcode_files) <- paste0("bc", 1L:3L)
 barcode_index <- map(barcode_files, readDNAStringSet)
 barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
 sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
 segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
-demultiplex_res <- posDemux::combinatorial_demultiplex(reads, barcodes = barcodes, segments = sequence_annotation,
-    segment_lengths = segment_lengths)
+demultiplex_res <- posDemux::combinatorial_demultiplex(
+    reads, barcodes = barcodes, segments = sequence_annotation,
+    segment_lengths = segment_lengths
+    )
 filtered_res <- filter_demultiplex_res(demultiplex_res, allowed_mismatches = 1L)
 freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
 print(filtered_res$summary_res)
 
 # This also works, but is usually not necessary to call directly
-alternative_summary_res <- create_summary_res(retained = filtered_res$retained, barcodes = barcodes,
-    assigned_barcodes = filtered_res$demultiplex_res$assigned_barcodes, allowed_mismatches = 1L,
-    mismatches = demultiplex_res$mismatches)
+alternative_summary_res <- create_summary_res(
+    retained = filtered_res$retained, barcodes = barcodes,
+    assigned_barcodes = filtered_res$demultiplex_res$assigned_barcodes,
+    allowed_mismatches = 1L, mismatches = demultiplex_res$mismatches
+    )
 }

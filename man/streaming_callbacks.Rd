@@ -22,11 +22,14 @@ barcode table will be written.}
 
 \item{verbose}{Logical scalar: Should the progress be displayed?}
 
-\item{min_width}{Optional integer scalar: Minimum width of the sequences to keep.
+\item{min_width}{Optional integer scalar:
+Minimum width of the sequences to keep.
 For reads which are shorter than this, a warning it emitted and the
 reads are removed and ignored and thus not appear in any statistics.
-The data loader is \strong{not} supposed to be used as a length filter, so this option
-is more like an escape hatch for being able to deal with sequences which have not been
+The data loader is \strong{not} supposed to be used as a length filter,
+so this option
+is more like an escape hatch for being able to deal
+with sequences which have not been
 properly filtered beforehand.}
 }
 \value{
@@ -63,19 +66,26 @@ group the forward and reverse reads together afterwards.
 \examples{
 library(purrr)
 library(Biostrings)
-input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
+input_fastq <- system.file(
+    "extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
 output_barcode_table <- tempfile(pattern = "barcode_table", fileext = ".txt")
 
-callbacks <- streaming_callbacks(input_file = input_fastq, output_table_file = output_barcode_table,
+callbacks <- streaming_callbacks(
+    input_file = input_fastq, output_table_file = output_barcode_table,
     chunk_size = 10000, verbose = TRUE)
-barcode_files <- system.file("extdata/PETRI-seq_barcodes", c(bc1 = "bc1.fa", bc2 = "bc2.fa",
-    bc3 = "bc3.fa"), package = "posDemux")
+barcode_files <- system.file(
+    "extdata/PETRI-seq_barcodes",
+    c(bc1 = "bc1.fa", bc2 = "bc2.fa", bc3 = "bc3.fa"),
+    package = "posDemux"
+    )
 names(barcode_files) <- paste0("bc", 1L:3L)
 barcode_index <- map(barcode_files, readDNAStringSet)
 barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
 sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
 segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
-streaming_summary_res <- streaming_demultiplex(state_init = callbacks$state_init, loader = callbacks$loader,
-    archiver = callbacks$archiver, barcodes = barcodes, allowed_mismatches = 1L, segments = sequence_annotation,
-    segment_lengths = segment_lengths)
+streaming_summary_res <- streaming_demultiplex(
+    state_init = callbacks$state_init, loader = callbacks$loader,
+    archiver = callbacks$archiver, barcodes = barcodes, allowed_mismatches = 1L,
+    segments = sequence_annotation, segment_lengths = segment_lengths
+    )
 }

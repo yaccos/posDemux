@@ -112,12 +112,9 @@ create_freq_table_from_count_table <- function(count_table, mapping) {
 #'
 #' @example inst/examples/freq_plot-examples.R
 #' @export
-freq_plot <- function(freq_table,
-    cutoff = NULL,
-    type = "histogram",
-    log_scale_x = TRUE,
-    log_scale_y = FALSE,
-    scale_by_reads = FALSE) {
+freq_plot <- function(freq_table, cutoff = NULL,
+    type = "histogram", log_scale_x = TRUE,
+    log_scale_y = FALSE, scale_by_reads = FALSE) {
     n_reads <- sum(freq_table$frequency)
     if (!scale_by_reads) {
         plot_type <- switch(type,

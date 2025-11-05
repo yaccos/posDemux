@@ -24,10 +24,11 @@ iterations taken as the \code{state} field of the output of \code{archiver}.
 Its return value is a list with the following fields:
 \itemize{
 \item \code{state}: The state to be passed into \code{archiver}.
-\item \code{sequences}: A \code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
+\item \code{sequences}: A
+\code{\link[Biostrings:XStringSet-class]{XStringSet}} object, the sequences
 to be demultiplexed in the current chunk.
-\item \code{should_terminate}: A scalar logical. If \code{TRUE}, the demultiplexing
-process terminates and the final results are returned.
+\item \code{should_terminate}: A scalar logical. If \code{TRUE},
+the demultiplexing process terminates and the final results are returned.
 Notice that this termination happens before the sequences of the final
 call to \code{loader} are demultiplexed.
 }}
@@ -43,12 +44,16 @@ field \code{summary_res} is missing.
 }
 Its output is a state object fed into the next call to \code{loader}.}
 
-\item{barcodes}{A list of \code{\link[Biostrings:XStringSet-class]{XStringSet}} objects in the same order they
-appear in the sequences, the barcodes
-to be used for demultiplexing. All of the barcodes in each \code{\link[Biostrings:XStringSet-class]{XStringSet}} must
-have the same length as specified by the \code{segment_lengths} argument and be named.
-For computational reasons, the maximum possible length of an individual barcode
-is 127.}
+\item{barcodes}{A list of
+\code{\link[Biostrings:XStringSet-class]{XStringSet}}
+objects in the same order they appear in the \code{sequences},
+the barcodes to be used for demultiplexing.
+All of the barcodes in each
+\code{\link[Biostrings:XStringSet-class]{XStringSet}} must
+have the same length as specified by the \code{segment_lengths} argument
+and be named.
+For computational reasons,
+the maximum possible length of an individual barcode is 127.}
 
 \item{allowed_mismatches}{Integer vector of length one or the same length
 as the number of barcode segments; the threshold Hamming distance. All reads
@@ -78,7 +83,8 @@ it is considered a variadic length segment.}
 \value{
 A list with three elements:
 \itemize{
-\item \code{freq_table}: The frequency table for all reads, akin to the output of
+\item \code{freq_table}: The frequency table for all reads,
+akin to the output of
 \code{\link[=create_freq_table]{create_freq_table()}}.
 \item \code{summary_res}: The summary result of match filtering of all reads
 per \code{\link[=create_summary_res]{create_summary_res()}}.
@@ -112,21 +118,28 @@ possible barcode combinations exceeds \eqn{2^{32}-1\approx 2.1\cdot 10^{9}}.
 \examples{
 library(purrr)
 library(Biostrings)
-input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
+input_fastq <- system.file(
+    "extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
 output_barcode_table <- tempfile(pattern = "barcode_table", fileext = ".txt")
 
-callbacks <- streaming_callbacks(input_file = input_fastq, output_table_file = output_barcode_table,
+callbacks <- streaming_callbacks(
+    input_file = input_fastq, output_table_file = output_barcode_table,
     chunk_size = 10000, verbose = TRUE)
-barcode_files <- system.file("extdata/PETRI-seq_barcodes", c(bc1 = "bc1.fa", bc2 = "bc2.fa",
-    bc3 = "bc3.fa"), package = "posDemux")
+barcode_files <- system.file(
+    "extdata/PETRI-seq_barcodes",
+    c(bc1 = "bc1.fa", bc2 = "bc2.fa", bc3 = "bc3.fa"),
+    package = "posDemux"
+    )
 names(barcode_files) <- paste0("bc", 1L:3L)
 barcode_index <- map(barcode_files, readDNAStringSet)
 barcodes <- barcode_index[c("bc3", "bc2", "bc1")]
 sequence_annotation <- c(UMI = "P", "B", "A", "B", "A", "B", "A")
 segment_lengths <- c(7L, 7L, 15L, 7L, 14L, 7L, NA_integer_)
-streaming_summary_res <- streaming_demultiplex(state_init = callbacks$state_init, loader = callbacks$loader,
-    archiver = callbacks$archiver, barcodes = barcodes, allowed_mismatches = 1L, segments = sequence_annotation,
-    segment_lengths = segment_lengths)
+streaming_summary_res <- streaming_demultiplex(
+    state_init = callbacks$state_init, loader = callbacks$loader,
+    archiver = callbacks$archiver, barcodes = barcodes, allowed_mismatches = 1L,
+    segments = sequence_annotation, segment_lengths = segment_lengths
+    )
 }
 \seealso{
 \code{\link[=filter_demultiplex_res]{filter_demultiplex_res()}}, \code{\link[=combinatorial_demultiplex]{combinatorial_demultiplex()}},
