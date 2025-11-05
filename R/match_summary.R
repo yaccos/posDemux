@@ -131,7 +131,7 @@ create_summary_res <- function(retained,
         function(barcode_set, barcode_name) {
             get_barcode_summary(
                 barcode_set,
-                barcode_name, allowed_mismatches[barcode_name])
+                barcode_name, allowed_mismatches[barcode_name], mismatches)
         }
     )
     summary_res <- list(
@@ -151,7 +151,7 @@ create_summary_res <- function(retained,
 }
 
 get_barcode_summary <- function(barcode_set,
-    barcode_name, n_allowed_mismatches
+    barcode_name, n_allowed_mismatches, mismatches
     ) {
     barcode_width <- width(barcode_set)[1L]
     n_barcodes <- length(barcode_set)
@@ -221,36 +221,38 @@ print.demultiplex_filter_summary <- function(x, ...) {
         cat("\n")
     glue("Number of barcode sets: {x$n_barcode_sets}") %>%
         cat("\n")
-    iwalk(x$barcode_summary, function(res, barcode_name) {
-        cat(rep("-", 80L), "\n")
-        glue("Barcode set: {barcode_name}") %>%
-            cat("\n")
-        glue("Barcode width: {res$width}") %>%
-            cat("\n")
-        glue("Number of possible barcodes: \\
-        {res$n_barcodes}") %>%
-            cat("\n")
-        glue("Number of allowed mismatches: {res$n_allowed_mismatches}") %>%
-            cat("\n")
-        walk2(
-            res$mismatch_frame$n_mismatches,
-            res$mismatch_frame$frequency,
-            function(mismatches, frequency) {
-                percentage <- frequency / x$n_reads * 100
-                glue(
-                    "Number of reads with {mismatches} mismatches: \\
-                    {frequency} ({percentage %>% round(2L)}%)"
-                ) %>%
-                    cat("\n")
-            }
-        )
-        percentage <- res$n_removed / x$n_reads * 100
-        glue(
-            "Number of reads above mismatch threshold: \\
-            {res$n_removed} ({percentage %>% round(2L)}%)"
-        ) %>%
-            cat("\n")
-    })
+    iwalk(x$barcode_summary, print_barcode_summary)
     cat(rep("-", 80L), "\n")
     invisible(x)
+}
+
+print_barcode_summary <- function(res, barcode_name) {
+    cat(rep("-", 80L), "\n")
+    glue("Barcode set: {barcode_name}") %>%
+        cat("\n")
+    glue("Barcode width: {res$width}") %>%
+        cat("\n")
+    glue("Number of possible barcodes: \\
+        {res$n_barcodes}") %>%
+        cat("\n")
+    glue("Number of allowed mismatches: {res$n_allowed_mismatches}") %>%
+        cat("\n")
+    walk2(
+        res$mismatch_frame$n_mismatches,
+        res$mismatch_frame$frequency,
+        function(mismatches, frequency) {
+            percentage <- frequency / x$n_reads * 100
+            glue(
+                "Number of reads with {mismatches} mismatches: \\
+                {frequency} ({percentage %>% round(2L)}%)"
+            ) %>%
+                cat("\n")
+        }
+    )
+    percentage <- res$n_removed / x$n_reads * 100
+    glue(
+        "Number of reads above mismatch threshold: \\
+        {res$n_removed} ({percentage %>% round(2L)}%)"
+    ) %>%
+        cat("\n")
 }

@@ -251,9 +251,7 @@ extract_variadic_sequence <- function(
 
 # This function assumes that the exact lengths of all segments are known.
 # Arguments sequences and barcodes are DNAStringSet objects
-extract_and_demultiplex <- function(
-    sequences,
-    barcodes,
+extract_and_demultiplex <- function(sequences, barcodes,
     segments, segment_lengths
 ) {
     barcode_widths <- imap_int(barcodes, extract_barcode_width)
@@ -278,9 +276,12 @@ extract_and_demultiplex <- function(
 
     payload_segment_idxs <- which(segments == "P")
     payload_widths <- segment_lengths[payload_segment_idxs]
-
     payload_sequences <- map2(
-        payload_widths, payload_segment_idxs, extract_sequence)
+        payload_segment_idxs, payload_widths,
+        # Why swapping the order of the arguments?
+        # It turns out the name of the result is taken from the first iterable
+        \(idx, width) extract_sequence(width, idx)
+        )
 
     barcode_results <- pmap(
         list(barcodes, barcode_segments_sequences, barcode_widths),
