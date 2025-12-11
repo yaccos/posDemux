@@ -13,7 +13,10 @@ streaming_callbacks(
 )
 }
 \arguments{
-\item{input_file}{The path to the FASTQ file to be used for demultiplexing.}
+\item{input_file}{A character vector containing the paths to the FASTQ files
+to be used for demultiplexing. Often this is only one file, but multiple
+files are supported such that demultiplexing data from multiple lanes does
+not require merging the lanes first.}
 
 \item{output_table_file}{The path to which the output
 barcode table will be written.}
@@ -24,7 +27,7 @@ barcode table will be written.}
 
 \item{min_width}{Optional integer scalar:
 Minimum width of the sequences to keep.
-For reads which are shorter than this, a warning it emitted and the
+For reads which are shorter than this, a warning is emitted and the
 reads are removed and ignored and thus not appear in any statistics.
 The data loader is \strong{not} supposed to be used as a length filter,
 so this option
@@ -47,7 +50,7 @@ Even though the user can define the arguments \code{state_init},
 for \code{\link[=streaming_demultiplex]{streaming_demultiplex()}}, this approach is only recommended
 for advanced users. This functions defines a premade combinations of
 these three arguments which should be suitable in most cases.
-The loader streams a FASTQ file in chunks using \code{\link[ShortRead:Sampler-class]{ShortRead::FastqStreamer()}}
+The loader streams a FASTQ file (having multiple files is also supported)
 and the archiver outputs
 a data frame to file consisting of the read name (\code{read}),
 the sequences of all payloads (e.g. \code{UMI}), and barcode assignments
@@ -88,4 +91,8 @@ streaming_summary_res <- streaming_demultiplex(
     archiver = callbacks$archiver, barcodes = barcodes, allowed_mismatches = 1L,
     segments = sequence_annotation, segment_lengths = segment_lengths
     )
+}
+\seealso{
+\code{\link[ShortRead:Sampler-class]{ShortRead::FastqStreamer()}} which is used
+as a backend for the data loader.
 }

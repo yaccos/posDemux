@@ -9,20 +9,24 @@ log_progress <- function(msg) {
 #' for [streaming_demultiplex()], this approach is only recommended
 #' for advanced users. This functions defines a premade combinations of
 #' these three arguments which should be suitable in most cases.
-#' The loader streams a FASTQ file in chunks using [ShortRead::FastqStreamer()]
+#' The loader streams a FASTQ file (having multiple files is also supported)
+#  in chunks using [ShortRead::FastqStreamer()]
 #' and the archiver outputs
 #' a data frame to file consisting of the read name (\code{read}),
 #' the sequences of all payloads (e.g. \code{UMI}), and barcode assignments
 #' (\code{c('bc3','bc2','bc1')}).
 #'
-#' @param input_file The path to the FASTQ file to be used for demultiplexing.
+#' @param input_file A character vector containing the paths to the FASTQ files
+#'  to be used for demultiplexing. Often this is only one file, but multiple
+#'  files are supported such that demultiplexing data from multiple lanes does
+#'  not require merging the lanes first.
 #' @param output_table_file The path to which the output
 #' barcode table will be written.
 #' @param chunk_size Integer, the number of reads to process in each chunk.
 #' @param verbose Logical scalar: Should the progress be displayed?
 #' @param min_width Optional integer scalar:
 #' Minimum width of the sequences to keep.
-#' For reads which are shorter than this, a warning it emitted and the
+#' For reads which are shorter than this, a warning is emitted and the
 #' reads are removed and ignored and thus not appear in any statistics.
 #' The data loader is **not** supposed to be used as a length filter,
 #' so this option
@@ -52,6 +56,8 @@ log_progress <- function(msg) {
 #' @importFrom purrr list_cbind
 #'
 #' @example inst/examples/streaming-examples.R
+#' @seealso [ShortRead::FastqStreamer()] which is used
+#' as a backend for the data loader.
 #' @export
 streaming_callbacks <- function(input_file, output_table_file,
                                 chunk_size = 1e+06, verbose = TRUE,
@@ -61,9 +67,7 @@ streaming_callbacks <- function(input_file, output_table_file,
         total_reads = 0L, demultiplexed_reads = 0L,
         output_table_initialized = FALSE
     )
-    
     res$loader <- default_loader(input_file, chunk_size, verbose, min_width)
-
     res$archiver <- default_archiver(output_table_file, verbose)
     res
 }
@@ -74,47 +78,70 @@ default_loader <- function(input_file, chunk_size, verbose, min_width){
             if (verbose) {
                 log_progress("Initializing FASTQ stream and output table")
             }
-            state$istream <- ShortRead::FastqStreamer(
-                input_file,
-                n = chunk_size
-            )
+            state$file_pointer <- 1L
+            state$istream <- NULL
         }
-        raw_chunk <- ShortRead::yield(state$istream)
-        chunk <- ShortRead::sread(raw_chunk)
-        # For pair-end reads, we usually don't want what is
-        # trailing after the space in
-        # order to have the same identifiers to both forward and reverse reads
-        names(chunk) <- ShortRead::id(raw_chunk) %>%
-            {
-                sub(" .*$", "", .)
+        if (is.null(state$istream)) {
+            if (state$file_pointer > length(input_file)) {
+                # Termination criterion, we have streamed through
+                # all provided files
+                final_res <- list(
+                    state = state, sequences = NULL,
+                    should_terminate = TRUE
+                )
+                if (verbose) {
+                    log_progress("Done demultiplexing")
+                }
+                return(final_res)
             }
+            # Otherwise, we have more files left and
+            # can proceed with the next one
+            if (verbose) {
+                log_progress(
+                    "Streaming FASTQ input file {state$file_pointer}" %>% glue()
+                )
+            }
+            state$istream <- ShortRead::FastqStreamer(
+                input_file[[state$file_pointer]], n = chunk_size
+                )
+        }
+        chunk <- get_chunk_reads(state$istream)
         n_reads_in_chunk <- length(chunk)
         if (n_reads_in_chunk == 0L && state$output_table_initialized) {
             # The case when the initial chunk is empty is given special
             # treatment since
-            # we want to create the table regardless No more reads to process,
-            # make the outer framework return.
-            #  Clean up resources
-            close(state$istream)
-            state$istream <- NULL
-            final_res <- list(
-                state = state, sequences = NULL,
-                should_terminate = TRUE
-            )
-            if (verbose) {
-                log_progress("Done demultiplexing")
-            }
-            return(final_res)
+            # we want to create the table regardless
+            state <- handle_empty_chunk(state)
         }
-        if (min_width %>%
-            is.null() %>%
-            magrittr::not()) {
+        if (min_width %>% is.null() %>% magrittr::not()) {
             chunk <- warn_sufficient_length(chunk, min_width)
             n_reads_in_chunk <- length(chunk)
         }
         state$total_reads <- state$total_reads + n_reads_in_chunk
         list(state = state, sequences = chunk, should_terminate = FALSE)
     }
+}
+
+get_chunk_reads <- function(istream) {
+    raw_chunk <- ShortRead::yield(istream)
+    chunk <- ShortRead::sread(raw_chunk)
+    # For pair-end reads, we usually don't want what is
+    # trailing after the space in
+    # order to have the same identifiers to both forward and reverse reads
+    names(chunk) <- ShortRead::id(raw_chunk) %>%
+        {
+            sub(" .*$", "", .)
+        }
+    chunk
+}
+
+handle_empty_chunk <- function(state) {
+    # We have reach the end of the current  FASTQ file, so we close it
+    close(state$istream)
+    state$istream <- NULL
+    # Advance the file pointer
+    state$file_pointer <- state$file_pointer + 1
+    state
 }
 
 default_archiver <- function(output_table_file, verbose) {

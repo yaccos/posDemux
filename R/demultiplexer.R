@@ -244,18 +244,10 @@ extract_and_demultiplex <- function(sequences, barcodes,
     n_segments <- length(segments)
     segment_ends <- cumsum(segment_lengths)
     barcode_segment_idxs <- which(segments == "B")
-    assert_that(
-        all.equal(barcode_widths, segment_lengths[barcode_segment_idxs],
-            check.attributes = FALSE
-        ) %>%
-            isTRUE(),
-        msg = "Barcodes lengths do not match their provided segments lengths"
-    )
-    
+    assert_barcode_widths(barcode_widths, segment_lengths[barcode_segment_idxs])
     extract_sequence <- function(width, idx) {
         subseq(sequences, end = segment_ends[idx], width = width)
     }
-    
     barcode_segments_sequences <- map2(
         barcode_widths, barcode_segment_idxs, extract_sequence)
 
@@ -268,19 +260,27 @@ extract_and_demultiplex <- function(sequences, barcodes,
         \(idx, width) extract_sequence(width, idx)
         )
 
-    barcode_results <- pmap(
-        list(barcodes, barcode_segments_sequences, barcode_widths),
-        function(barcode, segment, width) {
-            hamming_match(
-                segment, names(segment),
-                barcode, names(barcode), width
-            )
-        }
-    )
-    assigned_barcodes <- do.call(
-        cbind, map(barcode_results, "assigned_barcodes")
-    )
-    mismatches <- do.call(cbind, map(barcode_results, "mismatches"))
+    if (n_barcodes == 0) {
+        # Edge case: The number of barcode segments is zero.
+        # This yields NULL values,
+        # which may result in erroneous downstream handling
+        assigned_barcodes <- get_empty_matrix("character", sequences)
+        mismatches <- get_empty_matrix("integer", sequences)
+    } else {
+        barcode_results <- pmap(
+            list(barcodes, barcode_segments_sequences, barcode_widths),
+            function(barcode, segment, width) {
+                hamming_match(
+                    segment, names(segment),
+                    barcode, names(barcode), width
+                )
+            }
+        )
+        assigned_barcodes <- do.call(
+            cbind, map(barcode_results, "assigned_barcodes")
+        )
+        mismatches <- do.call(cbind, map(barcode_results, "mismatches"))
+    }
     list(
         assigned_barcodes = assigned_barcodes,
         mismatches = mismatches, payload = payload_sequences
@@ -300,4 +300,22 @@ extract_barcode_width <- function(barcode, name) {
             longer than the limit of {MAX_BARCODE_LEN} nucleotides")
     )
     unique_widths
+}
+
+assert_barcode_widths <- function(actual_widths, expected_widths) {
+    assert_that(
+        all.equal(actual_widths, expected_widths, check.attributes = FALSE) %>%
+            isTRUE(),
+        msg = "Barcodes widths do not match their provided segments lengths"
+    )
+}
+
+get_empty_matrix <- function(typeof, sequences) {
+    nrow <- length(sequences)
+    seq_names <- names(sequences)
+    empty_vector <- vector(mode = typeof, length = 0L)
+    matrix(
+        empty_vector, nrow = nrow, ncol = 0,
+        dimnames = list(seq_names, character())
+        )
 }

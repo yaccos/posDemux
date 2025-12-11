@@ -1,4 +1,5 @@
 library(Biostrings)
+library(purrr)
 input_fastq <- system.file("extdata", "PETRI-seq_forward_reads.fq.gz", package = "posDemux")
 reads <- readQualityScaledDNAStringSet(input_fastq)
 # Emulates the effect of a direction specific-identifier after the space in the read
