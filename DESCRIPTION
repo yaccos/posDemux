@@ -2,7 +2,7 @@ Package: posDemux
 Type: Package
 Title: Positional combinatorial sequence demultiplexer
 Encoding: UTF-8
-Version: 0.99.6
+Version: 0.99.7
 Date: 2025-11-05
 Authors@R: c(
    person(given = "Jakob Peder",
@@ -26,6 +26,7 @@ Imports: Biostrings, ggplot2, methods, assertthat, glue,
     magrittr, dplyr, rlang, ShortRead, readr, shiny, purrr
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
 biocViews: SequenceMatching, Sequencing, Software, RNASeq
+LazyData: FALSE
 URL: https://github.com/yaccos/posDemux
 BugReports: https://github.com/yaccos/posDemux/issues
 RoxygenNote: 7.3.3
