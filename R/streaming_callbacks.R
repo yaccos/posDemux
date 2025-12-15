@@ -96,9 +96,10 @@ default_loader <- function(input_file, chunk_size, verbose, min_width){
             }
             # Otherwise, we have more files left and
             # can proceed with the next one
+            input_file_name <- input_file[[state$file_pointer]]
             if (verbose) {
                 log_progress(
-                    "Streaming FASTQ input file {state$file_pointer}" %>% glue()
+                    glue("Streaming FASTQ input file {input_file_name}")
                 )
             }
             state$istream <- ShortRead::FastqStreamer(
@@ -107,11 +108,11 @@ default_loader <- function(input_file, chunk_size, verbose, min_width){
         }
         chunk <- get_chunk_reads(state$istream)
         n_reads_in_chunk <- length(chunk)
-        if (n_reads_in_chunk == 0L && state$output_table_initialized) {
+        if (n_reads_in_chunk < chunk_size && state$output_table_initialized) {
             # The case when the initial chunk is empty is given special
             # treatment since
             # we want to create the table regardless
-            state <- handle_empty_chunk(state)
+            state <- handle_tail_chunk(state)
         }
         if (min_width %>% is.null() %>% magrittr::not()) {
             chunk <- warn_sufficient_length(chunk, min_width)
@@ -135,8 +136,8 @@ get_chunk_reads <- function(istream) {
     chunk
 }
 
-handle_empty_chunk <- function(state) {
-    # We have reach the end of the current  FASTQ file, so we close it
+handle_tail_chunk <- function(state) {
+    # We have reach the end of the current FASTQ file, so we close it
     close(state$istream)
     state$istream <- NULL
     # Advance the file pointer

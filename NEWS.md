@@ -1,3 +1,7 @@
+# posDemux 0.99.8
+
+* Avoided reading an empty chunk twice while streaming
+
 # posDemux 0.99.6
 
 * Changed the data loader of the default callbacks, allowing for
