@@ -27,7 +27,7 @@ Imports: Biostrings, ggplot2, methods, assertthat, glue,
 LinkingTo: Rcpp, Biostrings, IRanges, S4Vectors, XVector
 biocViews: SequenceMatching, Sequencing, Software, RNASeq
 LazyData: FALSE
-URL: https://github.com/yaccos/posDemux
+URL: https://github.com/yaccos/posDemux, https://yaccos.github.io/posDemux/
 BugReports: https://github.com/yaccos/posDemux/issues
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)

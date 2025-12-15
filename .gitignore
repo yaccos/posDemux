@@ -18,3 +18,4 @@ vignettes/*.R
 /Meta/
 *.Rproj
 
+docs
