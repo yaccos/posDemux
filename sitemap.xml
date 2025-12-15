@@ -1,0 +1,23 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://yaccos.github.io/posDemux/404.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/LICENSE.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/articles/demultiplexing.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/articles/index.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/articles/streaming.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/authors.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/index.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/news/index.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/bc_to_freq_cutoff.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/combinatorial_demultiplex.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/create_freq_table.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/create_summary_res.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/filter_demultiplex_res.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/freq_plot.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/index.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/interactive_bc_cutoff.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/posDemux.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/row_match.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/streaming_callbacks.html</loc></url>
+<url><loc>https://yaccos.github.io/posDemux/reference/streaming_demultiplex.html</loc></url>
+</urlset>
+
