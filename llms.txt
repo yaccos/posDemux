@@ -18,7 +18,7 @@ devtools::install_github("yaccos/posDemux")
 
 ## Usage
 
-Please see the package vignettes.
+Please see the package [vignettes](https://yaccos.github.io/posDemux/).
 
 ## Issues
 

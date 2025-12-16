@@ -65,7 +65,7 @@ Pettersen</h4>
 Science<br><a class="author_email" href="mailto:#"></a><a href="mailto:jakobpeder.pettersen@gmail.com" class="email">jakobpeder.pettersen@gmail.com</a>
       </address>
                   
-            <h4 data-toc-skip class="date">15 December 2025</h4>
+            <h4 data-toc-skip class="date">16 December 2025</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/yaccos/posDemux/blob/main/vignettes/streaming.Rmd" class="external-link"><code>vignettes/streaming.Rmd</code></a></small>
       <div class="d-none name"><code>streaming.Rmd</code></div>
@@ -242,15 +242,15 @@ segments and feed them into the streaming framework:</p>
 <span>    segments <span class="op">=</span> <span class="va">sequence_annotation</span>,</span>
 <span>    segment_lengths <span class="op">=</span> <span class="va">segment_lengths</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:15:59 2025 =&gt; Initializing FASTQ stream and output table</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:15:59 2025 =&gt; Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:16:05 2025 =&gt; Processed 10000 reads, successfully demultiplexed 9117 reads so far...</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:16:05 2025 =&gt; Processed 20000 reads, successfully demultiplexed 18259 reads so far...</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:16:05 2025 =&gt; Processed 30000 reads, successfully demultiplexed 27362 reads so far...</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:16:05 2025 =&gt; Processed 40000 reads, successfully demultiplexed 36487 reads so far...</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:16:05 2025 =&gt; Processed 50000 reads, successfully demultiplexed 45629 reads so far...</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:16:05 2025 =&gt; Processed 56895 reads, successfully demultiplexed 51906 reads so far...</span></span>
-<span><span class="co">#&gt; Mon Dec 15 17:16:05 2025 =&gt; Done demultiplexing</span></span></code></pre></div>
+<span><span class="co">#&gt; Tue Dec 16 10:16:33 2025 =&gt; Initializing FASTQ stream and output table</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:33 2025 =&gt; Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:39 2025 =&gt; Processed 10000 reads, successfully demultiplexed 9117 reads so far...</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:39 2025 =&gt; Processed 20000 reads, successfully demultiplexed 18259 reads so far...</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:39 2025 =&gt; Processed 30000 reads, successfully demultiplexed 27362 reads so far...</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:39 2025 =&gt; Processed 40000 reads, successfully demultiplexed 36487 reads so far...</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:40 2025 =&gt; Processed 50000 reads, successfully demultiplexed 45629 reads so far...</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:40 2025 =&gt; Processed 56895 reads, successfully demultiplexed 51906 reads so far...</span></span>
+<span><span class="co">#&gt; Tue Dec 16 10:16:40 2025 =&gt; Done demultiplexing</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="displaying-the-result-from-streaming">Displaying the result from streaming<a class="anchor" aria-label="anchor" href="#displaying-the-result-from-streaming"></a>
@@ -400,7 +400,7 @@ outputting to the database, we use the <code>chunked</code> package:</p>
 <span><span class="co">#&gt; Joining with `by = join_by(bc3, bc2, bc1)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(bc3, bc2, bc1)`</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   table&lt;`selected_barcodes`&gt; [?? x 3]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: sqlite 3.51.1 [/tmp/Rtmp0p0lbR/selected_barcode_tablea893401f95a9.sqlite]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: sqlite 3.51.1 [/tmp/RtmpLJJI3n/selected_barcode_table335225de6d9a.sqlite]</span></span></span>
 <span><span class="co">#&gt;    read   UMI     celltag             </span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> seq_1  GCCTAAC bc3_57_bc2_51_bc1_94</span></span>
@@ -658,7 +658,7 @@ package was made possible thanks to:</p>
 <p><code>R</code> session information:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
-<span><span class="co">#&gt;  version  R Under development (unstable) (2025-12-12 r89163)</span></span>
+<span><span class="co">#&gt;  version  R Under development (unstable) (2025-12-14 r89168)</span></span>
 <span><span class="co">#&gt;  os       Ubuntu 24.04.3 LTS</span></span>
 <span><span class="co">#&gt;  system   x86_64, linux-gnu</span></span>
 <span><span class="co">#&gt;  ui       X11</span></span>
@@ -666,7 +666,7 @@ package was made possible thanks to:</p>
 <span><span class="co">#&gt;  collate  C.UTF-8</span></span>
 <span><span class="co">#&gt;  ctype    C.UTF-8</span></span>
 <span><span class="co">#&gt;  tz       UTC</span></span>
-<span><span class="co">#&gt;  date     2025-12-15</span></span>
+<span><span class="co">#&gt;  date     2025-12-16</span></span>
 <span><span class="co">#&gt;  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)</span></span>
 <span><span class="co">#&gt;  quarto   NA</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -741,7 +741,7 @@ package was made possible thanks to:</p>
 <span><span class="co">#&gt;  pkgdown                2.2.0     <span style="color: #555555;">2025-11-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM</span></span></span>
 <span><span class="co">#&gt;  plyr                   1.8.9     <span style="color: #555555;">2023-10-02</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM</span></span></span>
 <span><span class="co">#&gt;  png                    0.1-8     <span style="color: #555555;">2022-11-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM</span></span></span>
-<span><span class="co">#&gt;  posDemux             * 0.99.8    <span style="color: #555555;">2025-12-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
+<span><span class="co">#&gt;  posDemux             * 0.99.8    <span style="color: #555555;">2025-12-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">local</span></span></span>
 <span><span class="co">#&gt;  promises               1.5.0     <span style="color: #555555;">2025-11-01</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM</span></span></span>
 <span><span class="co">#&gt;  purrr                * 1.2.0     <span style="color: #555555;">2025-11-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM</span></span></span>
 <span><span class="co">#&gt;  pwalign                1.7.0     <span style="color: #555555;">2025-10-31</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Bioconduc~</span></span></span>

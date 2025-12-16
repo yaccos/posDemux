@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   demultiplexing: demultiplexing.html
   streaming: streaming.html
-last_built: 2025-12-15T17:15Z
+last_built: 2025-12-16T10:16Z
 urls:
   reference: https://yaccos.github.io/posDemux/reference
   article: https://yaccos.github.io/posDemux/articles

@@ -163,15 +163,15 @@ streaming_summary_res <- streaming_demultiplex(
     segments = sequence_annotation,
     segment_lengths = segment_lengths
 )
-#> Mon Dec 15 17:15:59 2025 => Initializing FASTQ stream and output table
-#> Mon Dec 15 17:15:59 2025 => Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz
-#> Mon Dec 15 17:16:05 2025 => Processed 10000 reads, successfully demultiplexed 9117 reads so far...
-#> Mon Dec 15 17:16:05 2025 => Processed 20000 reads, successfully demultiplexed 18259 reads so far...
-#> Mon Dec 15 17:16:05 2025 => Processed 30000 reads, successfully demultiplexed 27362 reads so far...
-#> Mon Dec 15 17:16:05 2025 => Processed 40000 reads, successfully demultiplexed 36487 reads so far...
-#> Mon Dec 15 17:16:05 2025 => Processed 50000 reads, successfully demultiplexed 45629 reads so far...
-#> Mon Dec 15 17:16:05 2025 => Processed 56895 reads, successfully demultiplexed 51906 reads so far...
-#> Mon Dec 15 17:16:05 2025 => Done demultiplexing
+#> Tue Dec 16 10:16:33 2025 => Initializing FASTQ stream and output table
+#> Tue Dec 16 10:16:33 2025 => Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz
+#> Tue Dec 16 10:16:39 2025 => Processed 10000 reads, successfully demultiplexed 9117 reads so far...
+#> Tue Dec 16 10:16:39 2025 => Processed 20000 reads, successfully demultiplexed 18259 reads so far...
+#> Tue Dec 16 10:16:39 2025 => Processed 30000 reads, successfully demultiplexed 27362 reads so far...
+#> Tue Dec 16 10:16:39 2025 => Processed 40000 reads, successfully demultiplexed 36487 reads so far...
+#> Tue Dec 16 10:16:40 2025 => Processed 50000 reads, successfully demultiplexed 45629 reads so far...
+#> Tue Dec 16 10:16:40 2025 => Processed 56895 reads, successfully demultiplexed 51906 reads so far...
+#> Tue Dec 16 10:16:40 2025 => Done demultiplexing
 ```
 
 ### Displaying the result from streaming
@@ -329,7 +329,7 @@ read_table_chunkwise(
 #> Joining with `by = join_by(bc3, bc2, bc1)`
 #> Joining with `by = join_by(bc3, bc2, bc1)`
 #> # Source:   table<`selected_barcodes`> [?? x 3]
-#> # Database: sqlite 3.51.1 [/tmp/Rtmp0p0lbR/selected_barcode_tablea893401f95a9.sqlite]
+#> # Database: sqlite 3.51.1 [/tmp/RtmpLJJI3n/selected_barcode_table335225de6d9a.sqlite]
 #>    read   UMI     celltag             
 #>    <chr>  <chr>   <chr>               
 #>  1 seq_1  GCCTAAC bc3_57_bc2_51_bc1_94
@@ -594,7 +594,7 @@ This package was developed using
 
     #> ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R Under development (unstable) (2025-12-12 r89163)
+    #>  version  R Under development (unstable) (2025-12-14 r89168)
     #>  os       Ubuntu 24.04.3 LTS
     #>  system   x86_64, linux-gnu
     #>  ui       X11
@@ -602,7 +602,7 @@ This package was developed using
     #>  collate  C.UTF-8
     #>  ctype    C.UTF-8
     #>  tz       UTC
-    #>  date     2025-12-15
+    #>  date     2025-12-16
     #>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
     #>  quarto   NA
     #> 
@@ -677,7 +677,7 @@ This package was developed using
     #>  pkgdown                2.2.0     2025-11-06 [1] RSPM
     #>  plyr                   1.8.9     2023-10-02 [1] RSPM
     #>  png                    0.1-8     2022-11-29 [1] RSPM
-    #>  posDemux             * 0.99.8    2025-12-15 [1] local
+    #>  posDemux             * 0.99.8    2025-12-16 [1] local
     #>  promises               1.5.0     2025-11-01 [1] RSPM
     #>  purrr                * 1.2.0     2025-11-04 [1] RSPM
     #>  pwalign                1.7.0     2025-10-31 [1] Bioconduc~

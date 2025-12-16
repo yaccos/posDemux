@@ -605,7 +605,7 @@ This package was developed using
 
     #> ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R Under development (unstable) (2025-12-12 r89163)
+    #>  version  R Under development (unstable) (2025-12-14 r89168)
     #>  os       Ubuntu 24.04.3 LTS
     #>  system   x86_64, linux-gnu
     #>  ui       X11
@@ -613,7 +613,7 @@ This package was developed using
     #>  collate  C.UTF-8
     #>  ctype    C.UTF-8
     #>  tz       UTC
-    #>  date     2025-12-15
+    #>  date     2025-12-16
     #>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
     #>  quarto   NA
     #> 
@@ -661,7 +661,7 @@ This package was developed using
     #>  pkgconfig      2.0.3     2019-09-22 [1] RSPM
     #>  pkgdown        2.2.0     2025-11-06 [1] RSPM
     #>  plyr           1.8.9     2023-10-02 [1] RSPM
-    #>  posDemux     * 0.99.8    2025-12-15 [1] local
+    #>  posDemux     * 0.99.8    2025-12-16 [1] local
     #>  promises       1.5.0     2025-11-01 [1] RSPM
     #>  purrr        * 1.2.0     2025-11-04 [1] RSPM
     #>  R6             2.6.1     2025-02-15 [1] RSPM
