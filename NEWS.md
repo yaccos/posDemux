@@ -1,3 +1,8 @@
+# posDemux 0.99.9
+
+Renamed the main vignette to `posDemux.rmd` such that `pkgdown` recognizes it as
+the "Getting Started" vignette.
+
 # posDemux 0.99.8
 
 * Avoided reading an empty chunk twice while streaming

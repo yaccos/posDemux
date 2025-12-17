@@ -71,7 +71,7 @@ However, due to overhead in file operations and the `R` interpreter,
 the most efficient option is to process the files in chunks
 of a predetermined size.
 If you have not read the main package vignette
-yet (`vignette("demultiplexing")`), please do so before proceeding.
+yet (`vignette("posDemux")`), please do so before proceeding.
 
 ## Which chunk size to use?
 
