@@ -13,13 +13,13 @@ Source:
 [`DESCRIPTION`](https://github.com/yaccos/posDemux/blob/main/DESCRIPTION)
 
 Pettersen J (2025). *posDemux: Positional combinatorial sequence
-demultiplexer*. R package version 0.99.8,
+demultiplexer*. R package version 0.99.9,
 <https://github.com/yaccos/posDemux>.
 
     @Manual{,
       title = {posDemux: Positional combinatorial sequence demultiplexer},
       author = {Jakob Peder Pettersen},
       year = {2025},
-      note = {R package version 0.99.8},
+      note = {R package version 0.99.9},
       url = {https://github.com/yaccos/posDemux},
     }

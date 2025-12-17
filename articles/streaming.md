@@ -11,7 +11,7 @@ demultiplexer and output the barcode assignment to a file. However, due
 to overhead in file operations and the `R` interpreter, the most
 efficient option is to process the files in chunks of a predetermined
 size. If you have not read the main package vignette yet
-([`vignette("demultiplexing")`](https://yaccos.github.io/posDemux/articles/demultiplexing.md)),
+([`vignette("posDemux")`](https://yaccos.github.io/posDemux/articles/posDemux.md)),
 please do so before proceeding.
 
 ### Which chunk size to use?
@@ -113,8 +113,7 @@ is a function factory, we must specify the file path to the FASTQ input
 file, and the barcode table output file for it to generate useful
 callbacks. In addition, the chunk size is regulated through the
 callbacks. We use the same dataset as in the main package vignette
-([`vignette("demultiplexing")`](https://yaccos.github.io/posDemux/articles/demultiplexing.md))
-and obtain the callbacks as follows:
+(`vignette("demultiplexing")`) and obtain the callbacks as follows:
 
 ``` r
 library(posDemux)
@@ -163,15 +162,15 @@ streaming_summary_res <- streaming_demultiplex(
     segments = sequence_annotation,
     segment_lengths = segment_lengths
 )
-#> Tue Dec 16 10:16:33 2025 => Initializing FASTQ stream and output table
-#> Tue Dec 16 10:16:33 2025 => Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz
-#> Tue Dec 16 10:16:39 2025 => Processed 10000 reads, successfully demultiplexed 9117 reads so far...
-#> Tue Dec 16 10:16:39 2025 => Processed 20000 reads, successfully demultiplexed 18259 reads so far...
-#> Tue Dec 16 10:16:39 2025 => Processed 30000 reads, successfully demultiplexed 27362 reads so far...
-#> Tue Dec 16 10:16:39 2025 => Processed 40000 reads, successfully demultiplexed 36487 reads so far...
-#> Tue Dec 16 10:16:40 2025 => Processed 50000 reads, successfully demultiplexed 45629 reads so far...
-#> Tue Dec 16 10:16:40 2025 => Processed 56895 reads, successfully demultiplexed 51906 reads so far...
-#> Tue Dec 16 10:16:40 2025 => Done demultiplexing
+#> Wed Dec 17 10:23:12 2025 => Initializing FASTQ stream and output table
+#> Wed Dec 17 10:23:12 2025 => Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz
+#> Wed Dec 17 10:23:18 2025 => Processed 10000 reads, successfully demultiplexed 9117 reads so far...
+#> Wed Dec 17 10:23:18 2025 => Processed 20000 reads, successfully demultiplexed 18259 reads so far...
+#> Wed Dec 17 10:23:18 2025 => Processed 30000 reads, successfully demultiplexed 27362 reads so far...
+#> Wed Dec 17 10:23:18 2025 => Processed 40000 reads, successfully demultiplexed 36487 reads so far...
+#> Wed Dec 17 10:23:19 2025 => Processed 50000 reads, successfully demultiplexed 45629 reads so far...
+#> Wed Dec 17 10:23:19 2025 => Processed 56895 reads, successfully demultiplexed 51906 reads so far...
+#> Wed Dec 17 10:23:19 2025 => Done demultiplexing
 ```
 
 ### Displaying the result from streaming
@@ -262,8 +261,8 @@ the results to another file. \## Subsetting the frequency table
 
 We begin this example by subsetting the frequency table. In order not to
 repeat ourselves, we refer to the main package vignette
-([`vignette("demultiplexing")`](https://yaccos.github.io/posDemux/articles/demultiplexing.md))
-for the considerations behind this process.
+(`vignette("demultiplexing")`) for the considerations behind this
+process.
 
 ``` r
 freq_table <- streaming_summary_res$freq_table
@@ -329,7 +328,7 @@ read_table_chunkwise(
 #> Joining with `by = join_by(bc3, bc2, bc1)`
 #> Joining with `by = join_by(bc3, bc2, bc1)`
 #> # Source:   table<`selected_barcodes`> [?? x 3]
-#> # Database: sqlite 3.51.1 [/tmp/RtmpLJJI3n/selected_barcode_table335225de6d9a.sqlite]
+#> # Database: sqlite 3.51.1 [/tmp/RtmpkWuzRQ/selected_barcode_table35d94c3abb3d.sqlite]
 #>    read   UMI     celltag             
 #>    <chr>  <chr>   <chr>               
 #>  1 seq_1  GCCTAAC bc3_57_bc2_51_bc1_94
@@ -594,7 +593,7 @@ This package was developed using
 
     #> ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R Under development (unstable) (2025-12-14 r89168)
+    #>  version  R Under development (unstable) (2025-12-15 r89175)
     #>  os       Ubuntu 24.04.3 LTS
     #>  system   x86_64, linux-gnu
     #>  ui       X11
@@ -602,7 +601,7 @@ This package was developed using
     #>  collate  C.UTF-8
     #>  ctype    C.UTF-8
     #>  tz       UTC
-    #>  date     2025-12-16
+    #>  date     2025-12-17
     #>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
     #>  quarto   NA
     #> 
@@ -677,7 +676,7 @@ This package was developed using
     #>  pkgdown                2.2.0     2025-11-06 [1] RSPM
     #>  plyr                   1.8.9     2023-10-02 [1] RSPM
     #>  png                    0.1-8     2022-11-29 [1] RSPM
-    #>  posDemux             * 0.99.8    2025-12-16 [1] local
+    #>  posDemux             * 0.99.9    2025-12-17 [1] local
     #>  promises               1.5.0     2025-11-01 [1] RSPM
     #>  purrr                * 1.2.0     2025-11-04 [1] RSPM
     #>  pwalign                1.7.0     2025-10-31 [1] Bioconduc~
@@ -714,7 +713,7 @@ This package was developed using
     #>  vctrs                  0.6.5     2023-12-01 [1] RSPM
     #>  vroom                  1.6.7     2025-11-28 [1] RSPM
     #>  withr                  3.0.2     2024-10-28 [1] RSPM
-    #>  xfun                   0.54      2025-10-30 [1] RSPM
+    #>  xfun                   0.55      2025-12-16 [1] RSPM
     #>  xml2                   1.5.1     2025-12-01 [1] RSPM
     #>  xtable                 1.8-4     2019-04-21 [1] RSPM
     #>  XVector              * 0.51.0    2025-10-31 [1] Bioconduc~
