@@ -260,6 +260,7 @@ when determining which reads to keep after the cutoff is selected.
 If we want to avoid heavy load on RAM, we must stream the barcode
 table in chunks, determine for each chunk which reads to keep,
 and appending the results to another file.
+
 ## Subsetting the frequency table
 
 We begin this example by subsetting the frequency table.
