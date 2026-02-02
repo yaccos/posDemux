@@ -162,15 +162,15 @@ streaming_summary_res <- streaming_demultiplex(
     segments = sequence_annotation,
     segment_lengths = segment_lengths
 )
-#> Wed Jan 21 16:11:22 2026 => Initializing FASTQ stream and output table
-#> Wed Jan 21 16:11:22 2026 => Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz
-#> Wed Jan 21 16:11:28 2026 => Processed 10000 reads, successfully demultiplexed 9117 reads so far...
-#> Wed Jan 21 16:11:28 2026 => Processed 20000 reads, successfully demultiplexed 18259 reads so far...
-#> Wed Jan 21 16:11:28 2026 => Processed 30000 reads, successfully demultiplexed 27362 reads so far...
-#> Wed Jan 21 16:11:28 2026 => Processed 40000 reads, successfully demultiplexed 36487 reads so far...
-#> Wed Jan 21 16:11:28 2026 => Processed 50000 reads, successfully demultiplexed 45629 reads so far...
-#> Wed Jan 21 16:11:28 2026 => Processed 56895 reads, successfully demultiplexed 51906 reads so far...
-#> Wed Jan 21 16:11:28 2026 => Done demultiplexing
+#> Mon Feb  2 09:20:44 2026 => Initializing FASTQ stream and output table
+#> Mon Feb  2 09:20:44 2026 => Streaming FASTQ input file /home/runner/work/_temp/Library/posDemux/extdata/PETRI-seq_forward_reads.fq.gz
+#> Mon Feb  2 09:20:50 2026 => Processed 10000 reads, successfully demultiplexed 9117 reads so far...
+#> Mon Feb  2 09:20:50 2026 => Processed 20000 reads, successfully demultiplexed 18259 reads so far...
+#> Mon Feb  2 09:20:50 2026 => Processed 30000 reads, successfully demultiplexed 27362 reads so far...
+#> Mon Feb  2 09:20:50 2026 => Processed 40000 reads, successfully demultiplexed 36487 reads so far...
+#> Mon Feb  2 09:20:50 2026 => Processed 50000 reads, successfully demultiplexed 45629 reads so far...
+#> Mon Feb  2 09:20:50 2026 => Processed 56895 reads, successfully demultiplexed 51906 reads so far...
+#> Mon Feb  2 09:20:50 2026 => Done demultiplexing
 ```
 
 ### Displaying the result from streaming
@@ -203,7 +203,7 @@ and summary printout:
 streaming_summary_res$summary_res
 #> Total number of reads: 56895 
 #> Number of reads failing to demultiplex: 4989 (8.77%) 
-#> Observed number of unique barcode combinations:978 
+#> Observed number of unique barcode combinations: 978 
 #> Number of possible barcode combinations: 884736 
 #> Estimated number of features: 978.5 
 #> Observed feature to barcode ratio: 0.001105 
@@ -330,7 +330,7 @@ read_table_chunkwise(
 #> Joining with `by = join_by(bc3, bc2, bc1)`
 #> Joining with `by = join_by(bc3, bc2, bc1)`
 #> # Source:   table<`selected_barcodes`> [?? x 3]
-#> # Database: sqlite 3.51.1 [/tmp/RtmpElCrMK/selected_barcode_table40ee399737d6.sqlite]
+#> # Database: sqlite 3.51.1 [/tmp/RtmpT4A6Td/selected_barcode_table38ee1440ba29.sqlite]
 #>    read   UMI     celltag             
 #>    <chr>  <chr>   <chr>               
 #>  1 seq_1  GCCTAAC bc3_57_bc2_51_bc1_94
@@ -595,7 +595,7 @@ This package was developed using
 
     #> ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R Under development (unstable) (2026-01-20 r89309)
+    #>  version  R Under development (unstable) (2026-01-31 r89365)
     #>  os       Ubuntu 24.04.3 LTS
     #>  system   x86_64, linux-gnu
     #>  ui       X11
@@ -603,7 +603,7 @@ This package was developed using
     #>  collate  C.UTF-8
     #>  ctype    C.UTF-8
     #>  tz       UTC
-    #>  date     2026-01-21
+    #>  date     2026-02-02
     #>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
     #>  quarto   NA
     #> 
@@ -624,7 +624,7 @@ This package was developed using
     #>  bitops                 1.0-9   2024-10-03 [1] RSPM
     #>  blob                   1.3.0   2026-01-14 [1] RSPM
     #>  bookdown               0.46    2025-12-05 [1] RSPM
-    #>  bslib                  0.9.0   2025-01-30 [1] RSPM
+    #>  bslib                  0.10.0  2026-01-26 [1] RSPM
     #>  cachem                 1.1.0   2024-05-16 [1] RSPM
     #>  chunked              * 0.6.1   2025-10-02 [1] RSPM
     #>  cigarillo              1.1.0   2025-10-31 [1] Bioconduc~
@@ -678,7 +678,7 @@ This package was developed using
     #>  pkgdown                2.2.0   2025-11-06 [1] RSPM
     #>  plyr                   1.8.9   2023-10-02 [1] RSPM
     #>  png                    0.1-8   2022-11-29 [1] RSPM
-    #>  posDemux             * 0.99.10 2026-01-21 [1] local
+    #>  posDemux             * 0.99.11 2026-02-02 [1] local
     #>  promises               1.5.0   2025-11-01 [1] RSPM
     #>  purrr                * 1.2.1   2026-01-09 [1] RSPM
     #>  pwalign                1.7.0   2025-10-31 [1] Bioconduc~
@@ -709,11 +709,11 @@ This package was developed using
     #>  textshaping            1.0.4   2025-10-10 [1] RSPM
     #>  tibble                 3.3.1   2026-01-11 [1] RSPM
     #>  tidyselect             1.2.1   2024-03-11 [1] RSPM
-    #>  timechange             0.3.0   2024-01-18 [1] RSPM
+    #>  timechange             0.4.0   2026-01-29 [1] RSPM
     #>  tzdb                   0.5.0   2025-03-15 [1] RSPM
     #>  utf8                   1.2.6   2025-06-08 [1] RSPM
-    #>  vctrs                  0.7.0   2026-01-16 [1] RSPM
-    #>  vroom                  1.6.7   2025-11-28 [1] RSPM
+    #>  vctrs                  0.7.1   2026-01-23 [1] RSPM
+    #>  vroom                  1.7.0   2026-01-27 [1] RSPM
     #>  withr                  3.0.2   2024-10-28 [1] RSPM
     #>  xfun                   0.56    2026-01-18 [1] RSPM
     #>  xml2                   1.5.2   2026-01-17 [1] RSPM

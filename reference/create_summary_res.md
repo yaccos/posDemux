@@ -167,7 +167,7 @@ freq_table <- create_freq_table(filtered_res$demultiplex_res$assigned_barcodes)
 print(filtered_res$summary_res)
 #> Total number of reads: 56895 
 #> Number of reads failing to demultiplex: 4989 (8.77%) 
-#> Observed number of unique barcode combinations:978 
+#> Observed number of unique barcode combinations: 978 
 #> Number of possible barcode combinations: 884736 
 #> Estimated number of features: 978.5 
 #> Observed feature to barcode ratio: 0.001105 

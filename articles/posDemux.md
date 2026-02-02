@@ -139,7 +139,7 @@ citation("posDemux")
 #> To cite package 'posDemux' in publications use:
 #> 
 #>   Pettersen J (2025). _posDemux: Positional combinatorial sequence
-#>   demultiplexer_. R package version 0.99.10,
+#>   demultiplexer_. R package version 0.99.11,
 #>   <https://github.com/yaccos/posDemux>.
 #> 
 #> A BibTeX entry for LaTeX users is
@@ -148,7 +148,7 @@ citation("posDemux")
 #>     title = {posDemux: Positional combinatorial sequence demultiplexer},
 #>     author = {Jakob Peder Pettersen},
 #>     year = {2025},
-#>     note = {R package version 0.99.10},
+#>     note = {R package version 0.99.11},
 #>     url = {https://github.com/yaccos/posDemux},
 #>   }
 ```
@@ -340,7 +340,7 @@ We will now inspect the summary of the demultiplexing and filtering:
 filtered_res$summary_res
 #> Total number of reads: 56895 
 #> Number of reads failing to demultiplex: 4989 (8.77%) 
-#> Observed number of unique barcode combinations:978 
+#> Observed number of unique barcode combinations: 978 
 #> Number of possible barcode combinations: 884736 
 #> Estimated number of features: 978.5 
 #> Observed feature to barcode ratio: 0.001105 
@@ -605,7 +605,7 @@ This package was developed using
 
     #> ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
     #>  setting  value
-    #>  version  R Under development (unstable) (2026-01-20 r89309)
+    #>  version  R Under development (unstable) (2026-01-31 r89365)
     #>  os       Ubuntu 24.04.3 LTS
     #>  system   x86_64, linux-gnu
     #>  ui       X11
@@ -613,7 +613,7 @@ This package was developed using
     #>  collate  C.UTF-8
     #>  ctype    C.UTF-8
     #>  tz       UTC
-    #>  date     2026-01-21
+    #>  date     2026-02-02
     #>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
     #>  quarto   NA
     #> 
@@ -627,7 +627,7 @@ This package was developed using
     #>  BiocStyle    * 2.39.0  2025-10-30 [1] Bioconduc~
     #>  Biostrings   * 2.79.4  2026-01-07 [1] Bioconduc~
     #>  bookdown       0.46    2025-12-05 [1] RSPM
-    #>  bslib          0.9.0   2025-01-30 [1] RSPM
+    #>  bslib          0.10.0  2026-01-26 [1] RSPM
     #>  cachem         1.1.0   2024-05-16 [1] RSPM
     #>  cli            3.6.5   2025-04-23 [1] RSPM
     #>  crayon         1.5.3   2024-06-20 [1] RSPM
@@ -661,7 +661,7 @@ This package was developed using
     #>  pkgconfig      2.0.3   2019-09-22 [1] RSPM
     #>  pkgdown        2.2.0   2025-11-06 [1] RSPM
     #>  plyr           1.8.9   2023-10-02 [1] RSPM
-    #>  posDemux     * 0.99.10 2026-01-21 [1] local
+    #>  posDemux     * 0.99.11 2026-02-02 [1] local
     #>  promises       1.5.0   2025-11-01 [1] RSPM
     #>  purrr        * 1.2.1   2026-01-09 [1] RSPM
     #>  R6             2.6.1   2025-02-15 [1] RSPM
@@ -684,8 +684,8 @@ This package was developed using
     #>  textshaping    1.0.4   2025-10-10 [1] RSPM
     #>  tibble         3.3.1   2026-01-11 [1] RSPM
     #>  tidyselect     1.2.1   2024-03-11 [1] RSPM
-    #>  timechange     0.3.0   2024-01-18 [1] RSPM
-    #>  vctrs          0.7.0   2026-01-16 [1] RSPM
+    #>  timechange     0.4.0   2026-01-29 [1] RSPM
+    #>  vctrs          0.7.1   2026-01-23 [1] RSPM
     #>  withr          3.0.2   2024-10-28 [1] RSPM
     #>  xfun           0.56    2026-01-18 [1] RSPM
     #>  xml2           1.5.2   2026-01-17 [1] RSPM
